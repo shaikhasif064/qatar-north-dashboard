@@ -42,8 +42,8 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
       color: #111827;
-      /* === BACKGROUND IMAGE HERE === */
-      background: #020617 url("bg-image.jpg") no-repeat center top fixed;
+      /* background image */
+      background: #020617 url("bg-image.png") no-repeat center top fixed;
       background-size: cover;
     }
 
@@ -59,9 +59,10 @@
       );
     }
 
+    /* ===== HEADER ===== */
     header {
       width: 100%;
-      background: rgba(255, 255, 255, 0.96);
+      background: linear-gradient(90deg, #020617, #111827);
       backdrop-filter: blur(8px);
       border-bottom: 3px solid rgba(224, 40, 59, 0.9);
       padding: 10px 24px;
@@ -97,22 +98,22 @@
       font-size: 24px;
       font-weight: 700;
       letter-spacing: 0.03em;
-      color: var(--aktor-blue);
+      color: #f9fafb;
     }
 
     header .subtitle {
       font-size: 11px;
-      color: #6b7280;
+      color: #e5e7eb;
       margin-top: 2px;
     }
 
     .datetime-header {
       font-size: 11px;
-      color: #4b5563;
+      color: #cbd5ff;
       margin-top: 4px;
     }
 
-    /* MAIN GRID – FULL WIDTH */
+    /* ===== MAIN GRID ===== */
     .container {
       padding: 12px 16px 20px;
       display: grid;
@@ -150,15 +151,20 @@
 
     .card-sub {
       font-size: 11px;
-      color: #e5e7eb;
+      color: #4b5563;
       margin-top: 4px;
     }
 
+    /* map */
     #map {
       width: 100%;
       height: 420px;
       border-radius: 12px;
       overflow: hidden;
+    }
+
+    .map-card {
+      margin-bottom: 12px; /* gap under map */
     }
 
     .right-col {
@@ -167,6 +173,7 @@
       gap: 12px;
     }
 
+    /* filters */
     .filters-row-title {
       font-size: 11px;
       font-weight: 600;
@@ -246,6 +253,7 @@
       background: #005fa3;
     }
 
+    /* table */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -312,12 +320,19 @@
 
     .zone-card {
       background: linear-gradient(135deg, #eff6ff, #ffffff);
+      margin-top: 4px;
+      margin-bottom: 10px; /* gap to attention card */
     }
 
     .scope-card {
       background: linear-gradient(135deg, #fef9c3, #ffffff);
     }
 
+    .attention-card {
+      margin-top: 6px; /* extra breathing room */
+    }
+
+    /* survey progress */
     .progress-wrapper {
       margin-top: 6px;
     }
@@ -403,9 +418,10 @@
 </head>
 <body>
   <div class="page">
+    <!-- ===== HEADER ===== -->
     <header>
       <div class="header-left">
-        <!-- use your AKTOR logo filename here -->
+        <!-- adjust filename to your AKTOR logo -->
         <img src="aktor-logo.png" alt="AKTOR Qatar" class="logo-img" />
       </div>
 
@@ -418,15 +434,20 @@
       </div>
 
       <div class="header-right">
-        <!-- use your ALGOSYSTEMS logo filename here -->
-        <img src="algosystems-logo.png" alt="ALGOSYSTEMS Qatar" class="logo-img logo-img-small" />
+        <!-- adjust filename to your ALGOSYSTEMS logo -->
+        <img
+          src="algosystems-logo.png"
+          alt="ALGOSYSTEMS Qatar"
+          class="logo-img logo-img-small"
+        />
       </div>
     </header>
 
+    <!-- ===== MAIN CONTENT ===== -->
     <div class="container">
       <!-- LEFT COLUMN -->
       <div>
-        <!-- KPIs -->
+        <!-- KPI GRID -->
         <div class="kpi-grid">
           <div class="card">
             <div class="card-title">Total Junctions</div>
@@ -448,6 +469,12 @@
             <div class="card-value" id="kpi-off">–</div>
           </div>
 
+          <!-- group performance KPIs: Controller, Survey, Pole -->
+          <div class="card">
+            <div class="card-title">Controller Survey Completed</div>
+            <div class="card-value" id="kpi-ctrl-completed">–</div>
+          </div>
+
           <div class="card">
             <div class="card-title">Survey Completed</div>
             <div class="card-value" id="kpi-survey-completed">–</div>
@@ -463,15 +490,10 @@
             <div class="card-title">Pole Survey Completed</div>
             <div class="card-value" id="kpi-pole-completed">–</div>
           </div>
-
-          <div class="card">
-            <div class="card-title">Controller Survey Completed</div>
-            <div class="card-value" id="kpi-ctrl-completed">–</div>
-          </div>
         </div>
 
         <!-- MAP -->
-        <div class="card">
+        <div class="card map-card">
           <div class="card-title">Junction Map (Leaflet / OpenStreetMap)</div>
           <div id="map"></div>
           <div id="lastUpdated"></div>
@@ -489,7 +511,7 @@
         </div>
 
         <!-- INSIGHTS -->
-        <div class="card">
+        <div class="card attention-card">
           <div class="card-title">Zones Needing Attention</div>
           <div id="attention-list" class="card-sub"></div>
         </div>
@@ -1138,7 +1160,7 @@
             window._autoRefreshSet = true;
             setInterval(() => {
               loadData();
-            }, 5 * 60 * 1000);
+            }, 5 * 60 * 1000); // 5 minutes
           }
         },
         error: function (err) {
