@@ -24,8 +24,8 @@
       --aktor-blue: #111827;
       --aktor-red: #e0283b;
       --algo-blue: #0070c9;
-      --bg: #e5e7eb;
       --card-bg: #ffffff;
+      --page-bg: #f3f4f6; /* page background colour – change here if you like */
     }
 
     * {
@@ -36,12 +36,12 @@
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
-      background: radial-gradient(circle at top, #f9fafb 0, #e5e7eb 45%, #d1d5db 100%);
+      background: var(--page-bg);
       color: #111827;
     }
 
     .page {
-      max-width: 1440px;
+      max-width: 100%;      /* use full width */
       margin: 0 auto;
     }
 
@@ -91,8 +91,14 @@
       margin-top: 2px;
     }
 
+    .datetime-header {
+      font-size: 11px;
+      color: #4b5563;
+      margin-top: 4px;
+    }
+
     .container {
-      padding: 16px 24px 24px;
+      padding: 12px 16px 20px;
       display: grid;
       grid-template-columns: 1.55fr 1.15fr;
       grid-gap: 16px;
@@ -328,6 +334,33 @@
       margin-top: 6px;
     }
 
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .table-search {
+      flex: 1;
+    }
+
+    .table-search input {
+      width: 100%;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 11px;
+      background: #f9fafb;
+    }
+
+    .table-search input:focus {
+      outline: none;
+      border-color: var(--algo-blue);
+      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
+    }
+
     @media (max-width: 1024px) {
       header {
         padding: 8px 12px;
@@ -361,8 +394,9 @@
       <div class="header-center">
         <h1>Qatar North Traffic Junctions Dashboard</h1>
         <div class="subtitle">
-          Live from Google Sheet &mdash; Junctions, Survey Completion &amp; Operations Status
+          Live from Google Sheet — Junctions, Survey Completion &amp; Operations Status
         </div>
+        <div class="datetime-header" id="currentDateTime"></div>
       </div>
 
       <div class="header-right">
@@ -482,6 +516,15 @@
         <!-- TABLE -->
         <div class="card">
           <div class="card-title">Junction List</div>
+          <div class="table-controls">
+            <div class="table-search">
+              <input
+                type="text"
+                id="table-search"
+                placeholder="Search junction, street, zone, district or remarks..."
+              />
+            </div>
+          </div>
           <div class="table-wrapper">
             <table>
               <thead>
@@ -561,6 +604,7 @@
     let markersLayer;
     let zoneChart = null;
     let scopeChart = null;
+    let tableSearchTerm = "";
 
     function initMap() {
       map = L.map("map").setView([25.3, 51.4], 9); // Qatar
@@ -568,7 +612,7 @@
         maxZoom: 18,
         attribution: "&copy; OpenStreetMap contributors",
       }).addTo(map);
-      // IMPORTANT: featureGroup so getBounds() works
+      // featureGroup so getBounds() works
       markersLayer = L.featureGroup().addTo(map);
     }
 
@@ -643,7 +687,8 @@
 
       const pctNum = total > 0 ? (surveyCompleted / total) * 100 : 0;
       const pctLabel = total > 0 ? pctNum.toFixed(1) + "%" : "–";
-      document.getElementById("kpi-survey-pct").textContent = pctLabel + " of total";
+      document.getElementById("kpi-survey-pct").textContent =
+        pctLabel + " of total";
 
       const fill = document.getElementById("survey-progress-fill");
       if (fill) {
@@ -675,7 +720,23 @@
       const tbody = document.getElementById("junction-table-body");
       tbody.innerHTML = "";
 
-      data.forEach((row) => {
+      const term = tableSearchTerm.trim().toLowerCase();
+      const filtered = term
+        ? data.filter((row) => {
+            const fields = [
+              row[COLS.junctNo],
+              row[COLS.street],
+              row[COLS.zone],
+              row[COLS.district],
+              row[COLS.remarks],
+            ];
+            return fields.some((v) =>
+              String(v || "").toLowerCase().includes(term)
+            );
+          })
+        : data;
+
+      filtered.forEach((row) => {
         const tr = document.createElement("tr");
 
         const surveyClass = classifySurvey(row[COLS.surveyStatus]);
@@ -892,7 +953,8 @@
       if (surveyVal)
         filters.push({
           key: "survey",
-          label: "Survey: " + (surveyVal === "completed" ? "Completed" : "Pending"),
+          label:
+            "Survey: " + (surveyVal === "completed" ? "Completed" : "Pending"),
         });
       if (remarksVal) {
         const map = {
@@ -921,7 +983,8 @@
         chip.querySelector("button").addEventListener("click", () => {
           if (f.key === "zone") document.getElementById("filter-zone").value = "";
           if (f.key === "survey") document.getElementById("filter-survey").value = "";
-          if (f.key === "remarks") document.getElementById("filter-remarks").value = "";
+          if (f.key === "remarks")
+            document.getElementById("filter-remarks").value = "";
           applyFilters();
         });
         container.appendChild(chip);
@@ -1048,15 +1111,47 @@
       });
     }
 
+    function updateCurrentDateTime() {
+      const el = document.getElementById("currentDateTime");
+      if (!el) return;
+      const now = new Date();
+      el.textContent = now.toLocaleString(undefined, {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", function () {
       initMap();
       loadData();
 
-      document.getElementById("filter-zone").addEventListener("change", applyFilters);
-      document.getElementById("filter-survey").addEventListener("change", applyFilters);
-      document.getElementById("filter-remarks").addEventListener("change", applyFilters);
+      document
+        .getElementById("filter-zone")
+        .addEventListener("change", applyFilters);
+      document
+        .getElementById("filter-survey")
+        .addEventListener("change", applyFilters);
+      document
+        .getElementById("filter-remarks")
+        .addEventListener("change", applyFilters);
 
-      document.getElementById("export-btn").addEventListener("click", exportCurrentView);
+      document
+        .getElementById("export-btn")
+        .addEventListener("click", exportCurrentView);
+
+      document
+        .getElementById("table-search")
+        .addEventListener("input", (e) => {
+          tableSearchTerm = e.target.value;
+          renderTable(currentFiltered);
+        });
+
+      updateCurrentDateTime();
+      setInterval(updateCurrentDateTime, 30 * 1000);
     });
   </script>
 </body>
