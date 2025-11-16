@@ -13,100 +13,174 @@
     crossorigin=""
   />
 
+  <!-- Chart.js for zone chart -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
+    :root {
+      --aktor-blue: #1d2537;
+      --aktor-red: #e0283b;
+      --algo-blue: #0070c9;
+      --bg: #f5f5f5;
+      --card-bg: #ffffff;
+    }
+
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
-      background: #f5f5f5;
+      background: var(--bg);
+      color: #222;
     }
+
     header {
-      background: #ffffff;
+      background: var(--card-bg);
       border-bottom: 1px solid #ddd;
-      padding: 12px 24px;
+      padding: 10px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 16px;
     }
+
+    .header-left,
+    .header-right {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-center {
+      flex: 1 1 auto;
+      text-align: center;
+    }
+
+    .logo-img {
+      max-height: 54px;
+      height: auto;
+    }
+
+    .logo-img-small {
+      max-height: 40px;
+    }
+
     header h1 {
       margin: 0;
       font-size: 20px;
       font-weight: 700;
+      color: var(--aktor-blue);
     }
+
+    header .subtitle {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .updated-text {
+      font-size: 11px;
+      color: #666;
+      white-space: nowrap;
+    }
+
     .container {
       padding: 12px 24px 24px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1.5fr 1.2fr;
       grid-gap: 16px;
     }
+
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
       grid-gap: 12px;
       margin-bottom: 16px;
     }
+
     .card {
-      background: #ffffff;
+      background: var(--card-bg);
       border-radius: 12px;
       padding: 12px 16px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
     }
+
     .card-title {
-      font-size: 12px;
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.08em;
       color: #888;
       margin-bottom: 6px;
     }
+
     .card-value {
       font-size: 24px;
       font-weight: 700;
       color: #333;
     }
+
     .card-sub {
       font-size: 11px;
       color: #666;
       margin-top: 4px;
     }
+
     #map {
       width: 100%;
-      height: 450px;
+      height: 420px;
       border-radius: 12px;
       overflow: hidden;
     }
+
     .right-col {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
+
     .filters {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
-      margin-bottom: 8px;
+      margin-top: 4px;
     }
+
     .filters label {
-      font-size: 12px;
+      font-size: 11px;
       color: #444;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
+
     .filters select {
       padding: 4px 8px;
       border-radius: 6px;
       border: 1px solid #ccc;
-      font-size: 12px;
+      font-size: 11px;
+      min-width: 110px;
     }
+
+    .filters-row-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 11px;
     }
+
     th,
     td {
       padding: 4px 6px;
       border-bottom: 1px solid #eee;
       text-align: left;
     }
+
     th {
       background: #fafafa;
       font-weight: 600;
@@ -114,13 +188,15 @@
       top: 0;
       z-index: 1;
     }
+
     .table-wrapper {
-      max-height: 350px;
+      max-height: 310px;
       overflow: auto;
       border-radius: 8px;
       border: 1px solid #e0e0e0;
       background: #fff;
     }
+
     .status-pill {
       display: inline-block;
       padding: 2px 6px;
@@ -129,42 +205,69 @@
       font-weight: 600;
       color: #fff;
     }
+
     .status-completed {
       background: #2e7d32;
     }
+
     .status-pending {
       background: #c62828;
     }
+
     .status-partial {
       background: #f9a825;
       color: #333;
     }
 
-    @media (max-width: 900px) {
+    .zone-chart-wrapper {
+      height: 250px;
+    }
+
+    .zone-chart-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 1024px) {
       .container {
         grid-template-columns: 1fr;
       }
       #map {
         height: 360px;
       }
+      .header-center {
+        text-align: left;
+      }
+      header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
   <header>
-    <div>
+    <div class="header-left">
+      <!-- Left logo: AKTOR -->
+      <img src="aktor-logo.png" alt="AKTOR Qatar" class="logo-img" />
+    </div>
+
+    <div class="header-center">
       <h1>Qatar North Traffic Junctions Dashboard</h1>
-      <div style="font-size: 11px; color: #666;">
-        Live from Google Sheet · Junctions, Survey & Operations Overview
+      <div class="subtitle">
+        Live from Google Sheet · Junctions, Survey Completion &amp; Operations Status
       </div>
     </div>
-    <div style="font-size: 11px; color: #666;">
-      <span id="lastUpdated"></span>
+
+    <div class="header-right">
+      <!-- Right logo: ALGOSYSTEMS -->
+      <img src="algosystems-logo.png" alt="ALGOSYSTEMS Qatar" class="logo-img logo-img-small" />
     </div>
   </header>
 
   <div class="container">
-    <!-- LEFT COLUMN: KPIs + MAP -->
+    <!-- LEFT COLUMN: KPIs + MAP + ZONE CHART -->
     <div>
       <div class="kpi-grid">
         <div class="card">
@@ -201,26 +304,47 @@
       <div class="card">
         <div class="card-title">Junction Map (Leaflet / OpenStreetMap)</div>
         <div id="map"></div>
+        <div class="card-sub" id="lastUpdated" style="margin-top:6px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Zone-wise Survey Completion</div>
+        <div class="zone-chart-wrapper">
+          <canvas id="zoneChart"></canvas>
+        </div>
+        <div class="card-sub">
+          Percentage of junctions with completed survey status in each zone.
+        </div>
       </div>
     </div>
 
     <!-- RIGHT COLUMN: FILTERS + TABLE -->
     <div class="right-col">
       <div class="card">
-        <div class="card-title">Filters</div>
+        <div class="filters-row-title">Filters</div>
         <div class="filters">
           <label>
-            Zone:
+            Zone
             <select id="filter-zone">
               <option value="">All</option>
             </select>
           </label>
           <label>
-            Survey Status:
+            Survey Status
             <select id="filter-survey">
               <option value="">All</option>
               <option value="completed">Completed</option>
               <option value="pending">Pending</option>
+            </select>
+          </label>
+          <label>
+            Remarks
+            <select id="filter-remarks">
+              <option value="">All</option>
+              <option value="om">Under O&amp;M</option>
+              <option value="projects">Under Projects</option>
+              <option value="off">Switched Off</option>
+              <option value="other">Other</option>
             </select>
           </label>
         </div>
@@ -258,11 +382,11 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <script>
-    // Your published CSV URL
+    // Google Sheet CSV
     const SHEET_CSV_URL =
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5pFct4J8nDgw7VLuUJpfVgxewoZSkjh-cNxjgtOOZcjEM5Hx0xyJsziL9MUrEmK6wuls0C2Ffd1ku/pub?gid=1921347271&single=true&output=csv";
 
-    // Column names in your sheet – adjust only if your headers are different
+    // Column names in your sheet
     const COLS = {
       junctNo: "Junct No",
       street: "Street Details",
@@ -300,6 +424,7 @@
     let allData = [];
     let map;
     let markersLayer;
+    let zoneChart = null;
 
     function initMap() {
       map = L.map("map").setView([25.3, 51.4], 9); // Qatar
@@ -436,9 +561,76 @@
       });
     }
 
+    function buildZoneChart(data) {
+      const zoneMap = new Map();
+
+      data.forEach((row) => {
+        const zone = row[COLS.zone] || "NA";
+        if (!zoneMap.has(zone)) {
+          zoneMap.set(zone, { total: 0, completed: 0 });
+        }
+        const entry = zoneMap.get(zone);
+        entry.total++;
+        if (isTruthy(row[COLS.surveyStatus])) entry.completed++;
+      });
+
+      const labels = Array.from(zoneMap.keys()).sort((a, b) =>
+        String(a).localeCompare(String(b), undefined, { numeric: true })
+      );
+      const values = labels.map((z) => {
+        const { total, completed } = zoneMap.get(z);
+        return total > 0 ? +(completed / total * 100).toFixed(1) : 0;
+      });
+
+      const ctx = document.getElementById("zoneChart").getContext("2d");
+      if (zoneChart) {
+        zoneChart.destroy();
+      }
+
+      zoneChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Survey Completion %",
+              data: values,
+              backgroundColor: "rgba(0, 112, 201, 0.6)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.parsed.y}% completed`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              title: { display: true, text: "Zone No" },
+            },
+            y: {
+              beginAtZero: true,
+              max: 100,
+              title: { display: true, text: "Completion %" },
+              ticks: {
+                callback: (v) => v + "%",
+              },
+            },
+          },
+        },
+      });
+    }
+
     function applyFilters() {
       const zoneVal = document.getElementById("filter-zone").value;
       const surveyVal = document.getElementById("filter-survey").value;
+      const remarksVal = document.getElementById("filter-remarks").value;
 
       let filtered = allData.slice();
 
@@ -452,9 +644,16 @@
         );
       }
 
+      if (remarksVal) {
+        filtered = filtered.filter(
+          (row) => classifyRemarks(row[COLS.remarks]) === remarksVal
+        );
+      }
+
       updateKPIs(filtered);
       addMarkers(filtered);
       renderTable(filtered);
+      buildZoneChart(filtered);
     }
 
     function setLastUpdated() {
@@ -482,6 +681,7 @@
           updateZoneFilter(allData);
           addMarkers(allData);
           renderTable(allData);
+          buildZoneChart(allData);
           setLastUpdated();
         },
         error: function (err) {
@@ -500,6 +700,9 @@
         .addEventListener("change", applyFilters);
       document
         .getElementById("filter-survey")
+        .addEventListener("change", applyFilters);
+      document
+        .getElementById("filter-remarks")
         .addEventListener("change", applyFilters);
     });
   </script>
