@@ -42,12 +42,10 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
       color: #111827;
-      /* background image */
       background: #020617 url("bg-image.png") no-repeat center top fixed;
       background-size: cover;
     }
 
-    /* semi-transparent overlay so content stays readable */
     .page {
       width: 100%;
       min-height: 100vh;
@@ -155,7 +153,6 @@
       margin-top: 4px;
     }
 
-    /* map */
     #map {
       width: 100%;
       height: 420px;
@@ -164,7 +161,7 @@
     }
 
     .map-card {
-      margin-bottom: 12px; /* gap under map */
+      margin-bottom: 12px;
     }
 
     .right-col {
@@ -173,7 +170,6 @@
       gap: 12px;
     }
 
-    /* filters */
     .filters-row-title {
       font-size: 11px;
       font-weight: 600;
@@ -253,7 +249,6 @@
       background: #005fa3;
     }
 
-    /* table */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -321,7 +316,7 @@
     .zone-card {
       background: linear-gradient(135deg, #eff6ff, #ffffff);
       margin-top: 4px;
-      margin-bottom: 10px; /* gap to attention card */
+      margin-bottom: 10px;
     }
 
     .scope-card {
@@ -329,10 +324,9 @@
     }
 
     .attention-card {
-      margin-top: 6px; /* extra breathing room */
+      margin-top: 6px;
     }
 
-    /* survey progress */
     .progress-wrapper {
       margin-top: 6px;
     }
@@ -365,7 +359,6 @@
       margin-top: 6px;
     }
 
-    /* Junction list filters */
     .table-controls {
       display: flex;
       justify-content: space-between;
@@ -421,7 +414,6 @@
     <!-- ===== HEADER ===== -->
     <header>
       <div class="header-left">
-        <!-- adjust filename to your AKTOR logo -->
         <img src="aktor-logo.png" alt="AKTOR Qatar" class="logo-img" />
       </div>
 
@@ -434,7 +426,6 @@
       </div>
 
       <div class="header-right">
-        <!-- adjust filename to your ALGOSYSTEMS logo -->
         <img
           src="algosystems-logo.png"
           alt="ALGOSYSTEMS Qatar"
@@ -449,6 +440,7 @@
       <div>
         <!-- KPI GRID -->
         <div class="kpi-grid">
+          <!-- Junction stats -->
           <div class="card">
             <div class="card-title">Total Junctions</div>
             <div class="card-value" id="kpi-total">–</div>
@@ -469,7 +461,12 @@
             <div class="card-value" id="kpi-off">–</div>
           </div>
 
-          <!-- group performance KPIs: Controller, Survey, Pole -->
+          <!-- Survey / equipment KPIs grouped together -->
+          <div class="card">
+            <div class="card-title">Pole Survey Completed</div>
+            <div class="card-value" id="kpi-pole-completed">–</div>
+          </div>
+
           <div class="card">
             <div class="card-title">Controller Survey Completed</div>
             <div class="card-value" id="kpi-ctrl-completed">–</div>
@@ -486,9 +483,15 @@
             </div>
           </div>
 
+          <!-- New SCATS KPIs -->
           <div class="card">
-            <div class="card-title">Pole Survey Completed</div>
-            <div class="card-value" id="kpi-pole-completed">–</div>
+            <div class="card-title">SCATS Operated</div>
+            <div class="card-value" id="kpi-scats-operated">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Non-SCATS (Isolated)</div>
+            <div class="card-value" id="kpi-non-scats">–</div>
           </div>
         </div>
 
@@ -618,6 +621,7 @@
       surveyStatus: "Survey Status",
       poleSurvey: "Pole Survey",
       ctrlSurvey: "Controller Survey",
+      scats: "SCATS & Non SCATS"  // new column for SCATS status
     };
 
     function isTruthy(val) {
@@ -626,16 +630,28 @@
       return ["true", "yes", "1", "y", "done", "completed", "✓", "✔"].includes(v);
     }
 
+    // Completed / pending survey
     function classifySurvey(v) {
       return isTruthy(v) ? "completed" : "pending";
     }
 
+    // Remarks grouping
     function classifyRemarks(remarks) {
       const r = (remarks || "").toLowerCase();
       if (r.includes("under o&m") || r.includes("under o & m")) return "om";
       if (r.includes("under projects") || r.includes("under project")) return "projects";
       if (r.includes("switched off") || r.includes("switch off")) return "off";
       return "other";
+    }
+
+    // SCATS vs non-SCATS / isolated
+    function classifyScats(val) {
+      const v = (val || "").toLowerCase();
+      if (v.includes("operated")) return "scats";                    // e.g. "SCATS - OPERATED"
+      if (v.includes("isolated") || v.includes("non scats") || v.includes("switch")) {
+        return "non";
+      }
+      return "unknown";
     }
 
     let allData = [];
@@ -708,7 +724,9 @@
         off = 0,
         surveyCompleted = 0,
         poleCompleted = 0,
-        ctrlCompleted = 0;
+        ctrlCompleted = 0,
+        scatsOperated = 0,
+        nonScats = 0;
 
       data.forEach((row) => {
         const remarksType = classifyRemarks(row[COLS.remarks]);
@@ -719,6 +737,10 @@
         if (isTruthy(row[COLS.surveyStatus])) surveyCompleted++;
         if (isTruthy(row[COLS.poleSurvey])) poleCompleted++;
         if (isTruthy(row[COLS.ctrlSurvey])) ctrlCompleted++;
+
+        const scatsType = classifyScats(row[COLS.scats]);
+        if (scatsType === "scats") scatsOperated++;
+        else if (scatsType === "non") nonScats++;
       });
 
       document.getElementById("kpi-total").textContent = total;
@@ -728,6 +750,8 @@
       document.getElementById("kpi-survey-completed").textContent = surveyCompleted;
       document.getElementById("kpi-pole-completed").textContent = poleCompleted;
       document.getElementById("kpi-ctrl-completed").textContent = ctrlCompleted;
+      document.getElementById("kpi-scats-operated").textContent = scatsOperated;
+      document.getElementById("kpi-non-scats").textContent = nonScats;
 
       const pctNum = total > 0 ? (surveyCompleted / total) * 100 : 0;
       const pctLabel = total > 0 ? pctNum.toFixed(1) + "%" : "–";
@@ -1098,6 +1122,7 @@
         COLS.surveyStatus,
         COLS.poleSurvey,
         COLS.ctrlSurvey,
+        COLS.scats,
         COLS.lat,
         COLS.lon,
       ];
