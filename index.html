@@ -440,7 +440,7 @@
       <div>
         <!-- KPI GRID -->
         <div class="kpi-grid">
-          <!-- Junction stats -->
+          <!-- Top row: network & scope KPIs -->
           <div class="card">
             <div class="card-title">Total Junctions</div>
             <div class="card-value" id="kpi-total">–</div>
@@ -461,15 +461,37 @@
             <div class="card-value" id="kpi-off">–</div>
           </div>
 
-          <!-- Survey / equipment KPIs grouped together -->
+          <div class="card">
+            <div class="card-title">SCATS Operated</div>
+            <div class="card-value" id="kpi-scats-operated">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Non-SCATS (Isolated)</div>
+            <div class="card-value" id="kpi-non-scats">–</div>
+          </div>
+
+          <!-- Second row: survey KPIs with percentages -->
           <div class="card">
             <div class="card-title">Pole Survey Completed</div>
             <div class="card-value" id="kpi-pole-completed">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="pole-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-pole-pct">–</div>
+            </div>
           </div>
 
           <div class="card">
             <div class="card-title">Controller Survey Completed</div>
             <div class="card-value" id="kpi-ctrl-completed">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="ctrl-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-ctrl-pct">–</div>
+            </div>
           </div>
 
           <div class="card">
@@ -481,17 +503,6 @@
               </div>
               <div class="progress-label" id="kpi-survey-pct">–</div>
             </div>
-          </div>
-
-          <!-- New SCATS KPIs -->
-          <div class="card">
-            <div class="card-title">SCATS Operated</div>
-            <div class="card-value" id="kpi-scats-operated">–</div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Non-SCATS (Isolated)</div>
-            <div class="card-value" id="kpi-non-scats">–</div>
           </div>
         </div>
 
@@ -621,7 +632,7 @@
       surveyStatus: "Survey Status",
       poleSurvey: "Pole Survey",
       ctrlSurvey: "Controller Survey",
-      scats: "SCATS & Non SCATS"  // new column for SCATS status
+      scats: "SCATS & Non SCATS"  // column used for SCATS status
     };
 
     function isTruthy(val) {
@@ -630,12 +641,10 @@
       return ["true", "yes", "1", "y", "done", "completed", "✓", "✔"].includes(v);
     }
 
-    // Completed / pending survey
     function classifySurvey(v) {
       return isTruthy(v) ? "completed" : "pending";
     }
 
-    // Remarks grouping
     function classifyRemarks(remarks) {
       const r = (remarks || "").toLowerCase();
       if (r.includes("under o&m") || r.includes("under o & m")) return "om";
@@ -644,10 +653,9 @@
       return "other";
     }
 
-    // SCATS vs non-SCATS / isolated
     function classifyScats(val) {
       const v = (val || "").toLowerCase();
-      if (v.includes("operated")) return "scats";                    // e.g. "SCATS - OPERATED"
+      if (v.includes("operated")) return "scats";                    // "SCATS - OPERATED"
       if (v.includes("isolated") || v.includes("non scats") || v.includes("switch")) {
         return "non";
       }
@@ -663,7 +671,6 @@
     let tableSearchTerm = "";
 
     /* ===== MAP ===== */
-
     function initMap() {
       map = L.map("map").setView([25.3, 51.4], 9);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -716,7 +723,6 @@
     }
 
     /* ===== KPIs ===== */
-
     function updateKPIs(data) {
       const total = data.length;
       let om = 0,
@@ -753,19 +759,34 @@
       document.getElementById("kpi-scats-operated").textContent = scatsOperated;
       document.getElementById("kpi-non-scats").textContent = nonScats;
 
-      const pctNum = total > 0 ? (surveyCompleted / total) * 100 : 0;
-      const pctLabel = total > 0 ? pctNum.toFixed(1) + "%" : "–";
-      document.getElementById("kpi-survey-pct").textContent =
-        pctLabel + " of total";
+      const pctSurvey = total > 0 ? (surveyCompleted / total) * 100 : 0;
+      const pctPole   = total > 0 ? (poleCompleted   / total) * 100 : 0;
+      const pctCtrl   = total > 0 ? (ctrlCompleted   / total) * 100 : 0;
 
-      const fill = document.getElementById("survey-progress-fill");
-      if (fill) {
-        fill.style.width = pctNum.toFixed(1) + "%";
-      }
+      const surveyLabel =
+        total > 0 ? pctSurvey.toFixed(1) + "%" : "–";
+      const poleLabel =
+        total > 0 ? pctPole.toFixed(1) + "%" : "–";
+      const ctrlLabel =
+        total > 0 ? pctCtrl.toFixed(1) + "%" : "–";
+
+      document.getElementById("kpi-survey-pct").textContent =
+        surveyLabel + " of total";
+      document.getElementById("kpi-pole-pct").textContent =
+        poleLabel + " of total";
+      document.getElementById("kpi-ctrl-pct").textContent =
+        ctrlLabel + " of total";
+
+      const surveyFill = document.getElementById("survey-progress-fill");
+      const poleFill   = document.getElementById("pole-progress-fill");
+      const ctrlFill   = document.getElementById("ctrl-progress-fill");
+
+      if (surveyFill) surveyFill.style.width = pctSurvey.toFixed(1) + "%";
+      if (poleFill)   poleFill.style.width   = pctPole.toFixed(1)   + "%";
+      if (ctrlFill)   ctrlFill.style.width   = pctCtrl.toFixed(1)   + "%";
     }
 
     /* ===== FILTER DROPDOWN OPTIONS ===== */
-
     function updateZoneFilter(data) {
       const select = document.getElementById("filter-zone");
       const zones = Array.from(
@@ -787,7 +808,6 @@
     }
 
     /* ===== TABLE + JUNCTION LIST FILTER ===== */
-
     function renderTable(data) {
       const tbody = document.getElementById("junction-table-body");
       tbody.innerHTML = "";
@@ -838,7 +858,6 @@
     }
 
     /* ===== CHARTS ===== */
-
     function buildZoneChart(data) {
       const zoneMap = new Map();
 
@@ -954,7 +973,6 @@
     }
 
     /* ===== AI-STYLE INSIGHTS ===== */
-
     function updateInsights(data) {
       const el = document.getElementById("attention-list");
       if (!el) return;
@@ -1016,7 +1034,6 @@
     }
 
     /* ===== FILTER TAGS ===== */
-
     function updateFilterTags() {
       const zoneVal = document.getElementById("filter-zone").value;
       const surveyVal = document.getElementById("filter-survey").value;
@@ -1069,7 +1086,6 @@
     }
 
     /* ===== APPLY GLOBAL FILTERS ===== */
-
     function applyFilters() {
       const zoneVal = document.getElementById("filter-zone").value;
       const surveyVal = document.getElementById("filter-survey").value;
@@ -1105,7 +1121,6 @@
     }
 
     /* ===== EXPORT ===== */
-
     function exportCurrentView() {
       const rows = currentFiltered.length > 0 ? currentFiltered : allData;
       if (!rows || rows.length === 0) {
@@ -1154,7 +1169,6 @@
     }
 
     /* ===== LOAD DATA (WITH AUTO REFRESH) ===== */
-
     function setLastUpdated() {
       const el = document.getElementById("lastUpdated");
       if (!el) return;
@@ -1196,7 +1210,6 @@
     }
 
     /* ===== HEADER DATE/TIME ===== */
-
     function updateCurrentDateTime() {
       const el = document.getElementById("currentDateTime");
       if (!el) return;
@@ -1212,7 +1225,6 @@
     }
 
     /* ===== INIT ===== */
-
     document.addEventListener("DOMContentLoaded", function () {
       initMap();
       loadData();
