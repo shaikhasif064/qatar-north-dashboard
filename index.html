@@ -16,15 +16,15 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-  <!-- PapaParse for CSV parsing -->
+  <!-- PapaParse -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
     :root {
-      --aktor-blue: #1d2537;
+      --aktor-blue: #111827;
       --aktor-red: #e0283b;
       --algo-blue: #0070c9;
-      --bg: #f5f5f5;
+      --bg: #e5e7eb;
       --card-bg: #ffffff;
     }
 
@@ -36,8 +36,8 @@
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
-      background: var(--bg);
-      color: #222;
+      background: radial-gradient(circle at top, #f9fafb 0, #e5e7eb 45%, #d1d5db 100%);
+      color: #111827;
     }
 
     .page {
@@ -46,9 +46,10 @@
     }
 
     header {
-      background: #ffffff;
-      border-bottom: 2px solid rgba(224, 40, 59, 0.8);
-      padding: 8px 24px;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(8px);
+      border-bottom: 3px solid rgba(224, 40, 59, 0.8);
+      padding: 10px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -68,18 +69,19 @@
     }
 
     .logo-img {
-      max-height: 54px;
+      max-height: 56px;
       height: auto;
     }
 
     .logo-img-small {
-      max-height: 40px;
+      max-height: 42px;
     }
 
     header h1 {
       margin: 0;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 700;
+      letter-spacing: 0.03em;
       color: var(--aktor-blue);
     }
 
@@ -89,25 +91,10 @@
       margin-top: 2px;
     }
 
-    .updated-text {
-      font-size: 11px;
-      color: #666;
-      white-space: nowrap;
-    }
-
-    .role-select-wrapper {
-      margin-top: 6px;
-    }
-
-    .role-select-wrapper select {
-      font-size: 11px;
-      padding: 2px 6px;
-    }
-
     .container {
       padding: 16px 24px 24px;
       display: grid;
-      grid-template-columns: 1.5fr 1.2fr;
+      grid-template-columns: 1.55fr 1.15fr;
       grid-gap: 16px;
     }
 
@@ -122,26 +109,26 @@
       background: var(--card-bg);
       border-radius: 12px;
       padding: 10px 14px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 3px 8px rgba(15, 23, 42, 0.08);
     }
 
     .card-title {
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: #888;
-      margin-bottom: 6px;
+      color: #6b7280;
+      margin-bottom: 4px;
     }
 
     .card-value {
       font-size: 24px;
       font-weight: 700;
-      color: #333;
+      color: #111827;
     }
 
     .card-sub {
       font-size: 11px;
-      color: #666;
+      color: #6b7280;
       margin-top: 4px;
     }
 
@@ -161,7 +148,7 @@
     .filters-row-title {
       font-size: 11px;
       font-weight: 600;
-      color: #555;
+      color: #374151;
       margin-bottom: 4px;
     }
 
@@ -175,7 +162,7 @@
 
     .filters label {
       font-size: 11px;
-      color: #444;
+      color: #374151;
       display: flex;
       flex-direction: column;
       gap: 2px;
@@ -184,9 +171,16 @@
     .filters select {
       padding: 4px 8px;
       border-radius: 6px;
-      border: 1px solid #ccc;
+      border: 1px solid #d1d5db;
       font-size: 11px;
       min-width: 110px;
+      background: #f9fafb;
+    }
+
+    .filters select:focus {
+      outline: none;
+      border-color: var(--algo-blue);
+      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
     }
 
     .active-filters {
@@ -202,8 +196,8 @@
       gap: 4px;
       padding: 2px 8px;
       border-radius: 999px;
-      background: rgba(0, 112, 201, 0.08);
-      color: #004b8d;
+      background: rgba(0, 112, 201, 0.12);
+      color: #1d4ed8;
       font-size: 10px;
     }
 
@@ -239,13 +233,13 @@
     th,
     td {
       padding: 4px 6px;
-      border-bottom: 1px solid #eee;
+      border-bottom: 1px solid #e5e7eb;
       text-align: left;
       white-space: nowrap;
     }
 
     th {
-      background: #fafafa;
+      background: #f9fafb;
       font-weight: 600;
       position: sticky;
       top: 0;
@@ -260,16 +254,16 @@
       max-height: 310px;
       overflow: auto;
       border-radius: 8px;
-      border: 1px solid #e0e0e0;
+      border: 1px solid #e5e7eb;
       background: #fff;
     }
 
     tbody tr:nth-child(even) {
-      background: #fafafa;
+      background: #f3f4f6;
     }
 
     tbody tr:hover {
-      background: #eef3ff;
+      background: #e5edff;
       cursor: pointer;
     }
 
@@ -283,11 +277,11 @@
     }
 
     .status-completed {
-      background: #2e7d32;
+      background: #16a34a;
     }
 
     .status-pending {
-      background: #c62828;
+      background: #dc2626;
     }
 
     .zone-chart-wrapper {
@@ -295,11 +289,11 @@
     }
 
     .zone-card {
-      background: linear-gradient(135deg, #f9fbff, #ffffff);
+      background: linear-gradient(135deg, #eff6ff, #ffffff);
     }
 
     .scope-card {
-      background: #ffffff;
+      background: linear-gradient(135deg, #fef9c3, #ffffff);
     }
 
     /* Progress bar under Survey KPI */
@@ -311,7 +305,7 @@
       width: 100%;
       height: 6px;
       border-radius: 999px;
-      background: #e0e0e0;
+      background: #e5e7eb;
       overflow: hidden;
     }
 
@@ -319,19 +313,19 @@
       height: 100%;
       width: 0;
       border-radius: 999px;
-      background: linear-gradient(90deg, #00b894, #0984e3);
+      background: linear-gradient(90deg, #22c55e, #0ea5e9);
       transition: width 0.6s ease;
     }
 
     .progress-label {
       font-size: 11px;
-      color: #555;
+      color: #4b5563;
       margin-top: 3px;
     }
 
     #lastUpdated {
       font-size: 11px;
-      color: #777;
+      color: #6b7280;
       margin-top: 6px;
     }
 
@@ -368,14 +362,7 @@
       <div class="header-center">
         <h1>Qatar North Traffic Junctions Dashboard</h1>
         <div class="subtitle">
-          Live from Google Sheet · Junctions, Survey Completion &amp; Operations Status
-        </div>
-        <div class="role-select-wrapper">
-          <select id="role-select">
-            <option value="all">View: All</option>
-            <option value="executive">View: Management Summary</option>
-            <option value="engineer">View: Engineer Detail</option>
-          </select>
+          Live from Google Sheet &mdash; Junctions, Survey Completion &amp; Operations Status
         </div>
       </div>
 
@@ -385,8 +372,9 @@
     </header>
 
     <div class="container">
-      <!-- LEFT COLUMN: KPIs + MAP + ZONE CHART + INSIGHTS -->
+      <!-- LEFT COLUMN -->
       <div>
+        <!-- KPIs -->
         <div class="kpi-grid">
           <div class="card">
             <div class="card-title">Total Junctions</div>
@@ -430,13 +418,15 @@
           </div>
         </div>
 
-        <div class="card" data-role="detail">
+        <!-- MAP -->
+        <div class="card">
           <div class="card-title">Junction Map (Leaflet / OpenStreetMap)</div>
           <div id="map"></div>
           <div id="lastUpdated"></div>
         </div>
 
-        <div class="card zone-card" data-role="exec">
+        <!-- ZONE CHART -->
+        <div class="card zone-card">
           <div class="card-title">Zone-wise Survey Completion</div>
           <div class="zone-chart-wrapper">
             <canvas id="zoneChart"></canvas>
@@ -446,15 +436,17 @@
           </div>
         </div>
 
-        <div class="card" data-role="exec">
+        <!-- INSIGHTS -->
+        <div class="card">
           <div class="card-title">Zones Needing Attention</div>
           <div id="attention-list" class="card-sub"></div>
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: FILTERS + TABLE + SCOPE CHART -->
+      <!-- RIGHT COLUMN -->
       <div class="right-col">
-        <div class="card" data-role="detail">
+        <!-- FILTERS -->
+        <div class="card">
           <div class="filters-row-title">Filters</div>
           <div class="filters">
             <label>
@@ -488,7 +480,8 @@
           </button>
         </div>
 
-        <div class="card" data-role="detail">
+        <!-- TABLE -->
+        <div class="card">
           <div class="card-title">Junction List</div>
           <div class="table-wrapper">
             <table>
@@ -507,11 +500,12 @@
           </div>
         </div>
 
-        <div class="card scope-card" data-role="exec">
+        <!-- SCOPE DONUT -->
+        <div class="card scope-card">
           <div class="card-title">Scope Distribution</div>
           <canvas id="scopeChart" height="160"></canvas>
           <div class="card-sub">
-            Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other) for the current selection.
+            Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
           </div>
         </div>
       </div>
@@ -570,7 +564,7 @@
     let scopeChart = null;
 
     function initMap() {
-      map = L.map("map").setView([25.3, 51.4], 9); // Qatar
+      map = L.map("map").setView([25.3, 51.4], 9);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 18,
         attribution: "&copy; OpenStreetMap contributors",
@@ -590,7 +584,7 @@
         if (isNaN(lat) || isNaN(lon)) return;
 
         const surveyClass = classifySurvey(row[COLS.surveyStatus]);
-        const color = surveyClass === "completed" ? "#2e7d32" : "#c62828";
+        const color = surveyClass === "completed" ? "#16a34a" : "#dc2626";
 
         const marker = L.circleMarker([lat, lon], {
           radius: 5,
@@ -744,7 +738,7 @@
             {
               label: "Survey Completion %",
               data: values,
-              backgroundColor: "rgba(0, 112, 201, 0.7)",
+              backgroundColor: "rgba(0, 112, 201, 0.75)",
             },
           ],
         },
@@ -803,11 +797,12 @@
             {
               data: [om, proj, off, other],
               backgroundColor: [
-                "rgba(39, 174, 96, 0.85)",
-                "rgba(52, 152, 219, 0.85)",
-                "rgba(231, 76, 60, 0.85)",
-                "rgba(149, 165, 166, 0.9)",
+                "rgba(34, 197, 94, 0.9)",
+                "rgba(59, 130, 246, 0.9)",
+                "rgba(239, 68, 68, 0.9)",
+                "rgba(148, 163, 184, 0.95)",
               ],
+              borderWidth: 0,
             },
           ],
         },
@@ -857,7 +852,7 @@
 
       if (needing.length === 0) {
         el.textContent =
-          "All visible zones have survey completion ≥ " + threshold + "%.";
+          "All zones have survey completion ≥ " + threshold + "%.";
         return;
       }
 
@@ -912,7 +907,7 @@
       if (filters.length === 0) {
         container.textContent = "No filters applied.";
         container.style.fontSize = "10px";
-        container.style.color = "#777";
+        container.style.color = "#6b7280";
         return;
       }
 
@@ -1028,18 +1023,6 @@
       URL.revokeObjectURL(url);
     }
 
-    function applyRoleView(role) {
-      const execEls = document.querySelectorAll('[data-role="exec"]');
-      const detailEls = document.querySelectorAll('[data-role="detail"]');
-
-      execEls.forEach((el) => {
-        el.style.display = role === "engineer" ? "none" : "";
-      });
-      detailEls.forEach((el) => {
-        el.style.display = role === "executive" ? "none" : "";
-      });
-    }
-
     function loadData() {
       Papa.parse(SHEET_CSV_URL, {
         download: true,
@@ -1048,14 +1031,14 @@
         complete: function (results) {
           allData = results.data;
           updateZoneFilter(allData);
-          applyFilters();   // uses updated allData and current filter values
+          applyFilters();
           setLastUpdated();
 
           if (!window._autoRefreshSet) {
             window._autoRefreshSet = true;
             setInterval(() => {
               loadData();
-            }, 5 * 60 * 1000); // every 5 minutes
+            }, 5 * 60 * 1000);
           }
         },
         error: function (err) {
@@ -1069,22 +1052,11 @@
       initMap();
       loadData();
 
-      const zoneSel = document.getElementById("filter-zone");
-      const surveySel = document.getElementById("filter-survey");
-      const remarksSel = document.getElementById("filter-remarks");
-      if (zoneSel) zoneSel.addEventListener("change", applyFilters);
-      if (surveySel) surveySel.addEventListener("change", applyFilters);
-      if (remarksSel) remarksSel.addEventListener("change", applyFilters);
+      document.getElementById("filter-zone").addEventListener("change", applyFilters);
+      document.getElementById("filter-survey").addEventListener("change", applyFilters);
+      document.getElementById("filter-remarks").addEventListener("change", applyFilters);
 
-      const exportBtn = document.getElementById("export-btn");
-      if (exportBtn) exportBtn.addEventListener("click", exportCurrentView);
-
-      const roleSelect = document.getElementById("role-select");
-      if (roleSelect) {
-        roleSelect.addEventListener("change", () =>
-          applyRoleView(roleSelect.value)
-        );
-      }
+      document.getElementById("export-btn").addEventListener("click", exportCurrentView);
     });
   </script>
 </body>
