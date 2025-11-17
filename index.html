@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Qatar North Traffic Junctions Dashboard</title>
+  <title>Qatar North Traffic Junctions Survey Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <!-- Leaflet CSS -->
@@ -418,7 +418,7 @@
       </div>
 
       <div class="header-center">
-        <h1>Qatar North Traffic Junctions Dashboard</h1>
+        <h1>Qatar North Traffic Junctions Survey Dashboard</h1>
         <div class="subtitle">
           Live from Google Sheet — Junctions, Survey Completion &amp; Operations Status
         </div>
@@ -440,7 +440,7 @@
       <div>
         <!-- KPI GRID -->
         <div class="kpi-grid">
-          <!-- Top row: network & scope KPIs -->
+          <!-- Network & scope KPIs -->
           <div class="card">
             <div class="card-title">Total Junctions</div>
             <div class="card-value" id="kpi-total">–</div>
@@ -471,7 +471,39 @@
             <div class="card-value" id="kpi-non-scats">–</div>
           </div>
 
-          <!-- Second row: survey KPIs with percentages -->
+          <!-- Operation status KPIs -->
+          <div class="card">
+            <div class="card-title">Operational</div>
+            <div class="card-value" id="kpi-operational">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Non-Operational</div>
+            <div class="card-value" id="kpi-non-operational">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Non-Operational (Under Construction)</div>
+            <div class="card-value" id="kpi-non-operational-construction">–</div>
+          </div>
+
+          <!-- Survey KPIs with percentages -->
+          <div class="card">
+            <div class="card-title">Survey Completed</div>
+            <div class="card-value" id="kpi-survey-completed">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="survey-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-survey-pct">–</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Survey Pending</div>
+            <div class="card-value" id="kpi-survey-pending">–</div>
+          </div>
+
           <div class="card">
             <div class="card-title">Pole Survey Completed</div>
             <div class="card-value" id="kpi-pole-completed">–</div>
@@ -491,17 +523,6 @@
                 <div class="progress-fill" id="ctrl-progress-fill"></div>
               </div>
               <div class="progress-label" id="kpi-ctrl-pct">–</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Survey Completed</div>
-            <div class="card-value" id="kpi-survey-completed">–</div>
-            <div class="progress-wrapper">
-              <div class="progress-bar">
-                <div class="progress-fill" id="survey-progress-fill"></div>
-              </div>
-              <div class="progress-label" id="kpi-survey-pct">–</div>
             </div>
           </div>
         </div>
@@ -589,6 +610,8 @@
                   <th>Zone</th>
                   <th>District</th>
                   <th>Remarks</th>
+                  <th>Pole Survey</th>
+                  <th>Controller Survey</th>
                   <th>Survey</th>
                 </tr>
               </thead>
@@ -632,7 +655,8 @@
       surveyStatus: "Survey Status",
       poleSurvey: "Pole Survey",
       ctrlSurvey: "Controller Survey",
-      scats: "SCATS & Non SCATS"  // column used for SCATS status
+      scats: "SCATS & Non SCATS",      // SCATS status
+      operationStatus: "Operation Status"
     };
 
     function isTruthy(val) {
@@ -656,10 +680,18 @@
     function classifyScats(val) {
       const v = (val || "").toLowerCase();
       if (v.includes("operated")) return "scats";                    // "SCATS - OPERATED"
-      if (v.includes("isolated") || v.includes("non scats") || v.includes("switch")) {
+      if (v.includes("isolated") || v.includes("non scats") || v.includes("non-scats")) {
         return "non";
       }
       return "unknown";
+    }
+
+    function classifyOperationStatus(val) {
+      const v = (val || "").toLowerCase();
+      if (v.startsWith("operational")) return "operational";
+      if (v.startsWith("non-operational (under")) return "non_op_construction";
+      if (v.startsWith("non-operational")) return "non_operational";
+      return "other";
     }
 
     let allData = [];
@@ -729,10 +761,14 @@
         proj = 0,
         off = 0,
         surveyCompleted = 0,
+        surveyPending = 0,
         poleCompleted = 0,
         ctrlCompleted = 0,
         scatsOperated = 0,
-        nonScats = 0;
+        nonScats = 0,
+        opOperational = 0,
+        opNonOperational = 0,
+        opNonOperationalConstruction = 0;
 
       data.forEach((row) => {
         const remarksType = classifyRemarks(row[COLS.remarks]);
@@ -740,13 +776,23 @@
         else if (remarksType === "projects") proj++;
         else if (remarksType === "off") off++;
 
-        if (isTruthy(row[COLS.surveyStatus])) surveyCompleted++;
+        if (isTruthy(row[COLS.surveyStatus])) {
+          surveyCompleted++;
+        } else {
+          surveyPending++;
+        }
+
         if (isTruthy(row[COLS.poleSurvey])) poleCompleted++;
         if (isTruthy(row[COLS.ctrlSurvey])) ctrlCompleted++;
 
         const scatsType = classifyScats(row[COLS.scats]);
         if (scatsType === "scats") scatsOperated++;
         else if (scatsType === "non") nonScats++;
+
+        const opType = classifyOperationStatus(row[COLS.operationStatus]);
+        if (opType === "operational") opOperational++;
+        else if (opType === "non_operational") opNonOperational++;
+        else if (opType === "non_op_construction") opNonOperationalConstruction++;
       });
 
       document.getElementById("kpi-total").textContent = total;
@@ -754,10 +800,15 @@
       document.getElementById("kpi-projects").textContent = proj;
       document.getElementById("kpi-off").textContent = off;
       document.getElementById("kpi-survey-completed").textContent = surveyCompleted;
+      document.getElementById("kpi-survey-pending").textContent = surveyPending;
       document.getElementById("kpi-pole-completed").textContent = poleCompleted;
       document.getElementById("kpi-ctrl-completed").textContent = ctrlCompleted;
       document.getElementById("kpi-scats-operated").textContent = scatsOperated;
       document.getElementById("kpi-non-scats").textContent = nonScats;
+      document.getElementById("kpi-operational").textContent = opOperational;
+      document.getElementById("kpi-non-operational").textContent = opNonOperational;
+      document.getElementById("kpi-non-operational-construction").textContent =
+        opNonOperationalConstruction;
 
       const pctSurvey = total > 0 ? (surveyCompleted / total) * 100 : 0;
       const pctPole   = total > 0 ? (poleCompleted   / total) * 100 : 0;
@@ -832,9 +883,19 @@
         const tr = document.createElement("tr");
 
         const surveyClass = classifySurvey(row[COLS.surveyStatus]);
-        const statusText = surveyClass === "completed" ? "Completed" : "Pending";
-        const statusClass =
+        const surveyText = surveyClass === "completed" ? "Completed" : "Pending";
+        const surveyStatusClass =
           surveyClass === "completed" ? "status-completed" : "status-pending";
+
+        const poleClass = classifySurvey(row[COLS.poleSurvey]);
+        const poleText = poleClass === "completed" ? "Completed" : "Pending";
+        const poleStatusClass =
+          poleClass === "completed" ? "status-completed" : "status-pending";
+
+        const ctrlClass = classifySurvey(row[COLS.ctrlSurvey]);
+        const ctrlText = ctrlClass === "completed" ? "Completed" : "Pending";
+        const ctrlStatusClass =
+          ctrlClass === "completed" ? "status-completed" : "status-pending";
 
         tr.innerHTML = `
           <td>${row[COLS.junctNo] || ""}</td>
@@ -842,7 +903,9 @@
           <td>${row[COLS.zone] || ""}</td>
           <td>${row[COLS.district] || ""}</td>
           <td>${row[COLS.remarks] || ""}</td>
-          <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+          <td><span class="status-pill ${poleStatusClass}">${poleText}</span></td>
+          <td><span class="status-pill ${ctrlStatusClass}">${ctrlText}</span></td>
+          <td><span class="status-pill ${surveyStatusClass}">${surveyText}</span></td>
         `;
 
         tr.addEventListener("click", () => {
@@ -1138,6 +1201,7 @@
         COLS.poleSurvey,
         COLS.ctrlSurvey,
         COLS.scats,
+        COLS.operationStatus,
         COLS.lat,
         COLS.lon,
       ];
