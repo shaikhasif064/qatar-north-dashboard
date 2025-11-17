@@ -549,7 +549,7 @@
           <div class="kpi-pct" id="dms-survey-text">–</div>
         </div>
 
-        <!-- ROW 2 -->
+        <!-- ROW 2 & 3 (device types etc.) -->
         <div class="card kpi-card">
           <div class="kpi-label">RVD Assets</div>
           <div class="kpi-value" id="rvd-assets-count">–</div>
@@ -613,6 +613,32 @@
             ></div>
           </div>
           <div class="kpi-pct" id="ovds-survey-text">–</div>
+        </div>
+
+        <div class="card kpi-card">
+          <div class="kpi-label">LCS Assets</div>
+          <div class="kpi-value" id="lcs-assets-count">–</div>
+          <div class="progress-track">
+            <div
+              class="progress-bar"
+              id="lcs-survey-bar"
+              style="width: 0%"
+            ></div>
+          </div>
+          <div class="kpi-pct" id="lcs-survey-text">–</div>
+        </div>
+
+        <div class="card kpi-card">
+          <div class="kpi-label">AQMS Assets</div>
+          <div class="kpi-value" id="aqms-assets-count">–</div>
+          <div class="progress-track">
+            <div
+              class="progress-bar"
+              id="aqms-survey-bar"
+              style="width: 0%"
+            ></div>
+          </div>
+          <div class="kpi-pct" id="aqms-survey-text">–</div>
         </div>
 
         <div class="card kpi-card">
@@ -726,7 +752,7 @@
         <div class="card table-card">
           <div class="table-title">ITS Asset List</div>
 
-          <!-- Search & Quick View now aligned with table -->
+          <!-- Search aligned with table -->
           <div class="table-header-grid">
             <div>
               <div class="field-label">
@@ -807,6 +833,10 @@
       if (s.includes("mag") && s.includes("ap")) return "Magnetometer AP";
       if (s.includes("mag") && (s.includes("dot") || s.includes("detector")))
         return "Magnetometer Dots";
+      if (s.includes("lcs") || s.includes("lane control"))
+        return "LCS";
+      if (s.includes("aqm") || s.includes("aqms") || s.includes("air quality"))
+        return "AQMS";
 
       if (s.includes("cctv")) return "CCTV";
 
@@ -1084,6 +1114,8 @@
       setCardStats("lpr", deviceStats(assets, "LPR"));
       setCardStats("aid", deviceStats(assets, "AID"));
       setCardStats("ovds", deviceStats(assets, "OVDS"));
+      setCardStats("lcs", deviceStats(assets, "LCS"));
+      setCardStats("aqms", deviceStats(assets, "AQMS"));
       setCardStats("magap", deviceStats(assets, "Magnetometer AP"));
       setCardStats("magdot", deviceStats(assets, "Magnetometer Dots"));
       setCardStats("wim-sensor", deviceStats(assets, "WIM Sensor"));
