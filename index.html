@@ -40,7 +40,6 @@
         sans-serif;
       color: #111827;
       background: #020617; 
-      /* Kept your background structure */
       background-size: cover;
     }
 
@@ -149,12 +148,6 @@
       font-size: 11px;
       color: #4b5563;
       margin-top: 4px;
-    }
-
-    /* Utility for Green text in cards */
-    .text-green {
-        color: #16a34a;
-        font-weight: 600;
     }
 
     #map {
@@ -417,7 +410,7 @@
   <div class="page">
     <header>
       <div class="header-left">
-        <a href="#" style="font-weight:bold; color:#fff; text-decoration:none;">AKTOR</a>
+        <img src="aktor-logo.png" alt="AKTOR Qatar" class="logo-img" />
       </div>
 
       <div class="header-center">
@@ -429,7 +422,11 @@
       </div>
 
       <div class="header-right">
-        <a href="#" style="font-weight:bold; color:#fff; text-decoration:none;">ALGOSYSTEMS</a>
+        <img
+          src="algosystems-logo.png"
+          alt="ALGOSYSTEMS Qatar"
+          class="logo-img logo-img-small"
+        />
       </div>
     </header>
 
@@ -444,13 +441,23 @@
           <div class="card">
             <div class="card-title">Doha Region</div>
             <div class="card-value" id="kpi-doha-total">–</div>
-            <div class="card-sub text-green" id="kpi-doha-pct">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="doha-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-doha-pct">–</div>
+            </div>
           </div>
 
           <div class="card">
             <div class="card-title">North Region</div>
             <div class="card-value" id="kpi-north-total">–</div>
-            <div class="card-sub text-green" id="kpi-north-pct">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="north-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-north-pct">–</div>
+            </div>
           </div>
 
           <div class="card">
@@ -582,9 +589,13 @@
               <thead>
                 <tr>
                   <th>Junct No</th>
-                  <th>Region</th> <th>Zone</th>
-                  <th>Area</th>   <th>Street</th>
+                  <th>Region</th>
+                  <th>Zone</th>
+                  <th>Area</th>
+                  <th>Street</th>
                   <th>Remarks</th>
+                  <th>Pole Survey</th>
+                  <th>Ctrl Survey</th>
                   <th>Survey</th>
                 </tr>
               </thead>
@@ -615,7 +626,6 @@
     const SHEET_CSV_URL =
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5pFct4J8nDgw7VLuUJpfVgxewoZSkjh-cNxjgtOOZcjEM5Hx0xyJsziL9MUrEmK6wuls0C2Ffd1ku/pub?gid=1921347271&single=true&output=csv";
 
-    // ADDED Region and Area to columns
     const COLS = {
       junctNo: "Junct No",
       street: "Street Details",
@@ -629,8 +639,8 @@
       ctrlSurvey: "Controller Survey",
       scats: "SCATS & Non SCATS",
       operationStatus: "Operation Status",
-      region: "Region",  // Matches your CSV header
-      area: "Area"       // Matches your CSV header
+      region: "Region",
+      area: "Area"
     };
 
     function isTruthy(val) {
@@ -764,7 +774,7 @@
         if (scatsType === "scats") scatsOperated++;
         else if (scatsType === "non") nonScats++;
 
-        // REGION COUNTS (New Logic)
+        // REGION COUNTS
         const region = (row[COLS.region] || "").trim();
         if (region === "Doha Region") {
           dohaTotal++;
@@ -785,7 +795,7 @@
       document.getElementById("kpi-scats-operated").textContent = scatsOperated;
       document.getElementById("kpi-non-scats").textContent = nonScats;
 
-      // Percentage Calculations
+      // Survey Total Percentage
       const pctSurvey = total > 0 ? (surveyCompleted / total) * 100 : 0;
       document.getElementById("kpi-survey-pct").textContent =
         (total > 0 ? pctSurvey.toFixed(1) + "%" : "–") + " of total";
@@ -793,14 +803,24 @@
       const surveyFill = document.getElementById("survey-progress-fill");
       if (surveyFill) surveyFill.style.width = pctSurvey.toFixed(1) + "%";
 
-      /* NEW: DOHA & NORTH STATS */
+      /* DOHA & NORTH STATS with Progress Bars */
+      // Doha
       const dohaPct = dohaTotal > 0 ? (dohaCompleted / dohaTotal) * 100 : 0;
       document.getElementById("kpi-doha-total").textContent = dohaTotal;
-      document.getElementById("kpi-doha-pct").textContent = dohaTotal > 0 ? `${dohaPct.toFixed(1)}% Completed` : "0% Completed";
+      document.getElementById("kpi-doha-pct").textContent = 
+        dohaTotal > 0 ? `${dohaPct.toFixed(1)}% Completed` : "0% Completed";
+      
+      const dohaFill = document.getElementById("doha-progress-fill");
+      if (dohaFill) dohaFill.style.width = dohaPct.toFixed(1) + "%";
 
+      // North
       const northPct = northTotal > 0 ? (northCompleted / northTotal) * 100 : 0;
       document.getElementById("kpi-north-total").textContent = northTotal;
-      document.getElementById("kpi-north-pct").textContent = northTotal > 0 ? `${northPct.toFixed(1)}% Completed` : "0% Completed";
+      document.getElementById("kpi-north-pct").textContent = 
+        northTotal > 0 ? `${northPct.toFixed(1)}% Completed` : "0% Completed";
+        
+      const northFill = document.getElementById("north-progress-fill");
+      if (northFill) northFill.style.width = northPct.toFixed(1) + "%";
     }
 
     /* ===== FILTER POPULATION ===== */
@@ -829,8 +849,8 @@
 
     function updateFilters(data) {
       populateDropdown(data, COLS.zone, "filter-zone");
-      populateDropdown(data, COLS.region, "filter-region"); // New
-      populateDropdown(data, COLS.area, "filter-area");     // New
+      populateDropdown(data, COLS.region, "filter-region");
+      populateDropdown(data, COLS.area, "filter-area");
     }
 
     /* ===== TABLE RENDER ===== */
@@ -856,13 +876,26 @@
           })
         : data;
 
-      filtered.slice(0, 200).forEach((row) => { // Limiting to 200 rows for performance
+      filtered.slice(0, 200).forEach((row) => {
         const tr = document.createElement("tr");
 
+        // Survey Status
         const surveyClass = classifySurvey(row[COLS.surveyStatus]);
         const surveyText = surveyClass === "completed" ? "Completed" : "Pending";
         const surveyStatusClass =
           surveyClass === "completed" ? "status-completed" : "status-pending";
+          
+        // Pole Survey Status
+        const poleClass = classifySurvey(row[COLS.poleSurvey]);
+        const poleText = poleClass === "completed" ? "Completed" : "Pending";
+        const poleStatusClass =
+          poleClass === "completed" ? "status-completed" : "status-pending";
+          
+        // Controller Survey Status
+        const ctrlClass = classifySurvey(row[COLS.ctrlSurvey]);
+        const ctrlText = ctrlClass === "completed" ? "Completed" : "Pending";
+        const ctrlStatusClass =
+          ctrlClass === "completed" ? "status-completed" : "status-pending";
 
         tr.innerHTML = `
           <td>${row[COLS.junctNo] || ""}</td>
@@ -871,6 +904,8 @@
           <td>${row[COLS.area] || ""}</td>
           <td>${row[COLS.street] || ""}</td>
           <td>${row[COLS.remarks] || ""}</td>
+          <td><span class="status-pill ${poleStatusClass}">${poleText}</span></td>
+          <td><span class="status-pill ${ctrlStatusClass}">${ctrlText}</span></td>
           <td><span class="status-pill ${surveyStatusClass}">${surveyText}</span></td>
         `;
 
@@ -1130,12 +1165,12 @@
 
       let filtered = allData.slice();
 
-      // NEW: Region Filter
+      // Region Filter
       if (regionVal) {
         filtered = filtered.filter((row) => String(row[COLS.region]) === regionVal);
       }
 
-      // NEW: Area Filter
+      // Area Filter
       if (areaVal) {
         filtered = filtered.filter((row) => String(row[COLS.area]) === areaVal);
       }
@@ -1183,6 +1218,8 @@
         COLS.district,
         COLS.street,
         COLS.remarks,
+        COLS.poleSurvey,
+        COLS.ctrlSurvey,
         COLS.surveyStatus,
         COLS.scats,
         COLS.lat,
@@ -1238,7 +1275,7 @@
         skipEmptyLines: true,
         complete: function (results) {
           allData = results.data;
-          updateFilters(allData); // Updates Region, Area, Zone options
+          updateFilters(allData);
           applyFilters();
           setLastUpdated();
 
@@ -1276,7 +1313,6 @@
       initMap();
       loadData();
 
-      // Event Listeners including NEW filters
       document.getElementById("filter-region").addEventListener("change", applyFilters);
       document.getElementById("filter-area").addEventListener("change", applyFilters);
       document.getElementById("filter-zone").addEventListener("change", applyFilters);
