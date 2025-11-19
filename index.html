@@ -471,6 +471,16 @@
             <div class="card-value" id="kpi-non-scats">–</div>
           </div>
 
+		<div class="card">
+		  <div class="card-title">Junctions in Area 1 & 2</div>
+		  <div class="card-value" id="kpi-area12">–</div>
+		</div>
+
+		<div class="card">
+		  <div class="card-title">Junctions in Area 3 & 4</div>
+		  <div class="card-value" id="kpi-area34">–</div>
+		</div>
+
           <!-- Operation status KPIs -->
           <div class="card">
             <div class="card-title">Operational</div>
@@ -768,7 +778,9 @@
         nonScats = 0,
         opOperational = 0,
         opNonOperational = 0,
-        opNonOperationalConstruction = 0;
+        opNonOperationalConstruction = 0,
+		area12 = 0,
+		area34 = 0;
 
       data.forEach((row) => {
         const remarksType = classifyRemarks(row[COLS.remarks]);
@@ -793,6 +805,10 @@
         if (opType === "operational") opOperational++;
         else if (opType === "non_operational") opNonOperational++;
         else if (opType === "non_op_construction") opNonOperationalConstruction++;
+		
+		const zone = parseInt(row[COLS.zone]);
+		if (zone >= 1 && zone <= 2) area12++;
+		if (zone >= 3 && zone <= 4) area34++;
       });
 
       document.getElementById("kpi-total").textContent = total;
@@ -809,6 +825,8 @@
       document.getElementById("kpi-non-operational").textContent = opNonOperational;
       document.getElementById("kpi-non-operational-construction").textContent =
         opNonOperationalConstruction;
+	  document.getElementById("kpi-area12").textContent = area12;
+	  document.getElementById("kpi-area34").textContent = area34;
 
       const pctSurvey = total > 0 ? (surveyCompleted / total) * 100 : 0;
       const pctPole   = total > 0 ? (poleCompleted   / total) * 100 : 0;
