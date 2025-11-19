@@ -41,7 +41,6 @@
         sans-serif;
       color: #111827;
       
-      /* FIX: Explicit properties for reliable background loading */
       background-image: url('bg-image.jpg'); 
       background-color: #020617; 
       background-repeat: no-repeat;
@@ -54,7 +53,6 @@
       width: 100%;
       min-height: 100vh;
       margin: 0;
-      /* Overlay to ensure text is readable over the background image */
       background: linear-gradient(
         180deg,
         rgba(15, 23, 42, 0.5),
@@ -67,7 +65,6 @@
       width: 100%;
       background: linear-gradient(90deg, #020617, #111827);
       backdrop-filter: blur(8px);
-      /* CHANGE: Thicker, more vibrant border */
       border-bottom: 5px solid var(--aktor-red); 
       padding: 10px 24px;
       display: flex;
@@ -99,12 +96,11 @@
 
     header h1 {
       margin: 0;
-      /* CHANGE: Slightly larger and bolder title */
       font-size: 26px; 
       font-weight: 800; 
       letter-spacing: 0.04em;
       color: #f9fafb;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Subtle shadow for text pop */
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5); 
     }
 
     header .subtitle {
@@ -119,51 +115,61 @@
       margin-top: 4px;
     }
 
-    /* ===== MAIN GRID - REFINED RATIO ===== */
+    /* ===== MAIN GRID - COMPACT RATIO ===== */
     .container {
       padding: 12px 16px 20px;
-      /* CHANGE: Use a more balanced 1.7fr 1.3fr grid ratio (approx 57% / 43%) */
       grid-template-columns: 1.7fr 1.3fr;
       grid-gap: 16px;
     }
 
+    /* ********** COMPACTNESS CHANGE: KPI GRID ********** */
     .kpi-grid {
+      /* Reduced min size to fit more columns */
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-      grid-gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+      grid-gap: 8px; /* Slightly reduced gap */
       margin-bottom: 14px;
     }
+    
+    /* Force 6 columns on wider screens to save vertical space */
+    @media (min-width: 1400px) {
+        .kpi-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+    }
+    /* ************************************************* */
+
 
     /* ===== CARD REFINEMENTS (KPIs, Charts) ===== */
     .card {
       background: var(--card-bg);
       border-radius: 12px;
-      padding: 14px 18px; /* Increased padding */
-      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.25); /* Stronger shadow for depth */
+      padding: 12px 16px; /* Reduced padding slightly */
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.25);
       transition: transform 0.2s ease; 
       border: 1px solid #e5e7eb; 
     }
 
-    .card:hover { /* NEW: Subtle lift on hover */
+    .card:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(15, 23, 42, 0.3);
     }
 
-    .kpi-grid .card { /* Target only the small KPI cards for a slight gradient */
+    .kpi-grid .card { 
         background: linear-gradient(135deg, #ffffff, #f9fafb);
     }
 
     .card-title {
-      font-size: 11px;
+      font-size: 10px; /* Reduced font size for tighter fit */
       text-transform: uppercase;
-      letter-spacing: 0.1em; /* Increased letter spacing */
+      letter-spacing: 0.1em;
       color: #6b7280;
-      margin-bottom: 6px; 
+      margin-bottom: 4px; /* Reduced margin */
       font-weight: 600; 
     }
 
     .card-value {
-      font-size: 28px; /* Slightly larger value */
+      font-size: 24px; /* Reduced size */
       font-weight: 700;
       color: #111827;
       line-height: 1.1;
@@ -175,12 +181,14 @@
       margin-top: 4px;
     }
 
+    /* ********** COMPACTNESS CHANGE: MAP HEIGHT ********** */
     #map {
       width: 100%;
-      height: 420px;
+      height: 350px; /* Was 420px */
       border-radius: 12px;
       overflow: hidden;
     }
+    /* ************************************************* */
 
     .map-card {
       margin-bottom: 12px;
@@ -217,10 +225,10 @@
     }
 
     .filters select {
-      padding: 6px 10px; /* Increased padding */
-      border-radius: 8px; /* More rounded corners */
+      padding: 6px 10px; 
+      border-radius: 8px; 
       border: 1px solid #d1d5db;
-      font-size: 12px; /* Slightly larger text */
+      font-size: 12px; 
       min-width: 120px;
       background: #ffffff;
       color: #111827;
@@ -260,8 +268,8 @@
 
     .export-btn {
       margin-top: 10px;
-      padding: 6px 16px; /* Increased padding */
-      border-radius: 8px; /* Match card radius */
+      padding: 6px 16px; 
+      border-radius: 8px; 
       border: 1px solid #0070c9;
       background: #0070c9;
       color: #fff;
@@ -304,13 +312,15 @@
       white-space: normal;
     }
 
+    /* ********** COMPACTNESS CHANGE: TABLE HEIGHT ********** */
     .table-wrapper {
-      max-height: 310px;
+      max-height: 250px; /* Was 310px */
       overflow: auto;
       border-radius: 8px;
       border: 1px solid #e5e7eb;
       background: #fff;
     }
+    /* ************************************************* */
 
     tbody tr:nth-child(even) {
       background: #f3f4f6;
@@ -339,9 +349,11 @@
       background: var(--aktor-red); /* #e0283b */
     }
 
+    /* ********** COMPACTNESS CHANGE: ZONE CHART HEIGHT ********** */
     .zone-chart-wrapper {
-      height: 250px; /* Increased height for better bar chart readability */
+      height: 200px; /* Was 250px */
     }
+    /* ************************************************* */
 
     .zone-card {
       background: linear-gradient(135deg, #eff6ff, #ffffff);
@@ -352,17 +364,17 @@
     /* ===== SCOPE CHART FIX (Sizing and Placement) ===== */
     .scope-card {
       background: linear-gradient(135deg, #fef9c3, #ffffff);
-      /* NEW: Flex to center the chart element */
       display: flex;
       flex-direction: column;
       align-items: center; 
     }
     
-    /* NEW: Constrain the chart canvas itself */
+    /* ********** COMPACTNESS CHANGE: DONUT CHART SIZE ********** */
     #scopeChart {
-        max-width: 280px; /* Limits the physical size of the chart */
+        max-width: 240px; /* Limits the physical size of the chart (Was 280px) */
         margin-bottom: 8px; 
     }
+    /* ************************************************* */
 
     .attention-card {
       margin-top: 6px;
@@ -384,7 +396,6 @@
       height: 100%;
       width: 0;
       border-radius: 999px;
-      /* CHANGE: Use a consistent gradient for progress bars */
       background: linear-gradient(90deg, #1d4ed8, #0070c9); 
       transition: width 0.6s ease;
     }
@@ -415,8 +426,8 @@
 
     .table-search input {
       width: 100%;
-      padding: 6px 10px; /* Increased padding */
-      border-radius: 8px; /* More rounded corners */
+      padding: 6px 10px; 
+      border-radius: 8px; 
       border: 1px solid #d1d5db;
       font-size: 12px;
       background: #ffffff;
@@ -528,6 +539,22 @@
           </div>
 
           <div class="card">
+            <div class="card-title">Survey Completed</div>
+            <div class="card-value" id="kpi-survey-completed">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="survey-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-survey-pct">–</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Survey Pending</div>
+            <div class="card-value" id="kpi-survey-pending">–</div>
+          </div>
+
+          <div class="card">
             <div class="card-title">Junctions Under O&amp;M</div>
             <div class="card-value" id="kpi-om">–</div>
           </div>
@@ -550,22 +577,6 @@
           <div class="card">
             <div class="card-title">Non-SCATS (Isolated)</div>
             <div class="card-value" id="kpi-non-scats">–</div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Survey Completed</div>
-            <div class="card-value" id="kpi-survey-completed">–</div>
-            <div class="progress-wrapper">
-              <div class="progress-bar">
-                <div class="progress-fill" id="survey-progress-fill"></div>
-              </div>
-              <div class="progress-label" id="kpi-survey-pct">–</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Survey Pending</div>
-            <div class="card-value" id="kpi-survey-pending">–</div>
           </div>
         </div>
 
@@ -673,7 +684,7 @@
         
         <div class="card scope-card">
           <div class="card-title">Scope Distribution</div>
-          <canvas id="scopeChart" height="160"></canvas>
+          <canvas id="scopeChart" height="140"></canvas> 
           <div class="card-sub">
             Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
           </div>
@@ -689,7 +700,7 @@
   ></script>
 
   <script>
-    /* ===== DATA CONFIG ===== */
+    /* ===== DATA CONFIG (No Change) ===== */
     const SHEET_CSV_URL =
       "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5pFct4J8nDgw7VLuUJpfVgxewoZSkjh-cNxjgtOOZcjEM5Hx0xyJsziL9MUrEmK6wuls0C2Ffd1ku/pub?gid=1921347271&single=true&output=csv";
 
@@ -737,14 +748,6 @@
       return "unknown";
     }
 
-    function classifyOperationStatus(val) {
-      const v = (val || "").toLowerCase();
-      if (v.startsWith("operational")) return "operational";
-      if (v.startsWith("non-operational (under")) return "non_op_construction";
-      if (v.startsWith("non-operational")) return "non_operational";
-      return "other";
-    }
-
     let allData = [];
     let currentFiltered = [];
     let map;
@@ -753,7 +756,7 @@
     let scopeChart = null;
     let tableSearchTerm = "";
 
-    /* ===== MAP ===== */
+    /* ===== MAP (Height Reduced in CSS) ===== */
     function initMap() {
       map = L.map("map").setView([25.3, 51.4], 9);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -776,7 +779,6 @@
         if (isNaN(lat) || isNaN(lon)) return;
 
         const surveyClass = classifySurvey(row[COLS.surveyStatus]);
-        // AESTHETIC CHANGE: Use consistent colors
         const color = surveyClass === "completed" ? "#0070c9" : "#e0283b"; // Algo Blue / Aktor Red
 
         const marker = L.circleMarker([lat, lon], {
@@ -807,7 +809,7 @@
       }
     }
 
-    /* ===== KPIs (No Functional Change, uses new CSS classes) ===== */
+    /* ===== KPIs (No Functional Change) ===== */
     function updateKPIs(data) {
       const total = data.length;
       let om = 0,
@@ -854,7 +856,7 @@
         if (scatsType === "scats") scatsOperated++;
         else if (scatsType === "non") nonScats++;
 
-        // REGION COUNTS (Robust Logic)
+        // REGION COUNTS
         const region = (row[COLS.region] || "").toLowerCase().trim();
         
         if (region.includes("doha")) {
@@ -919,14 +921,12 @@
     /* ===== FILTER POPULATION (No Change) ===== */
     function populateDropdown(data, column, elementId) {
       const select = document.getElementById(elementId);
-      // Get unique values, sort them, filter out empties
       const values = Array.from(
         new Set(data.map((row) => row[column]).filter((v) => v != null && String(v).trim() !== ""))
       ).sort((a, b) =>
         String(a).localeCompare(String(b), undefined, { numeric: true })
       );
 
-      // Clear existing options except 'All'
       while (select.options.length > 1) {
         select.remove(1);
       }
@@ -945,7 +945,7 @@
       populateDropdown(data, COLS.area, "filter-area");
     }
 
-    /* ===== TABLE RENDER (No Functional Change) ===== */
+    /* ===== TABLE RENDER (Height Reduced in CSS) ===== */
     function renderTable(data) {
       const tbody = document.getElementById("junction-table-body");
       tbody.innerHTML = "";
@@ -972,7 +972,6 @@
       filtered.slice(0, 200).forEach((row) => {
         const tr = document.createElement("tr");
 
-        // Helper for status styling
         const getStatusHtml = (val) => {
             const cls = classifySurvey(val);
             const txt = cls === "completed" ? "Completed" : "Pending";
@@ -1004,7 +1003,7 @@
       });
     }
 
-    /* ===== CHARTS (No Functional Change, uses new CSS classes) ===== */
+    /* ===== CHARTS (Height Reduced in CSS/HTML) ===== */
     function buildZoneChart(data) {
       const zoneMap = new Map();
 
