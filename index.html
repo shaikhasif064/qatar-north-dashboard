@@ -19,8 +19,8 @@
   <style>
     :root {
       --aktor-blue: #111827;
-      --aktor-red: #e0283b;
-      --algo-blue: #0070c9;
+      --aktor-red: #e0283b; /* Used for Pending/Attention */
+      --algo-blue: #0070c9; /* Used for Completed/Primary Action */
       --card-bg: #ffffff;
     }
 
@@ -40,9 +40,8 @@
         sans-serif;
       color: #111827;
       
-      /* FIX: Using explicit properties for reliable background loading */
-      background-image: url('bg-image.png'); 
-      background-color: #020617; /* Fallback color */
+      background-image: url('bg-image.jpg'); 
+      background-color: #020617; 
       background-repeat: no-repeat;
       background-position: center center;
       background-attachment: fixed;
@@ -53,7 +52,6 @@
       width: 100%;
       min-height: 100vh;
       margin: 0;
-      /* Overlay to ensure text is readable over the background image */
       background: linear-gradient(
         180deg,
         rgba(15, 23, 42, 0.5),
@@ -66,8 +64,8 @@
       width: 100%;
       background: linear-gradient(90deg, #020617, #111827);
       backdrop-filter: blur(8px);
-      border-bottom: 3px solid rgba(224, 40, 59, 0.9);
-      padding: 10px 24px;
+      border-bottom: 5px solid var(--aktor-red); 
+      padding: 8px 16px; 
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -87,312 +85,290 @@
     }
 
     .logo-img {
-      max-height: 56px;
+      max-height: 50px; 
       height: auto;
     }
 
     .logo-img-small {
-      max-height: 42px;
+      max-height: 38px;
     }
 
     header h1 {
       margin: 0;
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 0.03em;
+      font-size: 24px; 
+      font-weight: 800; 
+      letter-spacing: 0.04em;
       color: #f9fafb;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5); 
     }
 
     header .subtitle {
-      font-size: 11px;
+      font-size: 10px; 
       color: #e5e7eb;
       margin-top: 2px;
     }
 
     .datetime-header {
-      font-size: 11px;
+      font-size: 10px;
       color: #cbd5ff;
       margin-top: 4px;
     }
 
     /* ===== MAIN GRID ===== */
     .container {
-      padding: 12px 16px 20px;
+      padding: 10px 16px 20px; 
       display: grid;
-      grid-template-columns: 1.55fr 1.15fr;
-      grid-gap: 16px;
+      grid-template-columns: 1fr 2fr 1fr; 
+      grid-template-rows: auto auto 1fr; 
+      grid-gap: 12px; 
     }
 
+    .top-left-kpis {
+        grid-column: 1 / 2;
+        grid-row: 1 / 3; 
+    }
+
+    .scope-card-wrapper { 
+        grid-column: 2 / 3;
+        grid-row: 1 / 3;
+        display: flex;
+        flex-direction: column;
+        gap: 12px; 
+    }
+
+    .right-column {
+        grid-column: 3 / 4;
+        grid-row: 1 / 3;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .bottom-row-grid {
+        grid-column: 1 / 4; 
+        grid-row: 3 / 4;
+        display: grid;
+        grid-template-columns: 1fr 1.5fr; 
+        gap: 12px;
+    }
+
+    /* ===== KPI GRID ===== */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
-      grid-gap: 10px;
-      margin-bottom: 14px;
+      grid-template-columns: repeat(2, 1fr); 
+      grid-gap: 8px; 
+      margin-bottom: 0;
     }
-
+    
     .card {
       background: var(--card-bg);
-      border-radius: 12px;
-      padding: 10px 14px;
-      box-shadow: 0 3px 12px rgba(15, 23, 42, 0.35);
+      border-radius: 10px; 
+      padding: 10px 12px; 
+      box-shadow: 0 3px 12px rgba(15, 23, 42, 0.2);
+      transition: transform 0.2s ease; 
+      border: 1px solid #e5e7eb; 
+      height: fit-content;
+    }
+
+    .card:hover {
+        transform: none; 
+        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.2);
+    }
+
+    .kpi-grid .card { 
+        background: linear-gradient(135deg, #ffffff, #f9fafb);
     }
 
     .card-title {
-      font-size: 11px;
+      font-size: 9px; 
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       color: #6b7280;
-      margin-bottom: 4px;
+      margin-bottom: 2px; 
+      font-weight: 600; 
     }
 
     .card-value {
-      font-size: 24px;
+      font-size: 20px; 
       font-weight: 700;
       color: #111827;
+      line-height: 1.1;
     }
 
     .card-sub {
-      font-size: 11px;
+      font-size: 10px;
       color: #4b5563;
-      margin-top: 4px;
+      margin-top: 3px;
     }
 
+    /* Map */
     #map {
       width: 100%;
-      height: 420px;
-      border-radius: 12px;
+      height: 180px; 
+      border-radius: 10px;
       overflow: hidden;
     }
 
     .map-card {
-      margin-bottom: 12px;
+      margin-bottom: 0; 
+      padding: 12px; 
+      flex-grow: 1;
     }
 
-    .right-col {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
+    /* Filters */
     .filters-row-title {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
       color: #374151;
       margin-bottom: 4px;
     }
 
     .filters {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr); 
       gap: 8px;
       align-items: flex-start;
       margin-top: 4px;
     }
 
     .filters label {
-      font-size: 11px;
-      color: #374151;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .filters select {
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      font-size: 11px;
-      min-width: 110px;
-      background: #f9fafb;
-    }
-
-    .filters select:focus {
-      outline: none;
-      border-color: var(--algo-blue);
-      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
-    }
-
-    .active-filters {
-      margin-top: 6px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
       font-size: 10px;
     }
 
-    .filter-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(0, 112, 201, 0.12);
-      color: #1d4ed8;
-    }
-
-    .filter-chip button {
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      font-size: 11px;
-      line-height: 1;
+    .filters select {
+      padding: 4px 8px; 
+      border-radius: 6px; 
+      font-size: 11px; 
+      min-width: unset;
     }
 
     .export-btn {
       margin-top: 8px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid #0070c9;
-      background: #0070c9;
-      color: #fff;
-      font-size: 11px;
-      cursor: pointer;
+      padding: 4px 12px; 
+      font-size: 11px; 
+    }
+    
+    .filter-card {
+        margin-bottom: 0;
     }
 
-    .export-btn:hover {
-      background: #005fa3;
-    }
-
+    /* Table */
     table {
+      font-size: 10px; 
       width: 100%;
       border-collapse: collapse;
-      font-size: 11px;
     }
 
     th,
     td {
-      padding: 4px 6px;
-      border-bottom: 1px solid #e5e7eb;
+      padding: 3px 5px; 
       text-align: left;
-      white-space: nowrap;
     }
-
+    
     th {
-      background: #f9fafb;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-      z-index: 1;
+        background-color: #f3f4f6;
+        position: sticky;
+        top: 0;
+        z-index: 10;
     }
-
-    td:nth-child(2) {
-      white-space: normal;
-    }
-
+    
     .table-wrapper {
-      max-height: 310px;
       overflow: auto;
       border-radius: 8px;
       border: 1px solid #e5e7eb;
       background: #fff;
+      flex-grow: 1; 
+      max-height: 300px;
+    }
+    
+    .bottom-row-grid > .card:last-child {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; 
     }
 
-    tbody tr:nth-child(even) {
-      background: #f3f4f6;
+    /* Zone Chart & Attention */
+    .zone-chart-area {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        flex-grow: 1; 
     }
-
-    tbody tr:hover {
-      background: #e5edff;
-      cursor: pointer;
-    }
-
-    .status-pill {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 999px;
-      font-size: 10px;
-      font-weight: 600;
-      color: #fff;
-    }
-
-    .status-completed {
-      background: #16a34a;
-    }
-
-    .status-pending {
-      background: #dc2626;
-    }
-
-    .zone-chart-wrapper {
-      height: 220px;
-    }
-
+    
     .zone-card {
-      background: linear-gradient(135deg, #eff6ff, #ffffff);
-      margin-top: 4px;
-      margin-bottom: 10px;
+        flex-grow: 0; 
+        min-height: 180px; 
+        max-height: 250px;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+    
+    /* Attention Card - Expanded */
+    .attention-card {
+      flex-grow: 1; 
+      min-height: 100px;
+      padding: 12px 14px; 
+    }
+    
+    #attention-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 4px;
     }
 
+    .zone-priority-item {
+        background-color: #f8fafc; 
+        border-left: 5px solid; 
+        border-radius: 4px;
+        padding: 6px 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 11px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        transition: transform 0.1s ease-out;
+    }
+    
+    .zone-priority-item:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .zone-item-left {
+        display: flex;
+        align-items: center;
+        font-weight: 700;
+    }
+
+    .zone-item-stat {
+        font-size: 10px;
+        color: #6b7280;
+        font-weight: 500;
+        margin-left: 8px;
+    }
+
+    /* Donut Chart */
     .scope-card {
       background: linear-gradient(135deg, #fef9c3, #ffffff);
-    }
-
-    .attention-card {
-      margin-top: 6px;
-    }
-
-    .progress-wrapper {
-      margin-top: 6px;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 6px;
-      border-radius: 999px;
-      background: #e5e7eb;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #22c55e, #0ea5e9);
-      transition: width 0.6s ease;
-    }
-
-    .progress-label {
-      font-size: 11px;
-      color: #4b5563;
-      margin-top: 3px;
-    }
-
-    #lastUpdated {
-      font-size: 11px;
-      color: #6b7280;
-      margin-top: 6px;
-    }
-
-    .table-controls {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
+      flex-direction: column;
+      align-items: center; 
+      margin-bottom: 0;
+      padding: 12px; 
+      flex-grow: 1; 
+      min-height: 250px; 
+    }
+    
+    #scopeChart {
+        max-width: 90%; 
+        max-height: 150px; 
+        margin-bottom: 6px; 
     }
 
-    .table-search {
-      flex: 1;
-    }
-
-    .table-search input {
-      width: 100%;
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      font-size: 11px;
-      background: #f9fafb;
-    }
-
-    .table-search input:focus {
-      outline: none;
-      border-color: var(--algo-blue);
-      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
-    }
-
+    /* Responsive */
     @media (max-width: 1024px) {
       header {
-        padding: 8px 12px;
         flex-wrap: wrap;
         align-items: flex-start;
       }
@@ -400,16 +376,94 @@
         text-align: left;
       }
       .container {
-        padding: 8px 12px 16px;
+        padding: 8px;
         grid-template-columns: 1fr;
-        grid-gap: 10px;
+        grid-template-rows: auto;
+        grid-gap: 8px;
       }
-      .right-col {
-        order: 2;
+      .top-left-kpis, .scope-card-wrapper, .right-column {
+          grid-column: 1 / 2;
+          grid-row: auto; 
       }
-      .container > div:first-child {
-        order: 1;
+      .bottom-row-grid {
+          grid-column: 1 / 2;
+          grid-template-columns: 1fr;
       }
+      #map {
+        height: 250px;
+      }
+      .scope-card {
+          min-height: unset;
+      }
+      #scopeChart {
+          max-height: 200px;
+      }
+    }
+
+    /* UI Elements */
+    .status-pill {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 8px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-completed {
+      background-color: var(--algo-blue);
+      color: white;
+    }
+    .status-pending {
+      background-color: var(--aktor-red);
+      color: white;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      background-color: #e5e7eb;
+      color: #374151;
+      border-radius: 12px;
+      padding: 2px 8px;
+      margin-right: 4px;
+      margin-top: 4px;
+      font-size: 10px;
+    }
+    .filter-chip button {
+      background: none;
+      border: none;
+      color: #9ca3af;
+      margin-left: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      padding: 0;
+      line-height: 1;
+      font-size: 12px;
+    }
+
+    .progress-wrapper {
+      margin-top: 4px;
+    }
+    .progress-bar {
+      height: 6px;
+      background-color: #e5e7eb;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 2px;
+    }
+    .progress-fill {
+      height: 100%;
+      background-color: var(--algo-blue);
+      transition: width 0.3s ease;
+    }
+    
+    .table-search input {
+        width: 100%;
+        padding: 6px 10px;
+        margin-bottom: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 11px;
     }
   </style>
 </head>
@@ -438,15 +492,21 @@
     </header>
 
     <div class="container">
-      <div>
+      
+      <div class="top-left-kpis">
         <div class="kpi-grid">
+          
+          <div class="card">
+            <div class="card-title">Number of Sites Visited</div>
+            <div class="card-value" id="kpi-sites-visited">–</div>
+          </div>
           <div class="card">
             <div class="card-title">Total Junctions</div>
             <div class="card-value" id="kpi-total">–</div>
           </div>
 
           <div class="card">
-            <div class="card-title">Doha Region</div>
+            <div class="card-title">Doha Total</div>
             <div class="card-value" id="kpi-doha-total">–</div>
             <div class="progress-wrapper">
               <div class="progress-bar">
@@ -457,7 +517,7 @@
           </div>
 
           <div class="card">
-            <div class="card-title">North Region</div>
+            <div class="card-title">North Total</div>
             <div class="card-value" id="kpi-north-total">–</div>
             <div class="progress-wrapper">
               <div class="progress-bar">
@@ -468,7 +528,7 @@
           </div>
 
           <div class="card">
-            <div class="card-title">Pole Survey Status</div>
+            <div class="card-title">Pole Survey</div>
             <div class="card-value" id="kpi-pole-completed">–</div>
             <div class="progress-wrapper">
               <div class="progress-bar">
@@ -479,7 +539,7 @@
           </div>
 
           <div class="card">
-            <div class="card-title">Controller Survey Status</div>
+            <div class="card-title">Controller Survey</div>
             <div class="card-value" id="kpi-ctrl-completed">–</div>
             <div class="progress-wrapper">
               <div class="progress-bar">
@@ -490,17 +550,33 @@
           </div>
 
           <div class="card">
-            <div class="card-title">Junctions Under O&amp;M</div>
+            <div class="card-title">Overall Completed</div>
+            <div class="card-value" id="kpi-survey-completed">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="survey-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-survey-pct">–</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Survey Pending</div>
+            <div class="card-value" id="kpi-survey-pending">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Under O&amp;M</div>
             <div class="card-value" id="kpi-om">–</div>
           </div>
 
           <div class="card">
-            <div class="card-title">Junctions Under Projects</div>
+            <div class="card-title">Under Projects</div>
             <div class="card-value" id="kpi-projects">–</div>
           </div>
 
           <div class="card">
-            <div class="card-title">Junctions Switched Off</div>
+            <div class="card-title">Switched Off</div>
             <div class="card-value" id="kpi-off">–</div>
           </div>
 
@@ -510,74 +586,44 @@
           </div>
 
           <div class="card">
-            <div class="card-title">Non-SCATS (Isolated)</div>
+            <div class="card-title">Non-SCATS</div>
             <div class="card-value" id="kpi-non-scats">–</div>
           </div>
-
-          <div class="card">
-            <div class="card-title">Overall Survey Status</div>
-            <div class="card-value" id="kpi-overall-completed">–</div>
-            <div class="progress-wrapper">
-              <div class="progress-bar">
-                <div class="progress-fill" id="overall-progress-fill"></div>
-              </div>
-              <div class="progress-label" id="kpi-overall-pct">–</div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Number of Sites Visited</div>
-            <div class="card-value" id="kpi-sites-visited">–</div>
-          </div>
-          </div>
-
-        <div class="card map-card">
-          <div id="map"></div>
-        </div>
-
-        <div class="card zone-card">
-          <div class="card-title">Zone-wise Survey Completion (%)</div>
-          <div class="zone-chart-wrapper">
-            <canvas id="zoneChart"></canvas>
-          </div>
-          <div class="card-sub">
-            The chart shows the percentage of completed surveys for each zone (filtered view).
-          </div>
-        </div>
-
-        <div class="card attention-card">
-          <div class="card-title">Areas Needing Attention</div>
-          <div id="attention-list">Loading insights...</div>
         </div>
       </div>
 
-      <div class="right-col">
-        <div class="card">
-          <div class="card-title">Data Filters</div>
-          <div class="filters-row-title">Filter by Location:</div>
+      <div class="scope-card-wrapper">
+        <div class="card scope-card">
+          <div class="card-title">Scope Distribution by Remarks</div>
+          <canvas id="scopeChart"></canvas> 
+          <div class="card-sub">
+            Split of junctions by Remarks status, now occupying the primary space.
+          </div>
+        </div>
+      </div>
+
+      <div class="right-column">
+        <div class="card filter-card">
+          <div class="filters-row-title">Filters</div>
           <div class="filters">
             <label>
               Region
               <select id="filter-region">
                 <option value="">All</option>
-                </select>
+              </select>
             </label>
-            <label>
+             <label>
               Area
               <select id="filter-area">
                 <option value="">All</option>
-                </select>
+              </select>
             </label>
             <label>
               Zone
               <select id="filter-zone">
                 <option value="">All</option>
-                </select>
+              </select>
             </label>
-          </div>
-
-          <div class="filters-row-title" style="margin-top: 10px;">Filter by Status:</div>
-          <div class="filters">
             <label>
               Survey Status
               <select id="filter-survey">
@@ -590,21 +636,41 @@
               Remarks
               <select id="filter-remarks">
                 <option value="">All</option>
-                <option value="om">Under O&amp;M</option>
-                <option value="projects">Under Projects</option>
-                <option value="off">Switched Off</option>
+                <option value="om">O&amp;M</option>
+                <option value="projects">Projects</option>
+                <option value="off">Off</option>
                 <option value="other">Other</option>
               </select>
             </label>
           </div>
-
           <div class="active-filters" id="active-filters"></div>
-
           <button id="export-btn" class="export-btn">
             Download Current View (CSV)
           </button>
         </div>
 
+        <div class="card map-card">
+          <div class="card-title">Junction Map (Constrained View)</div>
+          <div id="map"></div>
+          <div id="lastUpdated"></div>
+        </div>
+      </div>
+
+      <div class="bottom-row-grid">
+        <div class="zone-chart-area">
+            <div class="card zone-card">
+              <div class="card-title">Zone-wise Survey Completion</div>
+              <div class="zone-chart-wrapper">
+                <canvas id="zoneChart"></canvas>
+              </div>
+            </div>
+
+            <div class="card attention-card">
+              <div class="card-title">⚠️ Priority Zones (Survey Lag)</div>
+              <div id="attention-list"></div>
+            </div>
+        </div>
+        
         <div class="card">
           <div class="card-title">Junction List</div>
           <div class="table-controls">
@@ -626,22 +692,13 @@
                   <th>Area</th>
                   <th>Street</th>
                   <th>Remarks</th>
-                  <th>Pole Survey</th>
-                  <th>Ctrl Survey</th>
+                  <th>Pole</th>
+                  <th>Ctrl</th>
                   <th>Survey</th>
                 </tr>
               </thead>
               <tbody id="junction-table-body"></tbody>
             </table>
-          </div>
-          <div id="lastUpdated">Last Updated: –</div>
-        </div>
-
-        <div class="card scope-card">
-          <div class="card-title">Scope Distribution</div>
-          <canvas id="scopeChart" height="160"></canvas>
-          <div class="card-sub">
-            Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
           </div>
         </div>
       </div>
@@ -656,94 +713,86 @@
 
   <script>
     /* ===== DATA CONFIG ===== */
+    // RESTORED CORRECT URL
     const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5pFct4J8nDgw7VLuUJpfVgxewoZSkjh-cNxjgtOOZcjEM5Hx0xyJsziL9MUrEmK6wuls0C2Ffd1ku/pub?gid=1921347271&single=true&output=csv";
 
-    // Column Indices for easy access (based on 0-indexing of CSV columns)
+    // Column Mapping (String keys as requested to fix parsing)
     const COLS = {
-      sNo: 0,
-      junctNo: 1,
-      street: 2,
-      lat: 3,
-      lon: 4,
-      zone: 5,
-      district: 6,
-      area: 7,
-      operationStatus: 8,
-      scatsStatus: 9,
-      remarks: 10,
-      surveyStatus: 11,
-      poleSurvey: 12,
-      ctrlSurvey: 13,
-      region: 14,
+      junctNo: "Junct No",
+      street: "Street Details",
+      lat: "Latitude",
+      lon: "Longitude",
+      zone: "Zone No",
+      district: "District",
+      remarks: "Remarks",
+      surveyStatus: "Survey Status",
+      poleSurvey: "Pole Survey",
+      ctrlSurvey: "Controller Survey",
+      scats: "SCATS & Non SCATS",
+      operationStatus: "Operation Status",
+      region: "Region",
+      area: "Area"
     };
+
+    function isTruthy(val) {
+      if (val == null) return false;
+      const v = String(val).trim().toLowerCase();
+      return ["true", "yes", "1", "y", "done", "completed", "✓", "✔"].includes(v);
+    }
+
+    function classifySurvey(v) {
+      return isTruthy(v) ? "completed" : "pending";
+    }
+
+    function classifyRemarks(remarks) {
+      const r = (remarks || "").toLowerCase();
+      if (r.includes("under o&m") || r.includes("under o & m")) return "om";
+      if (r.includes("under projects") || r.includes("under project")) return "projects";
+      if (r.includes("switched off") || r.includes("switch off")) return "off";
+      return "other";
+    }
+
+    function classifyScats(val) {
+      const v = (val || "").toLowerCase();
+      if (v.includes("operated")) return "scats";
+      if (v.includes("isolated") || v.includes("non scats") || v.includes("non-scats")) {
+        return "non";
+      }
+      return "unknown";
+    }
 
     let allData = [];
     let currentFiltered = [];
-    let map = null;
-    let markersLayer = null;
+    let map;
+    let markersLayer;
     let zoneChart = null;
     let scopeChart = null;
     let tableSearchTerm = "";
 
-    /* ===== UTILITY FUNCTIONS ===== */
-    function isTruthy(value) {
-      if (typeof value === "string") {
-        return value.toUpperCase() === "TRUE" || value.toUpperCase() === "YES" || value.trim() !== "";
-      }
-      return !!value;
-    }
-
-    function classifyRemarks(remarks) {
-      if (!remarks) return "other";
-      const r = remarks.toLowerCase();
-      if (r.includes("o&m")) return "om";
-      if (r.includes("project")) return "projects";
-      if (r.includes("off")) return "off";
-      return "other";
-    }
-
-    function classifySurvey(status) {
-        return isTruthy(status) ? "completed" : "pending";
-    }
-
-    function getStatusHtml(status) {
-      const surveyClass = classifySurvey(status);
-      const text = surveyClass === "completed" ? "Completed" : "Pending";
-      return `<span class="status-pill status-${surveyClass}">${text}</span>`;
-    }
-
-    /* ===== MAP/MARKERS ===== */
+    /* ===== MAP ===== */
     function initMap() {
-      if (map) map.remove();
-
-      map = L.map("map", {
-        minZoom: 10,
-        maxZoom: 18,
-        zoomControl: false,
-      }).setView([25.4, 51.2], 11);
-
+      map = L.map("map").setView([25.3, 51.4], 9);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution:
-          '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+        attribution: "&copy; OpenStreetMap contributors",
       }).addTo(map);
 
-      // Add a scale control to the map
-      L.control.scale({ imperial: false }).addTo(map);
-
-      // Initialize the markers layer
-      markersLayer = L.layerGroup().addTo(map);
+      markersLayer = L.featureGroup().addTo(map);
     }
 
-    function updateMapMarkers(data) {
+    function clearMarkers() {
       markersLayer.clearLayers();
+    }
 
+    function addMarkers(data) {
+      clearMarkers();
       data.forEach((row) => {
         const lat = parseFloat(row[COLS.lat]);
         const lon = parseFloat(row[COLS.lon]);
         if (isNaN(lat) || isNaN(lon)) return;
 
         const surveyClass = classifySurvey(row[COLS.surveyStatus]);
-        const color = surveyClass === "completed" ? "#16a34a" : "#dc2626";
+        const color = surveyClass === "completed" ? "#0070c9" : "#e0283b"; 
 
         const marker = L.circleMarker([lat, lon], {
           radius: 5,
@@ -772,12 +821,31 @@
         }
       }
     }
+    
+    function refreshMapSize() {
+        if (map) {
+            map.invalidateSize();
+        }
+    }
+
 
     /* ===== KPIs ===== */
     function updateKPIs(data) {
       const total = data.length;
-      let om = 0, proj = 0, off = 0, surveyCompleted = 0, surveyPending = 0, scatsOperated = 0, nonScats = 0, dohaTotal = 0, dohaCompleted = 0, northTotal = 0, northCompleted = 0, // New Counters
-        poleCompleted = 0, ctrlCompleted = 0;
+      let om = 0,
+        proj = 0,
+        off = 0,
+        surveyCompleted = 0,
+        surveyPending = 0,
+        scatsOperated = 0,
+        nonScats = 0,
+        dohaTotal = 0,
+        dohaCompleted = 0,
+        northTotal = 0,
+        northCompleted = 0,
+        poleCompleted = 0,
+        ctrlCompleted = 0,
+        sitesVisited = 0; // New Counter
 
       data.forEach((row) => {
         // Remarks Count
@@ -786,281 +854,160 @@
         else if (remarksType === "projects") proj++;
         else if (remarksType === "off") off++;
 
-        // SCATS Status Count
-        if (row[COLS.scatsStatus] === "SCATS - OPERATED") scatsOperated++;
-        else if (row[COLS.scatsStatus] === "ISOLATED") nonScats++;
+        // Survey Count
+        const isDone = isTruthy(row[COLS.surveyStatus]);
+        if (isDone) {
+          surveyCompleted++;
+        } else {
+          surveyPending++;
+        }
+        
+        // Pole Survey Count
+        const poleDone = isTruthy(row[COLS.poleSurvey]);
+        if (poleDone) {
+            poleCompleted++;
+        }
 
-        // Survey Status Count
-        if (isTruthy(row[COLS.surveyStatus])) surveyCompleted++;
-        else surveyPending++;
+        // Controller Survey Count
+        const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
+        if (ctrlDone) {
+            ctrlCompleted++;
+        }
+        
+        // NEW LOGIC: Sites Visited (Pole OR Controller Done)
+        if (poleDone || ctrlDone) {
+            sitesVisited++;
+        }
 
-        if (isTruthy(row[COLS.poleSurvey])) poleCompleted++;
-        if (isTruthy(row[COLS.ctrlSurvey])) ctrlCompleted++;
+        // SCATS Count
+        const scatsType = classifyScats(row[COLS.scats]);
+        if (scatsType === "scats") scatsOperated++;
+        else if (scatsType === "non") nonScats++;
 
-        // Region Count
-        if (row[COLS.region] === "Doha Region") {
+        // REGION COUNTS
+        const region = (row[COLS.region] || "").toLowerCase().trim();
+        
+        if (region.includes("doha")) {
           dohaTotal++;
-          if (isTruthy(row[COLS.surveyStatus])) dohaCompleted++;
-        } else if (row[COLS.region] === "North Region") {
+          if (isDone) dohaCompleted++;
+        } 
+        else if (region.includes("north")) {
           northTotal++;
-          if (isTruthy(row[COLS.surveyStatus])) northCompleted++;
+          if (isDone) northCompleted++;
         }
       });
 
-      // 1. Total Junctions
+      // Update Basic KPIs
       document.getElementById("kpi-total").textContent = total;
-
-      // 2. Remarks
+      document.getElementById("kpi-visited-sites").textContent = sitesVisited; // UPDATE NEW CARD
       document.getElementById("kpi-om").textContent = om;
       document.getElementById("kpi-projects").textContent = proj;
       document.getElementById("kpi-off").textContent = off;
-
-      // 3. SCATS Status
+      document.getElementById("kpi-survey-completed").textContent = surveyCompleted;
+      document.getElementById("kpi-survey-pending").textContent = surveyPending;
       document.getElementById("kpi-scats-operated").textContent = scatsOperated;
       document.getElementById("kpi-non-scats").textContent = nonScats;
 
-      // 4. Pole Survey Percentage
+      // 1. Survey Total Percentage
+      const pctSurvey = total > 0 ? (surveyCompleted / total) * 100 : 0;
+      document.getElementById("kpi-survey-pct").textContent =
+        (total > 0 ? pctSurvey.toFixed(1) + "%" : "–") + " of total";
+      const surveyFill = document.getElementById("survey-progress-fill");
+      if (surveyFill) surveyFill.style.width = pctSurvey.toFixed(1) + "%";
+
+      // 2. Pole Survey Percentage
       const pctPole = total > 0 ? (poleCompleted / total) * 100 : 0;
       document.getElementById("kpi-pole-completed").textContent = poleCompleted;
-      document.getElementById("kpi-pole-pct").textContent =
+      document.getElementById("kpi-pole-pct").textContent = 
         (total > 0 ? pctPole.toFixed(1) + "%" : "–") + " Completed";
       const poleFill = document.getElementById("pole-progress-fill");
       if (poleFill) poleFill.style.width = pctPole.toFixed(1) + "%";
 
-      // 5. Controller Survey Percentage
+      // 3. Controller Survey Percentage
       const pctCtrl = total > 0 ? (ctrlCompleted / total) * 100 : 0;
       document.getElementById("kpi-ctrl-completed").textContent = ctrlCompleted;
-      document.getElementById("kpi-ctrl-pct").textContent =
+      document.getElementById("kpi-ctrl-pct").textContent = 
         (total > 0 ? pctCtrl.toFixed(1) + "%" : "–") + " Completed";
       const ctrlFill = document.getElementById("ctrl-progress-fill");
       if (ctrlFill) ctrlFill.style.width = pctCtrl.toFixed(1) + "%";
 
-      // 6. Doha & North Region Stats
+      // 4. Doha & North Region Stats
       const dohaPct = dohaTotal > 0 ? (dohaCompleted / dohaTotal) * 100 : 0;
       document.getElementById("kpi-doha-total").textContent = dohaTotal;
-      document.getElementById("kpi-doha-pct").textContent =
+      document.getElementById("kpi-doha-pct").textContent = 
         dohaTotal > 0 ? `${dohaPct.toFixed(1)}% Completed` : "0% Completed";
       const dohaFill = document.getElementById("doha-progress-fill");
       if (dohaFill) dohaFill.style.width = dohaPct.toFixed(1) + "%";
 
       const northPct = northTotal > 0 ? (northCompleted / northTotal) * 100 : 0;
       document.getElementById("kpi-north-total").textContent = northTotal;
-      document.getElementById("kpi-north-pct").textContent =
+      document.getElementById("kpi-north-pct").textContent = 
         northTotal > 0 ? `${northPct.toFixed(1)}% Completed` : "0% Completed";
       const northFill = document.getElementById("north-progress-fill");
       if (northFill) northFill.style.width = northPct.toFixed(1) + "%";
-
-      // 7. Overall Survey Status
-      const pctOverall = total > 0 ? (surveyCompleted / total) * 100 : 0;
-      document.getElementById("kpi-overall-completed").textContent = surveyCompleted;
-      document.getElementById("kpi-overall-pct").textContent =
-        (total > 0 ? pctOverall.toFixed(1) + "%" : "–") + " Completed";
-      const overallFill = document.getElementById("overall-progress-fill");
-      if (overallFill) overallFill.style.width = pctOverall.toFixed(1) + "%";
-
-      // 8. Number of Sites Visited (NEW CARD)
-      // This displays the count of completed surveys, as a completed survey implies a site visit.
-      document.getElementById("kpi-sites-visited").textContent = surveyCompleted;
     }
 
-    /* ===== CHARTS ===== */
-    function buildZoneChart(data) {
-      const zoneMap = new Map();
-      data.forEach((row) => {
-        const zone = row[COLS.zone] || "NA";
-        if (!zoneMap.has(zone)) {
-          zoneMap.set(zone, { total: 0, completed: 0 });
-        }
-        const entry = zoneMap.get(zone);
-        entry.total++;
-        if (isTruthy(row[COLS.surveyStatus])) entry.completed++;
-      });
-
-      const labels = Array.from(zoneMap.keys()).sort((a, b) =>
+    /* ===== FILTER POPULATION ===== */
+    function populateDropdown(data, column, elementId) {
+      const select = document.getElementById(elementId);
+      const values = Array.from(
+        new Set(data.map((row) => row[column]).filter((v) => v != null && String(v).trim() !== ""))
+      ).sort((a, b) =>
         String(a).localeCompare(String(b), undefined, { numeric: true })
       );
-      const values = labels.map((z) => {
-        const entry = zoneMap.get(z);
-        return entry.total > 0
-          ? ((entry.completed / entry.total) * 100).toFixed(1)
-          : 0;
-      });
 
-      const chartData = {
-        labels: labels,
-        datasets: [
-          {
-            label: "Survey Completion (%)",
-            data: values,
-            backgroundColor: values.map((v) =>
-              v >= 80
-                ? "rgba(22, 163, 74, 0.7)" // Green for 80%+
-                : v >= 50
-                ? "rgba(251, 191, 36, 0.7)" // Yellow for 50-79%
-                : "rgba(239, 68, 68, 0.7)" // Red for <50%
-            ),
-            borderColor: values.map((v) =>
-              v >= 80
-                ? "rgba(22, 163, 74, 1)"
-                : v >= 50
-                ? "rgba(251, 191, 36, 1)"
-                : "rgba(239, 68, 68, 1)"
-            ),
-            borderWidth: 1,
-            borderRadius: 4,
-          },
-        ],
-      };
-
-      const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            title: {
-              display: true,
-              text: "Completion Percentage (%)",
-              font: { size: 10 },
-              color: "#4b5563",
-            },
-            ticks: { font: { size: 10 } },
-            grid: { color: "rgba(0, 0, 0, 0.05)" },
-          },
-          x: {
-            ticks: { font: { size: 10 } },
-            grid: { display: false },
-          },
-        },
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                let label = context.dataset.label || "";
-                if (label) {
-                  label += ": ";
-                }
-                label += context.parsed.y + "%";
-                return label;
-              },
-            },
-          },
-        },
-      };
-
-      if (zoneChart) {
-        zoneChart.data = chartData;
-        zoneChart.options = chartOptions;
-        zoneChart.update();
-      } else {
-        const ctx = document.getElementById("zoneChart").getContext("2d");
-        zoneChart = new Chart(ctx, {
-          type: "bar",
-          data: chartData,
-          options: chartOptions,
-        });
+      while (select.options.length > 1) {
+        select.remove(1);
       }
+
+      values.forEach((v) => {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        select.appendChild(opt);
+      });
     }
 
-    function buildScopeChart(data) {
-      let om = 0,
-        proj = 0,
-        off = 0,
-        other = 0;
-
-      data.forEach((row) => {
-        const remarksType = classifyRemarks(row[COLS.remarks]);
-        if (remarksType === "om") om++;
-        else if (remarksType === "projects") proj++;
-        else if (remarksType === "off") off++;
-        else other++;
-      });
-
-      const total = om + proj + off + other;
-
-      const chartData = {
-        labels: ["Under O&M", "Under Projects", "Switched Off", "Other"],
-        datasets: [
-          {
-            data: [om, proj, off, other],
-            backgroundColor: [
-              "rgba(75, 192, 192, 0.8)", // Teal/Cyan
-              "rgba(54, 162, 235, 0.8)", // Blue
-              "rgba(255, 99, 132, 0.8)", // Red
-              "rgba(201, 203, 207, 0.8)", // Gray
-            ],
-            borderColor: [
-              "rgba(75, 192, 192, 1)",
-              "rgba(54, 162, 235, 1)",
-              "rgba(255, 99, 132, 1)",
-              "rgba(201, 203, 207, 1)",
-            ],
-            borderWidth: 1,
-          },
-        ],
-      };
-
-      const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            position: "right",
-            labels: {
-              font: { size: 10 },
-            },
-          },
-          tooltip: {
-            callbacks: {
-              label: function (context) {
-                const count = context.raw;
-                const percentage =
-                  total > 0 ? ((count / total) * 100).toFixed(1) : 0;
-                return `${context.label}: ${count} (${percentage}%)`;
-              },
-            },
-          },
-        },
-      };
-
-      if (scopeChart) {
-        scopeChart.data = chartData;
-        scopeChart.options = chartOptions;
-        scopeChart.update();
-      } else {
-        const ctx = document.getElementById("scopeChart").getContext("2d");
-        scopeChart = new Chart(ctx, {
-          type: "doughnut",
-          data: chartData,
-          options: chartOptions,
-        });
-      }
+    function updateFilters(data) {
+      populateDropdown(data, COLS.zone, "filter-zone");
+      populateDropdown(data, COLS.region, "filter-region");
+      populateDropdown(data, COLS.area, "filter-area");
     }
 
-    /* ===== TABLE RENDERING ===== */
+    /* ===== TABLE RENDER ===== */
     function renderTable(data) {
       const tbody = document.getElementById("junction-table-body");
       tbody.innerHTML = "";
 
-      // Apply search filter
-      let filteredData = data.slice();
-      if (tableSearchTerm) {
-        const term = tableSearchTerm.toLowerCase();
-        filteredData = filteredData.filter((row) => {
-          return (
-            String(row[COLS.junctNo]).toLowerCase().includes(term) ||
-            String(row[COLS.street]).toLowerCase().includes(term) ||
-            String(row[COLS.zone]).toLowerCase().includes(term) ||
-            String(row[COLS.district]).toLowerCase().includes(term) ||
-            String(row[COLS.remarks]).toLowerCase().includes(term)
-          );
-        });
-      }
+      const term = tableSearchTerm.trim().toLowerCase();
+      const filtered = term
+        ? data.filter((row) => {
+            const fields = [
+              row[COLS.junctNo],
+              row[COLS.street],
+              row[COLS.zone],
+              row[COLS.district],
+              row[COLS.remarks],
+              row[COLS.region],
+              row[COLS.area]
+            ];
+            return fields.some((v) =>
+              String(v || "").toLowerCase().includes(term)
+            );
+          })
+        : data;
 
-      filteredData.forEach((row) => {
+      // Render top 200 for performance
+      filtered.slice(0, 200).forEach((row) => {
         const tr = document.createElement("tr");
+
+        const getStatusHtml = (val) => {
+            const cls = classifySurvey(val);
+            const txt = cls === "completed" ? "Comp" : "Pend";
+            const css = cls === "completed" ? "status-completed" : "status-pending";
+            return `<span class="status-pill ${css}">${txt}</span>`;
+        };
+
         tr.innerHTML = `
           <td>${row[COLS.junctNo] || ""}</td>
           <td>${row[COLS.region] || ""}</td>
@@ -1080,17 +1027,152 @@
             map.setView([lat, lon], 14, { animate: true });
           }
         });
+
         tbody.appendChild(tr);
       });
     }
 
-    /* ===== AI-STYLE INSIGHTS ===== */
+    /* ===== CHARTS ===== */
+    function buildZoneChart(data) {
+      const zoneMap = new Map();
+
+      data.forEach((row) => {
+        const zone = row[COLS.zone] || "NA";
+        if (!zoneMap.has(zone)) {
+          zoneMap.set(zone, { total: 0, completed: 0 });
+        }
+        const entry = zoneMap.get(zone);
+        entry.total++;
+        if (isTruthy(row[COLS.surveyStatus])) entry.completed++;
+      });
+
+      const labels = Array.from(zoneMap.keys()).sort((a, b) =>
+        String(a).localeCompare(String(b), undefined, { numeric: true })
+      );
+      const values = labels.map((z) => {
+        const { total, completed } = zoneMap.get(z);
+        return total > 0 ? +(completed / total * 100).toFixed(1) : 0;
+      });
+
+      const ctx = document.getElementById("zoneChart");
+      if (!ctx) return;
+
+      if (zoneChart) zoneChart.destroy();
+
+      zoneChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Survey Completion %",
+              data: values,
+              backgroundColor: "rgba(0, 112, 201, 0.75)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.parsed.y}% completed`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              title: { display: true, text: "Zone No" },
+              ticks: { font: { size: 10 } }
+            },
+            y: {
+              beginAtZero: true,
+              max: 100,
+              title: { display: true, text: "Completion %" },
+              ticks: {
+                callback: (v) => v + "%",
+                font: { size: 10 }
+              },
+              // Draw a horizontal line at 60
+              afterBuildTicks: function(scale) {
+                const ticks = scale.ticks;
+                if (!ticks.find(t => t.value === 60)) {
+                    ticks.push({ value: 60, label: 'Target' });
+                }
+                scale.ticks = ticks;
+              },
+              grid: {
+                  color: (context) => context.tick.value === 60 ? 'rgba(224, 40, 59, 0.7)' : 'rgba(0, 0, 0, 0.1)', 
+                  lineWidth: (context) => context.tick.value === 60 ? 2 : 1, 
+              },
+            },
+          },
+        },
+      });
+    }
+
+    function buildScopeChart(data) {
+      let om = 0,
+        proj = 0,
+        off = 0,
+        other = 0;
+
+      data.forEach((row) => {
+        const t = classifyRemarks(row[COLS.remarks]);
+        if (t === "om") om++;
+        else if (t === "projects") proj++;
+        else if (t === "off") off++;
+        else other++;
+      });
+
+      const ctx = document.getElementById("scopeChart");
+      if (!ctx) return;
+
+      if (scopeChart) scopeChart.destroy();
+
+      scopeChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Under O&M", "Under Projects", "Switched Off", "Other"],
+          datasets: [
+            {
+              data: [om, proj, off, other],
+              backgroundColor: [
+                "rgba(34, 197, 94, 0.9)",
+                "rgba(59, 130, 246, 0.9)",
+                "rgba(239, 68, 68, 0.9)",
+                "rgba(148, 163, 184, 0.95)",
+              ],
+              borderWidth: 0,
+            },
+          ],
+        },
+        options: {
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { boxWidth: 10, font: { size: 12 } },
+            },
+          },
+          cutout: "60%",
+          maintainAspectRatio: false,
+          responsive: true,
+          layout: {
+              padding: 0
+          }
+        },
+      });
+    }
+
+    /* ===== AI-STYLE INSIGHTS (Priority Cards) ===== */
     function updateInsights(data) {
       const el = document.getElementById("attention-list");
       if (!el) return;
 
       if (!data || data.length === 0) {
-        el.textContent = "No data for current selection.";
+        el.innerHTML = `<span style="color: #6b7280; font-style: italic;">No data for current selection.</span>`;
         return;
       }
 
@@ -1117,95 +1199,95 @@
       const threshold = 60;
       const needing = zones.filter((z) => z.pct < threshold);
 
+      el.innerHTML = ""; 
+
       if (needing.length === 0) {
-        el.innerHTML = `<strong>All zones have survey completion &ge; ${threshold}%.</strong>`;
+        el.innerHTML = `<span style="color: #10b981; font-weight: 600;">✅ All ${zones.length} zones have survey completion ≥ ${threshold}% in the current view.</span>`;
         return;
       }
 
       const top5 = needing.slice(0, 5);
-
-      el.innerHTML =
-        "<strong>Lowest completion zones (under " +
-        threshold +
-        "%):</strong><br/>";
+      el.innerHTML += `<div style="font-size:10px; color:#ef4444; margin-bottom: 4px;">Top ${top5.length} zones below ${threshold}% completion:</div>`;
+      
       top5.forEach((z) => {
-        const line =
-          "Zone " +
-          z.zone +
-          ": " +
-          z.completed +
-          "/" +
-          z.total +
-          " (" +
-          z.pct.toFixed(1) +
-          "%)";
-        const div = document.createElement("div");
-        div.textContent = line;
-        el.appendChild(div);
+        let borderColor = '#facc15'; 
+        if (z.pct < 40) {
+            borderColor = '#ef4444'; 
+        } else if (z.pct > 70) {
+            borderColor = '#3b82f6'; 
+        }
+
+        const item = document.createElement("div");
+        item.className = "zone-priority-item";
+        item.style.borderColor = borderColor;
+
+        item.innerHTML = `
+          <div class="zone-item-left">
+            ${z.pct < threshold ? '⚠️' : '✅'} Zone ${z.zone}
+          </div>
+          <div class="zone-item-stat">
+            ${z.completed}/${z.total} (${z.pct.toFixed(1)}%)
+          </div>
+        `;
+        el.appendChild(item);
       });
     }
 
     /* ===== FILTER TAGS ===== */
     function updateFilterTags() {
-      const activeFiltersEl = document.getElementById("active-filters");
-      activeFiltersEl.innerHTML = "";
+      const regionVal = document.getElementById("filter-region").value;
+      const areaVal = document.getElementById("filter-area").value;
+      const zoneVal = document.getElementById("filter-zone").value;
+      const surveyVal = document.getElementById("filter-survey").value;
+      const remarksVal = document.getElementById("filter-remarks").value;
 
-      const filters = [
-        {
-          key: "region",
-          label: "Region",
-          value: document.getElementById("filter-region").value,
-        },
-        {
-          key: "area",
-          label: "Area",
-          value: document.getElementById("filter-area").value,
-        },
-        {
-          key: "zone",
-          label: "Zone",
-          value: document.getElementById("filter-zone").value,
-        },
-        {
+      const container = document.getElementById("active-filters");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const filters = [];
+      if (regionVal) filters.push({ key: "region", label: "Region: " + regionVal });
+      if (areaVal) filters.push({ key: "area", label: "Area: " + areaVal });
+      if (zoneVal) filters.push({ key: "zone", label: "Zone: " + zoneVal });
+      if (surveyVal)
+        filters.push({
           key: "survey",
-          label: "Survey Status",
-          value: document.getElementById("filter-survey").value,
-        },
-        {
-          key: "remarks",
-          label: "Remarks",
-          value:
-            document.getElementById("filter-remarks").value === "om"
-              ? "Under O&M"
-              : document.getElementById("filter-remarks").value === "projects"
-              ? "Under Projects"
-              : document.getElementById("filter-remarks").value === "off"
-              ? "Switched Off"
-              : document.getElementById("filter-remarks").value === "other"
-              ? "Other"
-              : document.getElementById("filter-remarks").value,
-        },
-      ];
+          label:
+            "Survey: " + (surveyVal === "completed" ? "Completed" : "Pending"),
+        });
+      if (remarksVal) {
+        const map = {
+          om: "Under O&M",
+          projects: "Under Projects",
+          off: "Switched Off",
+          other: "Other",
+        };
+        filters.push({ key: "remarks", label: "Remarks: " + map[remarksVal] });
+      }
+
+      if (filters.length === 0) {
+        container.textContent = "No filters applied.";
+        container.style.color = "#6b7280";
+        return;
+      }
 
       filters.forEach((f) => {
-        if (!f.value || f.value === "All") return;
-
-        const container = document.createElement("div");
-        container.className = "filter-chip";
-        container.innerHTML = `
-          ${f.label}: ${f.value}
-          <button data-filter-key="${f.key}">x</button>
+        const chip = document.createElement("span");
+        chip.className = "filter-chip";
+        chip.innerHTML = `
+          <span>${f.label}</span>
+          <button aria-label="Clear filter ${f.key}">×</button>
         `;
-
-        container.querySelector("button").addEventListener("click", () => {
+        chip.querySelector("button").addEventListener("click", () => {
           if (f.key === "region") document.getElementById("filter-region").value = "";
           if (f.key === "area") document.getElementById("filter-area").value = "";
           if (f.key === "zone") document.getElementById("filter-zone").value = "";
           if (f.key === "survey") document.getElementById("filter-survey").value = "";
-          if (f.key === "remarks") document.getElementById("filter-remarks").value = "";
+          if (f.key === "remarks")
+            document.getElementById("filter-remarks").value = "";
           applyFilters();
         });
-        activeFiltersEl.appendChild(container);
+        container.appendChild(chip);
       });
     }
 
@@ -1233,101 +1315,114 @@
         filtered = filtered.filter((row) => String(row[COLS.zone]) === zoneVal);
       }
 
-      // Survey Status Filter
       if (surveyVal) {
-        const isCompleted = surveyVal === "completed";
-        filtered = filtered.filter((row) => isTruthy(row[COLS.surveyStatus]) === isCompleted);
+        filtered = filtered.filter(
+          (row) => classifySurvey(row[COLS.surveyStatus]) === surveyVal
+        );
       }
 
-      // Remarks Filter
       if (remarksVal) {
-        filtered = filtered.filter((row) => classifyRemarks(row[COLS.remarks]) === remarksVal);
+        filtered = filtered.filter(
+          (row) => classifyRemarks(row[COLS.remarks]) === remarksVal
+        );
       }
 
       currentFiltered = filtered;
 
       updateKPIs(filtered);
-      updateMapMarkers(filtered);
+      addMarkers(filtered);
       renderTable(filtered);
       buildZoneChart(filtered);
       buildScopeChart(filtered);
       updateInsights(filtered);
       updateFilterTags();
-
-      document.getElementById("lastUpdated").textContent = `Last Updated: ${new Date().toLocaleString()} (Showing ${filtered.length} of ${allData.length} Junctions)`;
+      
+      refreshMapSize(); 
     }
 
-    /* ===== POPULATE FILTERS ===== */
-    function populateFilters(data) {
-      const regions = new Set();
-      const areas = new Set();
-      const zones = new Set();
+    /* ===== EXPORT ===== */
+    function exportCurrentView() {
+      const rows = currentFiltered.length > 0 ? currentFiltered : allData;
+      if (!rows || rows.length === 0) {
+        alert("No data to export.");
+        return;
+      }
 
-      data.forEach((row) => {
-        if (row[COLS.region]) regions.add(row[COLS.region]);
-        if (row[COLS.area]) areas.add(row[COLS.area]);
-        if (row[COLS.zone]) zones.add(row[COLS.zone]);
+      const headers = [
+        COLS.junctNo,
+        COLS.region,
+        COLS.zone,
+        COLS.area,
+        COLS.district,
+        COLS.street,
+        COLS.remarks,
+        COLS.poleSurvey,
+        COLS.ctrlSurvey,
+        COLS.surveyStatus,
+        COLS.scats,
+        COLS.lat,
+        COLS.lon,
+      ];
+
+      const csvLines = [];
+      csvLines.push(headers.join(","));
+
+      rows.forEach((row) => {
+        const line = headers
+          .map((h) => {
+            const val = row[h] == null ? "" : String(row[h]).replace(/"/g, '""');
+            return `"${val}"`;
+          })
+          .join(",");
+        csvLines.push(line);
       });
 
-      const regionSelect = document.getElementById("filter-region");
-      const areaSelect = document.getElementById("filter-area");
-      const zoneSelect = document.getElementById("filter-zone");
-
-      const sortedRegions = Array.from(regions).sort();
-      const sortedAreas = Array.from(areas).sort();
-      const sortedZones = Array.from(zones).sort((a, b) =>
-        String(a).localeCompare(String(b), undefined, { numeric: true })
-      );
-
-      // Helper function to populate select
-      const populateSelect = (selectElement, options) => {
-        // Keep the "All" option
-        const initialOption = selectElement.querySelector('option[value=""]');
-        selectElement.innerHTML = '';
-        if (initialOption) {
-            selectElement.appendChild(initialOption);
-        } else {
-             const allOption = document.createElement("option");
-             allOption.value = "";
-             allOption.textContent = "All";
-             selectElement.appendChild(allOption);
-        }
-
-        options.forEach((option) => {
-          const opt = document.createElement("option");
-          opt.value = option;
-          opt.textContent = option;
-          selectElement.appendChild(opt);
-        });
-      };
-
-      populateSelect(regionSelect, sortedRegions);
-      populateSelect(areaSelect, sortedAreas);
-      populateSelect(zoneSelect, sortedZones);
-
-      // Add event listeners for region and area filters if they don't exist
-      if (!regionSelect.getAttribute('data-listener-added')) {
-        regionSelect.addEventListener("change", applyFilters);
-        regionSelect.setAttribute('data-listener-added', 'true');
-      }
-      if (!areaSelect.getAttribute('data-listener-added')) {
-        areaSelect.addEventListener("change", applyFilters);
-        areaSelect.setAttribute('data-listener-added', 'true');
-      }
+      const blob = new Blob([csvLines.join("\n")], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "qatar_north_junctions_view.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     }
 
-    /* ===== DATA LOADING & INITIALIZATION ===== */
+    /* ===== LOAD DATA (WITH AUTO REFRESH) ===== */
+    function setLastUpdated() {
+      const el = document.getElementById("lastUpdated");
+      if (!el) return;
+      const now = new Date();
+      el.textContent =
+        "Last loaded: " +
+        now.toLocaleString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+    }
+
     function loadData() {
       Papa.parse(SHEET_CSV_URL, {
         download: true,
-        header: false,
+        header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          // Remove header row (assuming the first row is the header)
-          const data = results.data.slice(1);
-          allData = data;
-          populateFilters(allData);
+          allData = results.data;
+          updateFilters(allData);
           applyFilters();
+          setLastUpdated();
+
+          if (!window._autoRefreshSet) {
+            window._autoRefreshSet = true;
+            setInterval(() => {
+              loadData();
+            }, 5 * 60 * 1000); // 5 minutes
+          }
         },
         error: function (err) {
           console.error("Error loading CSV:", err);
@@ -1351,59 +1446,28 @@
       });
     }
 
-    /* ===== CSV EXPORT ===== */
-    function exportCurrentView() {
-      const filteredHeaders = [
-        "Junct No", "Region", "Zone", "Area", "Street Details", "Remarks", "Survey Status"
-      ];
-      
-      const filteredData = currentFiltered.map(row => ({
-        "Junct No": row[COLS.junctNo],
-        "Region": row[COLS.region],
-        "Zone": row[COLS.zone],
-        "Area": row[COLS.area],
-        "Street Details": row[COLS.street],
-        "Remarks": row[COLS.remarks],
-        "Survey Status": isTruthy(row[COLS.surveyStatus]) ? "Completed" : "Pending"
-      }));
-
-      const csv = Papa.unparse({
-        fields: filteredHeaders,
-        data: filteredData
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", `traffic_junctions_dashboard_${new Date().toISOString().slice(0, 10)}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-
     /* ===== INIT ===== */
     document.addEventListener("DOMContentLoaded", function () {
       initMap();
       loadData();
 
-      // Filter listeners for single-choice filters (region/area listeners added in populateFilters)
+      document.getElementById("filter-region").addEventListener("change", applyFilters);
+      document.getElementById("filter-area").addEventListener("change", applyFilters);
       document.getElementById("filter-zone").addEventListener("change", applyFilters);
       document.getElementById("filter-survey").addEventListener("change", applyFilters);
       document.getElementById("filter-remarks").addEventListener("change", applyFilters);
 
-      // Export button listener
-      document.getElementById("export-btn").addEventListener("click", exportCurrentView);
+      document
+        .getElementById("export-btn")
+        .addEventListener("click", exportCurrentView);
 
-      // Table Search listener
-      document.getElementById("table-search").addEventListener("input", (e) => {
-        tableSearchTerm = e.target.value;
-        renderTable(currentFiltered);
-      });
+      document
+        .getElementById("table-search")
+        .addEventListener("input", (e) => {
+          tableSearchTerm = e.target.value;
+          renderTable(currentFiltered);
+        });
 
-      // Update Date/Time
       updateCurrentDateTime();
       setInterval(updateCurrentDateTime, 30 * 1000);
     });
