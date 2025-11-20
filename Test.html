@@ -153,9 +153,10 @@
       margin-top: 4px;
     }
 
+    /* Map smaller now (uses previous donut area size) */
     #map {
       width: 100%;
-      height: 420px;
+      height: 260px;
       border-radius: 12px;
       overflow: hidden;
     }
@@ -319,6 +320,7 @@
       margin-bottom: 10px;
     }
 
+    /* Scope card now in big area (previous map area) */
     .scope-card {
       background: linear-gradient(135deg, #fef9c3, #ffffff);
     }
@@ -386,6 +388,46 @@
       box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
     }
 
+    /* Map legend */
+    .map-legend {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #4b5563;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .legend-completed {
+      background: #16a34a;
+    }
+
+    .legend-visited {
+      background: #f97316;
+    }
+
+    .legend-notvisited {
+      background: #dc2626;
+    }
+
+    .legend-selected {
+      background: #0070c9;
+    }
+
     @media (max-width: 1024px) {
       header {
         padding: 8px 12px;
@@ -434,6 +476,7 @@
     </header>
 
     <div class="container">
+      <!-- LEFT COLUMN -->
       <div>
         <div class="kpi-grid">
           <div class="card">
@@ -526,7 +569,6 @@
             <div class="card-value" id="kpi-survey-pending">–</div>
           </div>
 
-          <!-- NEW: Sites Visited -->
           <div class="card">
             <div class="card-title">Sites Visited</div>
             <div class="card-value" id="kpi-sites-visited">–</div>
@@ -539,10 +581,14 @@
           </div>
         </div>
 
-        <div class="card map-card">
-          <div class="card-title">Junction Map (Satellite Imagery)</div>
-          <div id="map"></div>
-          <div id="lastUpdated"></div>
+        <!-- SCOPE DONUT CHART moved to left, big area -->
+        <div class="card scope-card">
+          <div class="card-title">Scope Distribution</div>
+          <!-- height increased to use previous map size -->
+          <canvas id="scopeChart" height="420"></canvas>
+          <div class="card-sub">
+            Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
+          </div>
         </div>
 
         <div class="card zone-card">
@@ -561,6 +607,7 @@
         </div>
       </div>
 
+      <!-- RIGHT COLUMN -->
       <div class="right-col">
         <div class="card">
           <div class="filters-row-title">Filters</div>
@@ -639,11 +686,29 @@
           </div>
         </div>
 
-        <div class="card scope-card">
-          <div class="card-title">Scope Distribution</div>
-          <canvas id="scopeChart" height="160"></canvas>
-          <div class="card-sub">
-            Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
+        <!-- MAP moved to right column, smaller area -->
+        <div class="card map-card">
+          <div class="card-title">Junction Map (Satellite Imagery)</div>
+          <div id="map"></div>
+          <div id="lastUpdated"></div>
+          <!-- NEW LEGEND -->
+          <div class="map-legend">
+            <div class="legend-item">
+              <span class="legend-dot legend-completed"></span>
+              <span>Survey completed</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-visited"></span>
+              <span>Site visited (Pole/Controller)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-notvisited"></span>
+              <span>Not visited</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-selected"></span>
+              <span>Selected from junction list</span>
+            </div>
           </div>
         </div>
       </div>
@@ -721,6 +786,29 @@
     let scopeChart = null;
     let tableSearchTerm = "";
 
+    /* ===== POPUP BUILDER (used by auto pins + selected pin) ===== */
+    function buildPopupHtml(row) {
+      const surveyDone = isTruthy(row[COLS.surveyStatus]);
+      const poleDone = isTruthy(row[COLS.poleSurvey]);
+      const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
+
+      return `
+        <strong>Junction ${row[COLS.junctNo] || ""}</strong><br/>
+        <strong>Street:</strong> ${row[COLS.street] || ""}<br/>
+        <strong>Region:</strong> ${row[COLS.region] || ""} &nbsp;|&nbsp;
+        <strong>Area:</strong> ${row[COLS.area] || ""}<br/>
+        <strong>Zone:</strong> ${row[COLS.zone] || ""} &nbsp;|&nbsp;
+        <strong>District:</strong> ${row[COLS.district] || ""}<br/>
+        <strong>Remarks:</strong> ${row[COLS.remarks] || ""}<br/>
+        <strong>Survey Status:</strong> ${surveyDone ? "Completed" : "Pending"}<br/>
+        <strong>Pole Survey:</strong> ${poleDone ? "Done" : "Not Done"} &nbsp;|&nbsp;
+        <strong>Controller Survey:</strong> ${ctrlDone ? "Done" : "Not Done"}<br/>
+        <strong>SCATS:</strong> ${row[COLS.scats] || ""}<br/>
+        <strong>Operation Status:</strong> ${row[COLS.operationStatus] || ""}<br/>
+        <strong>Lat / Lon:</strong> ${row[COLS.lat] || ""}, ${row[COLS.lon] || ""}
+      `;
+    }
+
     /* ===== MAP ===== */
     function initMap() {
       map = L.map("map").setView([25.3, 51.4], 9);
@@ -750,20 +838,16 @@
         const lon = parseFloat(row[COLS.lon]);
         if (isNaN(lat) || isNaN(lon)) return;
 
-        // Color logic: survey + pole + controller
         const surveyDone = isTruthy(row[COLS.surveyStatus]);
         const poleDone = isTruthy(row[COLS.poleSurvey]);
         const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
 
         let color;
         if (surveyDone) {
-          // Full survey completed
           color = "#16a34a"; // green
         } else if (poleDone || ctrlDone) {
-          // Visited but not fully completed
           color = "#f97316"; // orange
         } else {
-          // Not visited at all
           color = "#dc2626"; // red
         }
 
@@ -775,16 +859,7 @@
           weight: 1,
         });
 
-        const popupHtml = `
-          <strong>Junction ${row[COLS.junctNo] || ""}</strong><br/>
-          ${row[COLS.street] || ""}<br/>
-          Region: ${row[COLS.region] || ""} · Area: ${row[COLS.area] || ""}<br/>
-          Zone: ${row[COLS.zone] || ""} · District: ${row[COLS.district] || ""}<br/>
-          Remarks: ${row[COLS.remarks] || ""}<br/>
-          Survey Status: ${surveyDone ? "Completed" : "Pending"}<br/>
-          Pole Survey: ${poleDone ? "Done" : "Not Done"} · Ctrl Survey: ${ctrlDone ? "Done" : "Not Done"}
-        `;
-        marker.bindPopup(popupHtml);
+        marker.bindPopup(buildPopupHtml(row));
         marker.addTo(markersLayer);
       });
 
@@ -971,7 +1046,7 @@
           <td>${getStatusHtml(row[COLS.surveyStatus])}</td>
         `;
 
-        // Click = clear all markers, show ONLY this junction, zoom & popup
+        // Click: show ONLY this junction pin with full details
         tr.addEventListener("click", () => {
           const lat = parseFloat(row[COLS.lat]);
           const lon = parseFloat(row[COLS.lon]);
@@ -987,10 +1062,7 @@
               weight: 2
             }).addTo(markersLayer);
 
-            marker.bindPopup(
-              `<strong>Junction ${row[COLS.junctNo] || ""}</strong><br/>${row[COLS.street] || ""}`
-            ).openPopup();
-
+            marker.bindPopup(buildPopupHtml(row)).openPopup();
             map.setView([lat, lon], 16, { animate: true });
           }
         });
