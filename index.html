@@ -19,8 +19,8 @@
   <style>
     :root {
       --aktor-blue: #111827;
-      --aktor-red: #e0283b; /* Used for Pending/Attention */
-      --algo-blue: #0070c9; /* Used for Completed/Primary Action */
+      --aktor-red: #e0283b;
+      --algo-blue: #0070c9;
       --card-bg: #ffffff;
     }
 
@@ -40,8 +40,9 @@
         sans-serif;
       color: #111827;
       
-      background-image: url('bg-image.jpg'); 
-      background-color: #020617; 
+      /* FIX: Using explicit properties for reliable background loading */
+      background-image: url('bg-image.png'); 
+      background-color: #020617; /* Fallback color */
       background-repeat: no-repeat;
       background-position: center center;
       background-attachment: fixed;
@@ -52,6 +53,7 @@
       width: 100%;
       min-height: 100vh;
       margin: 0;
+      /* Overlay to ensure text is readable over the background image */
       background: linear-gradient(
         180deg,
         rgba(15, 23, 42, 0.5),
@@ -64,8 +66,8 @@
       width: 100%;
       background: linear-gradient(90deg, #020617, #111827);
       backdrop-filter: blur(8px);
-      border-bottom: 5px solid var(--aktor-red); 
-      padding: 8px 16px; 
+      border-bottom: 3px solid rgba(224, 40, 59, 0.9);
+      padding: 10px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -85,290 +87,312 @@
     }
 
     .logo-img {
-      max-height: 50px; 
+      max-height: 56px;
       height: auto;
     }
 
     .logo-img-small {
-      max-height: 38px;
+      max-height: 42px;
     }
 
     header h1 {
       margin: 0;
-      font-size: 24px; 
-      font-weight: 800; 
-      letter-spacing: 0.04em;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
       color: #f9fafb;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.5); 
     }
 
     header .subtitle {
-      font-size: 10px; 
+      font-size: 11px;
       color: #e5e7eb;
       margin-top: 2px;
     }
 
     .datetime-header {
-      font-size: 10px;
+      font-size: 11px;
       color: #cbd5ff;
       margin-top: 4px;
     }
 
     /* ===== MAIN GRID ===== */
     .container {
-      padding: 10px 16px 20px; 
+      padding: 12px 16px 20px;
       display: grid;
-      grid-template-columns: 1fr 2fr 1fr; 
-      grid-template-rows: auto auto 1fr; 
-      grid-gap: 12px; 
+      grid-template-columns: 1.55fr 1.15fr;
+      grid-gap: 16px;
     }
 
-    .top-left-kpis {
-        grid-column: 1 / 2;
-        grid-row: 1 / 3; 
-    }
-
-    .scope-card-wrapper { 
-        grid-column: 2 / 3;
-        grid-row: 1 / 3;
-        display: flex;
-        flex-direction: column;
-        gap: 12px; 
-    }
-
-    .right-column {
-        grid-column: 3 / 4;
-        grid-row: 1 / 3;
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-    
-    .bottom-row-grid {
-        grid-column: 1 / 4; 
-        grid-row: 3 / 4;
-        display: grid;
-        grid-template-columns: 1fr 1.5fr; 
-        gap: 12px;
-    }
-
-    /* ===== KPI GRID ===== */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr); 
-      grid-gap: 8px; 
-      margin-bottom: 0;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      grid-gap: 10px;
+      margin-bottom: 14px;
     }
-    
+
     .card {
       background: var(--card-bg);
-      border-radius: 10px; 
-      padding: 10px 12px; 
-      box-shadow: 0 3px 12px rgba(15, 23, 42, 0.2);
-      transition: transform 0.2s ease; 
-      border: 1px solid #e5e7eb; 
-      height: fit-content;
-    }
-
-    .card:hover {
-        transform: none; 
-        box-shadow: 0 3px 12px rgba(15, 23, 42, 0.2);
-    }
-
-    .kpi-grid .card { 
-        background: linear-gradient(135deg, #ffffff, #f9fafb);
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: 0 3px 12px rgba(15, 23, 42, 0.35);
     }
 
     .card-title {
-      font-size: 9px; 
+      font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.08em;
       color: #6b7280;
-      margin-bottom: 2px; 
-      font-weight: 600; 
+      margin-bottom: 4px;
     }
 
     .card-value {
-      font-size: 20px; 
+      font-size: 24px;
       font-weight: 700;
       color: #111827;
-      line-height: 1.1;
     }
 
     .card-sub {
-      font-size: 10px;
+      font-size: 11px;
       color: #4b5563;
-      margin-top: 3px;
+      margin-top: 4px;
     }
 
-    /* Map */
     #map {
       width: 100%;
-      height: 180px; 
-      border-radius: 10px;
+      height: 420px;
+      border-radius: 12px;
       overflow: hidden;
     }
 
     .map-card {
-      margin-bottom: 0; 
-      padding: 12px; 
-      flex-grow: 1;
+      margin-bottom: 12px;
     }
 
-    /* Filters */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
     .filters-row-title {
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 600;
       color: #374151;
       margin-bottom: 4px;
     }
 
     .filters {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr); 
+      display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       align-items: flex-start;
       margin-top: 4px;
     }
 
     .filters label {
-      font-size: 10px;
+      font-size: 11px;
+      color: #374151;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
 
     .filters select {
-      padding: 4px 8px; 
-      border-radius: 6px; 
-      font-size: 11px; 
-      min-width: unset;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 11px;
+      min-width: 110px;
+      background: #f9fafb;
+    }
+
+    .filters select:focus {
+      outline: none;
+      border-color: var(--algo-blue);
+      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
+    }
+
+    .active-filters {
+      margin-top: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 10px;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(0, 112, 201, 0.12);
+      color: #1d4ed8;
+    }
+
+    .filter-chip button {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 1;
     }
 
     .export-btn {
       margin-top: 8px;
-      padding: 4px 12px; 
-      font-size: 11px; 
-    }
-    
-    .filter-card {
-        margin-bottom: 0;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #0070c9;
+      background: #0070c9;
+      color: #fff;
+      font-size: 11px;
+      cursor: pointer;
     }
 
-    /* Table */
+    .export-btn:hover {
+      background: #005fa3;
+    }
+
     table {
-      font-size: 10px; 
       width: 100%;
       border-collapse: collapse;
+      font-size: 11px;
     }
 
     th,
     td {
-      padding: 3px 5px; 
+      padding: 4px 6px;
+      border-bottom: 1px solid #e5e7eb;
       text-align: left;
+      white-space: nowrap;
     }
-    
+
     th {
-        background-color: #f3f4f6;
-        position: sticky;
-        top: 0;
-        z-index: 10;
+      background: #f9fafb;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
     }
-    
+
+    td:nth-child(2) {
+      white-space: normal;
+    }
+
     .table-wrapper {
+      max-height: 310px;
       overflow: auto;
       border-radius: 8px;
       border: 1px solid #e5e7eb;
       background: #fff;
-      flex-grow: 1; 
-      max-height: 300px;
-    }
-    
-    .bottom-row-grid > .card:last-child {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1; 
     }
 
-    /* Zone Chart & Attention */
-    .zone-chart-area {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        flex-grow: 1; 
+    tbody tr:nth-child(even) {
+      background: #f3f4f6;
     }
-    
+
+    tbody tr:hover {
+      background: #e5edff;
+      cursor: pointer;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .status-completed {
+      background: #16a34a;
+    }
+
+    .status-pending {
+      background: #dc2626;
+    }
+
+    .zone-chart-wrapper {
+      height: 220px;
+    }
+
     .zone-card {
-        flex-grow: 0; 
-        min-height: 180px; 
-        max-height: 250px;
-        margin-top: 0;
-        margin-bottom: 0;
-    }
-    
-    /* Attention Card - Expanded */
-    .attention-card {
-      flex-grow: 1; 
-      min-height: 100px;
-      padding: 12px 14px; 
-    }
-    
-    #attention-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding-top: 4px;
+      background: linear-gradient(135deg, #eff6ff, #ffffff);
+      margin-top: 4px;
+      margin-bottom: 10px;
     }
 
-    .zone-priority-item {
-        background-color: #f8fafc; 
-        border-left: 5px solid; 
-        border-radius: 4px;
-        padding: 6px 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 11px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        transition: transform 0.1s ease-out;
-    }
-    
-    .zone-priority-item:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .zone-item-left {
-        display: flex;
-        align-items: center;
-        font-weight: 700;
-    }
-
-    .zone-item-stat {
-        font-size: 10px;
-        color: #6b7280;
-        font-weight: 500;
-        margin-left: 8px;
-    }
-
-    /* Donut Chart */
     .scope-card {
       background: linear-gradient(135deg, #fef9c3, #ffffff);
-      display: flex;
-      flex-direction: column;
-      align-items: center; 
-      margin-bottom: 0;
-      padding: 12px; 
-      flex-grow: 1; 
-      min-height: 250px; 
-    }
-    
-    #scopeChart {
-        max-width: 90%; 
-        max-height: 150px; 
-        margin-bottom: 6px; 
     }
 
-    /* Responsive */
+    .attention-card {
+      margin-top: 6px;
+    }
+
+    .progress-wrapper {
+      margin-top: 6px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #0ea5e9);
+      transition: width 0.6s ease;
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: #4b5563;
+      margin-top: 3px;
+    }
+
+    #lastUpdated {
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .table-search {
+      flex: 1;
+    }
+
+    .table-search input {
+      width: 100%;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 11px;
+      background: #f9fafb;
+    }
+
+    .table-search input:focus {
+      outline: none;
+      border-color: var(--algo-blue);
+      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
+    }
+
     @media (max-width: 1024px) {
       header {
+        padding: 8px 12px;
         flex-wrap: wrap;
         align-items: flex-start;
       }
@@ -376,94 +400,16 @@
         text-align: left;
       }
       .container {
-        padding: 8px;
+        padding: 8px 12px 16px;
         grid-template-columns: 1fr;
-        grid-template-rows: auto;
-        grid-gap: 8px;
+        grid-gap: 10px;
       }
-      .top-left-kpis, .scope-card-wrapper, .right-column {
-          grid-column: 1 / 2;
-          grid-row: auto; 
+      .right-col {
+        order: 2;
       }
-      .bottom-row-grid {
-          grid-column: 1 / 2;
-          grid-template-columns: 1fr;
+      .container > div:first-child {
+        order: 1;
       }
-      #map {
-        height: 250px;
-      }
-      .scope-card {
-          min-height: unset;
-      }
-      #scopeChart {
-          max-height: 200px;
-      }
-    }
-
-    /* UI Elements */
-    .status-pill {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 8px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .status-completed {
-      background-color: var(--algo-blue);
-      color: white;
-    }
-    .status-pending {
-      background-color: var(--aktor-red);
-      color: white;
-    }
-
-    .filter-chip {
-      display: inline-flex;
-      align-items: center;
-      background-color: #e5e7eb;
-      color: #374151;
-      border-radius: 12px;
-      padding: 2px 8px;
-      margin-right: 4px;
-      margin-top: 4px;
-      font-size: 10px;
-    }
-    .filter-chip button {
-      background: none;
-      border: none;
-      color: #9ca3af;
-      margin-left: 4px;
-      cursor: pointer;
-      font-weight: bold;
-      padding: 0;
-      line-height: 1;
-      font-size: 12px;
-    }
-
-    .progress-wrapper {
-      margin-top: 4px;
-    }
-    .progress-bar {
-      height: 6px;
-      background-color: #e5e7eb;
-      border-radius: 3px;
-      overflow: hidden;
-      margin-bottom: 2px;
-    }
-    .progress-fill {
-      height: 100%;
-      background-color: var(--algo-blue);
-      transition: width 0.3s ease;
-    }
-    
-    .table-search input {
-        width: 100%;
-        padding: 6px 10px;
-        margin-bottom: 8px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        font-size: 11px;
     }
   </style>
 </head>
@@ -492,21 +438,15 @@
     </header>
 
     <div class="container">
-      
-      <div class="top-left-kpis">
+      <div>
         <div class="kpi-grid">
-          
-          <div class="card">
-            <div class="card-title">Number of Sites Visited</div>
-            <div class="card-value" id="kpi-sites-visited">–</div>
-          </div>
           <div class="card">
             <div class="card-title">Total Junctions</div>
             <div class="card-value" id="kpi-total">–</div>
           </div>
 
           <div class="card">
-            <div class="card-title">Doha Total</div>
+            <div class="card-title">Doha Region</div>
             <div class="card-value" id="kpi-doha-total">–</div>
             <div class="progress-wrapper">
               <div class="progress-bar">
@@ -517,7 +457,7 @@
           </div>
 
           <div class="card">
-            <div class="card-title">North Total</div>
+            <div class="card-title">North Region</div>
             <div class="card-value" id="kpi-north-total">–</div>
             <div class="progress-wrapper">
               <div class="progress-bar">
@@ -528,7 +468,7 @@
           </div>
 
           <div class="card">
-            <div class="card-title">Pole Survey</div>
+            <div class="card-title">Pole Survey Status</div>
             <div class="card-value" id="kpi-pole-completed">–</div>
             <div class="progress-wrapper">
               <div class="progress-bar">
@@ -539,7 +479,7 @@
           </div>
 
           <div class="card">
-            <div class="card-title">Controller Survey</div>
+            <div class="card-title">Controller Survey Status</div>
             <div class="card-value" id="kpi-ctrl-completed">–</div>
             <div class="progress-wrapper">
               <div class="progress-bar">
@@ -550,7 +490,32 @@
           </div>
 
           <div class="card">
-            <div class="card-title">Overall Completed</div>
+            <div class="card-title">Junctions Under O&amp;M</div>
+            <div class="card-value" id="kpi-om">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Junctions Under Projects</div>
+            <div class="card-value" id="kpi-projects">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Junctions Switched Off</div>
+            <div class="card-value" id="kpi-off">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">SCATS Operated</div>
+            <div class="card-value" id="kpi-scats-operated">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Non-SCATS (Isolated)</div>
+            <div class="card-value" id="kpi-non-scats">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Survey Completed</div>
             <div class="card-value" id="kpi-survey-completed">–</div>
             <div class="progress-wrapper">
               <div class="progress-bar">
@@ -564,46 +529,32 @@
             <div class="card-title">Survey Pending</div>
             <div class="card-value" id="kpi-survey-pending">–</div>
           </div>
-
-          <div class="card">
-            <div class="card-title">Under O&amp;M</div>
-            <div class="card-value" id="kpi-om">–</div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Under Projects</div>
-            <div class="card-value" id="kpi-projects">–</div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Switched Off</div>
-            <div class="card-value" id="kpi-off">–</div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">SCATS Operated</div>
-            <div class="card-value" id="kpi-scats-operated">–</div>
-          </div>
-
-          <div class="card">
-            <div class="card-title">Non-SCATS</div>
-            <div class="card-value" id="kpi-non-scats">–</div>
-          </div>
         </div>
-      </div>
 
-      <div class="scope-card-wrapper">
-        <div class="card scope-card">
-          <div class="card-title">Scope Distribution by Remarks</div>
-          <canvas id="scopeChart"></canvas> 
+        <div class="card map-card">
+          <div class="card-title">Junction Map (Leaflet / OpenStreetMap)</div>
+          <div id="map"></div>
+          <div id="lastUpdated"></div>
+        </div>
+
+        <div class="card zone-card">
+          <div class="card-title">Zone-wise Survey Completion</div>
+          <div class="zone-chart-wrapper">
+            <canvas id="zoneChart"></canvas>
+          </div>
           <div class="card-sub">
-            Split of junctions by Remarks status, now occupying the primary space.
+            Percentage of junctions with completed survey status in each zone.
           </div>
+        </div>
+
+        <div class="card attention-card">
+          <div class="card-title">Zones Needing Attention</div>
+          <div id="attention-list" class="card-sub"></div>
         </div>
       </div>
 
-      <div class="right-column">
-        <div class="card filter-card">
+      <div class="right-col">
+        <div class="card">
           <div class="filters-row-title">Filters</div>
           <div class="filters">
             <label>
@@ -612,12 +563,14 @@
                 <option value="">All</option>
               </select>
             </label>
+            
              <label>
               Area
               <select id="filter-area">
                 <option value="">All</option>
               </select>
             </label>
+
             <label>
               Zone
               <select id="filter-zone">
@@ -636,9 +589,9 @@
               Remarks
               <select id="filter-remarks">
                 <option value="">All</option>
-                <option value="om">O&amp;M</option>
-                <option value="projects">Projects</option>
-                <option value="off">Off</option>
+                <option value="om">Under O&amp;M</option>
+                <option value="projects">Under Projects</option>
+                <option value="off">Switched Off</option>
                 <option value="other">Other</option>
               </select>
             </label>
@@ -649,28 +602,6 @@
           </button>
         </div>
 
-        <div class="card map-card">
-          <div class="card-title">Junction Map (Constrained View)</div>
-          <div id="map"></div>
-          <div id="lastUpdated"></div>
-        </div>
-      </div>
-
-      <div class="bottom-row-grid">
-        <div class="zone-chart-area">
-            <div class="card zone-card">
-              <div class="card-title">Zone-wise Survey Completion</div>
-              <div class="zone-chart-wrapper">
-                <canvas id="zoneChart"></canvas>
-              </div>
-            </div>
-
-            <div class="card attention-card">
-              <div class="card-title">⚠️ Priority Zones (Survey Lag)</div>
-              <div id="attention-list"></div>
-            </div>
-        </div>
-        
         <div class="card">
           <div class="card-title">Junction List</div>
           <div class="table-controls">
@@ -692,13 +623,21 @@
                   <th>Area</th>
                   <th>Street</th>
                   <th>Remarks</th>
-                  <th>Pole</th>
-                  <th>Ctrl</th>
+                  <th>Pole Survey</th>
+                  <th>Ctrl Survey</th>
                   <th>Survey</th>
                 </tr>
               </thead>
               <tbody id="junction-table-body"></tbody>
             </table>
+          </div>
+        </div>
+
+        <div class="card scope-card">
+          <div class="card-title">Scope Distribution</div>
+          <canvas id="scopeChart" height="160"></canvas>
+          <div class="card-sub">
+            Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
           </div>
         </div>
       </div>
@@ -713,10 +652,9 @@
 
   <script>
     /* ===== DATA CONFIG ===== */
-    // RESTORED CORRECT URL
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5pFct4J8nDgw7VLuUJpfVgxewoZSkjh-cNxjgtOOZcjEM5Hx0xyJsziL9MUrEmK6wuls0C2Ffd1ku/pub?gid=1921347271&single=true&output=csv";
+    const SHEET_CSV_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5pFct4J8nDgw7VLuUJpfVgxewoZSkjh-cNxjgtOOZcjEM5Hx0xyJsziL9MUrEmK6wuls0C2Ffd1ku/pub?gid=1921347271&single=true&output=csv";
 
-    // Column Mapping (String keys as requested to fix parsing)
     const COLS = {
       junctNo: "Junct No",
       street: "Street Details",
@@ -761,6 +699,14 @@
       return "unknown";
     }
 
+    function classifyOperationStatus(val) {
+      const v = (val || "").toLowerCase();
+      if (v.startsWith("operational")) return "operational";
+      if (v.startsWith("non-operational (under")) return "non_op_construction";
+      if (v.startsWith("non-operational")) return "non_operational";
+      return "other";
+    }
+
     let allData = [];
     let currentFiltered = [];
     let map;
@@ -792,7 +738,7 @@
         if (isNaN(lat) || isNaN(lon)) return;
 
         const surveyClass = classifySurvey(row[COLS.surveyStatus]);
-        const color = surveyClass === "completed" ? "#0070c9" : "#e0283b"; 
+        const color = surveyClass === "completed" ? "#16a34a" : "#dc2626";
 
         const marker = L.circleMarker([lat, lon], {
           radius: 5,
@@ -821,13 +767,6 @@
         }
       }
     }
-    
-    function refreshMapSize() {
-        if (map) {
-            map.invalidateSize();
-        }
-    }
-
 
     /* ===== KPIs ===== */
     function updateKPIs(data) {
@@ -843,9 +782,9 @@
         dohaCompleted = 0,
         northTotal = 0,
         northCompleted = 0,
+        // New Counters
         poleCompleted = 0,
-        ctrlCompleted = 0,
-        sitesVisited = 0; // New Counter
+        ctrlCompleted = 0;
 
       data.forEach((row) => {
         // Remarks Count
@@ -863,20 +802,13 @@
         }
         
         // Pole Survey Count
-        const poleDone = isTruthy(row[COLS.poleSurvey]);
-        if (poleDone) {
+        if (isTruthy(row[COLS.poleSurvey])) {
             poleCompleted++;
         }
 
         // Controller Survey Count
-        const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
-        if (ctrlDone) {
+        if (isTruthy(row[COLS.ctrlSurvey])) {
             ctrlCompleted++;
-        }
-        
-        // NEW LOGIC: Sites Visited (Pole OR Controller Done)
-        if (poleDone || ctrlDone) {
-            sitesVisited++;
         }
 
         // SCATS Count
@@ -884,7 +816,7 @@
         if (scatsType === "scats") scatsOperated++;
         else if (scatsType === "non") nonScats++;
 
-        // REGION COUNTS
+        // REGION COUNTS (Robust Logic)
         const region = (row[COLS.region] || "").toLowerCase().trim();
         
         if (region.includes("doha")) {
@@ -899,7 +831,6 @@
 
       // Update Basic KPIs
       document.getElementById("kpi-total").textContent = total;
-      document.getElementById("kpi-visited-sites").textContent = sitesVisited; // UPDATE NEW CARD
       document.getElementById("kpi-om").textContent = om;
       document.getElementById("kpi-projects").textContent = proj;
       document.getElementById("kpi-off").textContent = off;
@@ -950,12 +881,14 @@
     /* ===== FILTER POPULATION ===== */
     function populateDropdown(data, column, elementId) {
       const select = document.getElementById(elementId);
+      // Get unique values, sort them, filter out empties
       const values = Array.from(
         new Set(data.map((row) => row[column]).filter((v) => v != null && String(v).trim() !== ""))
       ).sort((a, b) =>
         String(a).localeCompare(String(b), undefined, { numeric: true })
       );
 
+      // Clear existing options except 'All'
       while (select.options.length > 1) {
         select.remove(1);
       }
@@ -1001,9 +934,10 @@
       filtered.slice(0, 200).forEach((row) => {
         const tr = document.createElement("tr");
 
+        // Helper for status styling
         const getStatusHtml = (val) => {
             const cls = classifySurvey(val);
-            const txt = cls === "completed" ? "Comp" : "Pend";
+            const txt = cls === "completed" ? "Completed" : "Pending";
             const css = cls === "completed" ? "status-completed" : "status-pending";
             return `<span class="status-pill ${css}">${txt}</span>`;
         };
@@ -1085,7 +1019,6 @@
           scales: {
             x: {
               title: { display: true, text: "Zone No" },
-              ticks: { font: { size: 10 } }
             },
             y: {
               beginAtZero: true,
@@ -1093,19 +1026,6 @@
               title: { display: true, text: "Completion %" },
               ticks: {
                 callback: (v) => v + "%",
-                font: { size: 10 }
-              },
-              // Draw a horizontal line at 60
-              afterBuildTicks: function(scale) {
-                const ticks = scale.ticks;
-                if (!ticks.find(t => t.value === 60)) {
-                    ticks.push({ value: 60, label: 'Target' });
-                }
-                scale.ticks = ticks;
-              },
-              grid: {
-                  color: (context) => context.tick.value === 60 ? 'rgba(224, 40, 59, 0.7)' : 'rgba(0, 0, 0, 0.1)', 
-                  lineWidth: (context) => context.tick.value === 60 ? 2 : 1, 
               },
             },
           },
@@ -1153,26 +1073,21 @@
           plugins: {
             legend: {
               position: "bottom",
-              labels: { boxWidth: 10, font: { size: 12 } },
+              labels: { boxWidth: 12 },
             },
           },
           cutout: "60%",
-          maintainAspectRatio: false,
-          responsive: true,
-          layout: {
-              padding: 0
-          }
         },
       });
     }
 
-    /* ===== AI-STYLE INSIGHTS (Priority Cards) ===== */
+    /* ===== AI-STYLE INSIGHTS ===== */
     function updateInsights(data) {
       const el = document.getElementById("attention-list");
       if (!el) return;
 
       if (!data || data.length === 0) {
-        el.innerHTML = `<span style="color: #6b7280; font-style: italic;">No data for current selection.</span>`;
+        el.textContent = "No data for current selection.";
         return;
       }
 
@@ -1199,37 +1114,31 @@
       const threshold = 60;
       const needing = zones.filter((z) => z.pct < threshold);
 
-      el.innerHTML = ""; 
-
       if (needing.length === 0) {
-        el.innerHTML = `<span style="color: #10b981; font-weight: 600;">✅ All ${zones.length} zones have survey completion ≥ ${threshold}% in the current view.</span>`;
+        el.textContent =
+          "All zones have survey completion ≥ " + threshold + "%.";
         return;
       }
 
       const top5 = needing.slice(0, 5);
-      el.innerHTML += `<div style="font-size:10px; color:#ef4444; margin-bottom: 4px;">Top ${top5.length} zones below ${threshold}% completion:</div>`;
-      
+      el.innerHTML =
+        "<strong>Lowest completion zones (under " +
+        threshold +
+        "%):</strong><br/>";
       top5.forEach((z) => {
-        let borderColor = '#facc15'; 
-        if (z.pct < 40) {
-            borderColor = '#ef4444'; 
-        } else if (z.pct > 70) {
-            borderColor = '#3b82f6'; 
-        }
-
-        const item = document.createElement("div");
-        item.className = "zone-priority-item";
-        item.style.borderColor = borderColor;
-
-        item.innerHTML = `
-          <div class="zone-item-left">
-            ${z.pct < threshold ? '⚠️' : '✅'} Zone ${z.zone}
-          </div>
-          <div class="zone-item-stat">
-            ${z.completed}/${z.total} (${z.pct.toFixed(1)}%)
-          </div>
-        `;
-        el.appendChild(item);
+        const line =
+          "Zone " +
+          z.zone +
+          ": " +
+          z.completed +
+          "/" +
+          z.total +
+          " (" +
+          z.pct.toFixed(1) +
+          "%)";
+        const div = document.createElement("div");
+        div.textContent = line;
+        el.appendChild(div);
       });
     }
 
@@ -1267,7 +1176,7 @@
 
       if (filters.length === 0) {
         container.textContent = "No filters applied.";
-        container.style.color = "#6b7280";
+        container.style.color = "#e5e7eb";
         return;
       }
 
@@ -1336,8 +1245,6 @@
       buildScopeChart(filtered);
       updateInsights(filtered);
       updateFilterTags();
-      
-      refreshMapSize(); 
     }
 
     /* ===== EXPORT ===== */
