@@ -53,7 +53,6 @@
       width: 100%;
       min-height: 100vh;
       margin: 0;
-      /* Overlay to ensure text is readable over the background image */
       background: linear-gradient(
         180deg,
         rgba(15, 23, 42, 0.5),
@@ -562,9 +561,9 @@
           <div class="card">
             <div class="card-title">Number of Sites Visited</div>
             <div class="card-value" id="kpi-sites-visited">–</div>
+            <div class="card-sub">Pole or Ctrl Done</div>
           </div>
-          
-        </div>
+          </div>
       </div>
 
       <div class="scope-card-wrapper">
@@ -824,7 +823,7 @@
         northCompleted = 0,
         poleCompleted = 0,
         ctrlCompleted = 0,
-        sitesVisited = 0; // NEW VARIABLE
+        sitesVisited = 0; // New Variable for Sites Visited
 
       data.forEach((row) => {
         // Remarks Count
@@ -853,7 +852,7 @@
             ctrlCompleted++;
         }
         
-        // NEW LOGIC: Sites Visited
+        // NEW LOGIC: Check if either Pole OR Controller survey is done
         if (poleDone || ctrlDone) {
             sitesVisited++;
         }
@@ -886,7 +885,7 @@
       document.getElementById("kpi-scats-operated").textContent = scatsOperated;
       document.getElementById("kpi-non-scats").textContent = nonScats;
       
-      // NEW KPI CARD UPDATE
+      // NEW CARD UPDATE
       document.getElementById("kpi-sites-visited").textContent = sitesVisited;
 
       // 1. Survey Total Percentage
