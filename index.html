@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <title>Qatar North Traffic Junctions Survey Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 
   <link
     rel="stylesheet"
@@ -58,7 +62,7 @@
     }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
       color: var(--text-strong);
       background-color: #020617;
@@ -1066,50 +1070,199 @@
         min-width: 100px;
       }
     }
+  
+    /* === Global skip link === */
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 8px;
+      background: #000;
+      color: #fff;
+      padding: 8px 12px;
+      z-index: 10000;
+    }
+    .skip-link:focus {
+      left: 12px;
+    }
+
+    /* === Top sticky navigation shared across dashboards === */
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      background:
+        linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.95)),
+        linear-gradient(90deg, rgba(56,189,248,0.12), rgba(168,85,247,0.12));
+      border-bottom: 1px solid rgba(148,163,184,0.4);
+    }
+
+    .top-nav-inner {
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .top-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, #38bdf8, #a855f7);
+      box-shadow: 0 0 14px rgba(56,189,248,0.8);
+    }
+
+    .top-nav-links {
+      list-style: none;
+      display: flex;
+      gap: 8px;
+    }
+
+    .top-nav-links a {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-soft);
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition:
+        color 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        background 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        border-color 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .top-nav-links a::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.15), transparent 55%);
+      opacity: 0;
+      transition: opacity 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .top-nav-links a:hover,
+    .top-nav-links a:focus-visible {
+      color: var(--text-strong);
+      border-color: rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.9);
+      transform: translateY(-1px);
+    }
+    .top-nav-links a:focus-visible {
+      outline: 2px solid #38bdf8;
+      outline-offset: 3px;
+    }
+
+    .top-nav-links a.is-active {
+      color: #e0f2fe;
+      border-color: rgba(56,189,248,0.95);
+      background:
+        radial-gradient(circle at 0 0, rgba(56,189,248,0.25), transparent 55%),
+        linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.94));
+      box-shadow: 0 12px 30px rgba(15,23,42,0.9);
+    }
+    .top-nav-links a.is-active::after {
+      opacity: 1;
+    }
+
+    /* === Modal for detail view === */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-backdrop.is-open {
+      display: flex;
+    }
+    .modal {
+      position: relative;
+      background: var(--bg-surface);
+      border-radius: var(--glass-radius-lg);
+      padding: 16px 20px;
+      max-width: 520px;
+      width: 96%;
+      box-shadow: 0 26px 55px rgba(15,23,42,0.95);
+      border: 1px solid var(--glass-border);
+    }
+    .modal-title {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: var(--text-stronger);
+    }
+    .modal-body {
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .modal-close:focus-visible {
+      outline: 2px solid #38bdf8;
+      outline-offset: 2px;
+    }
+    .detail-list {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 12px;
+    }
+    .detail-list dt {
+      font-weight: 600;
+      color: var(--text-strong);
+    }
+    .detail-list dd {
+      margin: 0;
+      color: var(--text-soft);
+    }
+
   </style>
 </head>
 <body>
-<div class="container"><nav style="position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #4e54c8, #8f94fb); color: white; padding: 10px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; gap: 20px; z-index: 9999;">
-      <a href="index.html" style="color: white; text-decoration: none; font-weight: 600;">Home</a>
-      <a href="its-dashboard.html" style="color: white; text-decoration: none; font-weight: 600;">ITS Dashboard</a>
-    </nav>
-    <style>
-    a:hover {
-      text-decoration: underline;
-      color: #ffea00;
-      transition: color 0.3s ease;
-    }
-    body {
-      padding-top: 50px; /* to prevent content hiding under nav */
-      background: #f4f6fc;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #333;
-      line-height: 1.6;
-    }
-    h1, h2, h3, h4, h5, h6 {
-      color: #4e54c8;
-    }
-    button, .btn {
-      background: #4e54c8;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    button:hover, .btn:hover {
-      background: #8f94fb;
-    }
-    .card {
-      background: white;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 12px rgb(0 0 0 / 0.1);
-      border-radius: 8px;
-    }
-    </style>
-    
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="top-nav" aria-label="Primary">
+    <div class="top-nav-inner">
+      <div class="top-nav-brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span class="brand-text">Qatar North Survey</span>
+      </div>
+      <ul class="top-nav-links">
+        <li><a href="index.html" data-page="traffic">Traffic Junctions</a></li>
+        <li><a href="its-dashboard.html" data-page="its">ITS Dashboard</a></li>
+      </ul>
+    </div>
+  </nav>
+
   <div class="page">
     <div class="shell">
       <!-- HEADER -->
@@ -1136,7 +1289,7 @@
       </header>
 
       <!-- DASHBOARD BODY -->
-      <main class="dashboard">
+      <main id="main-content" class="dashboard">
         <!-- KPIs: compact, horizontal -->
         <section class="section section-kpis">
           <div class="section-kpis-inner">
@@ -2254,6 +2407,64 @@
       updateCurrentDateTime();
       setInterval(updateCurrentDateTime, 30 * 1000);
     });
-  </script></div>
+  </script>
+
+  <div class="modal-backdrop" id="detailModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" type="button" aria-label="Close details">&times;</button>
+      <h2 id="modalTitle" class="modal-title">Details</h2>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      // Highlight active nav item based on current file
+      const path = location.pathname.toLowerCase();
+      document.querySelectorAll(".top-nav-links a").forEach((link) => {
+        const href = link.getAttribute("href").toLowerCase();
+        if (path.endsWith(href)) {
+          link.classList.add("is-active");
+        }
+      });
+
+      // Modal logic: assumes table rows call window.openDetailModal(record)
+      const modalBackdrop = document.getElementById("detailModal");
+      const modalBody = document.getElementById("modalBody");
+      const modalCloseBtn = modalBackdrop ? modalBackdrop.querySelector(".modal-close") : null;
+
+      function closeDetailModal() {
+        if (!modalBackdrop) return;
+        modalBackdrop.classList.remove("is-open");
+        modalBackdrop.setAttribute("aria-hidden", "true");
+      }
+
+      window.openDetailModal = function(record) {
+        if (!modalBackdrop || !modalBody) return;
+        let html = "<dl class=\"detail-list\">";
+        for (const [key, value] of Object.entries(record || {})) {
+          html += `<div><dt>${key}</dt><dd>${value ?? "-"}</dd></div>`;
+        }
+        html += "</dl>";
+        modalBody.innerHTML = html;
+        modalBackdrop.classList.add("is-open");
+        modalBackdrop.setAttribute("aria-hidden", "false");
+        if (modalCloseBtn) modalCloseBtn.focus();
+      };
+
+      if (modalCloseBtn && modalBackdrop) {
+        modalCloseBtn.addEventListener("click", closeDetailModal);
+        modalBackdrop.addEventListener("click", (e) => {
+          if (e.target === modalBackdrop) closeDetailModal();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && modalBackdrop.classList.contains("is-open")) {
+            closeDetailModal();
+          }
+        });
+      }
+    });
+  </script>
 </body>
 </html>
