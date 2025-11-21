@@ -1,4 +1,4 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -38,7 +38,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
       color: #111827;
-      background-image: url('bg-image.png'); 
+      background-image: url('bg-image.png');
       background-color: #020617;
       background-repeat: no-repeat;
       background-position: center center;
@@ -115,15 +115,21 @@
     .container {
       padding: 12px 16px 20px;
       display: grid;
-      grid-template-columns: 1.55fr 1.15fr;
+      grid-template-columns: 1.7fr 1.3fr;
       grid-gap: 16px;
+    }
+
+    .left-col,
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
       grid-gap: 10px;
-      margin-bottom: 14px;
     }
 
     .card {
@@ -153,22 +159,85 @@
       margin-top: 4px;
     }
 
-    /* Map smaller now (uses previous donut area size) */
+    /* Map big and clear */
     #map {
       width: 100%;
-      height: 260px;
+      height: 380px;
       border-radius: 12px;
       overflow: hidden;
     }
 
     .map-card {
-      margin-bottom: 12px;
+      margin-top: 4px;
     }
 
-    .right-col {
+    .map-card-header {
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .map-legend {
+      margin-top: 6px;
+      font-size: 11px;
+      color: #4b5563;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .legend-completed {
+      background: #16a34a;
+    }
+
+    .legend-visited {
+      background: #f97316;
+    }
+
+    .legend-notvisited {
+      background: #dc2626;
+    }
+
+    .legend-selected {
+      background: #0070c9;
+    }
+
+    .map-toggle-btn {
+      border-radius: 999px;
+      border: 1px solid #d1d5db;
+      padding: 4px 10px;
+      font-size: 11px;
+      background: #f9fafb;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .map-toggle-btn-active {
+      border-color: #0070c9;
+      background: #e0f2fe;
+      color: #074b86;
+    }
+
+    .map-meta {
+      margin-top: 4px;
+      font-size: 11px;
+      color: #6b7280;
     }
 
     .filters-row-title {
@@ -310,17 +379,49 @@
       background: #dc2626;
     }
 
-    .zone-chart-wrapper {
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .table-search {
+      flex: 1;
+    }
+
+    .table-search input {
+      width: 100%;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: 11px;
+      background: #f9fafb;
+    }
+
+    .table-search input:focus {
+      outline: none;
+      border-color: var(--algo-blue);
+      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-gap: 10px;
+      margin-top: 10px;
+    }
+
+    .zone-chart-wrapper,
+    .scope-chart-wrapper {
       height: 220px;
     }
 
     .zone-card {
       background: linear-gradient(135deg, #eff6ff, #ffffff);
-      margin-top: 4px;
-      margin-bottom: 10px;
     }
 
-    /* Scope card now in big area (previous map area) */
     .scope-card {
       background: linear-gradient(135deg, #fef9c3, #ffffff);
     }
@@ -358,74 +459,7 @@
     #lastUpdated {
       font-size: 11px;
       color: #6b7280;
-      margin-top: 6px;
-    }
-
-    .table-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .table-search {
-      flex: 1;
-    }
-
-    .table-search input {
-      width: 100%;
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      font-size: 11px;
-      background: #f9fafb;
-    }
-
-    .table-search input:focus {
-      outline: none;
-      border-color: var(--algo-blue);
-      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
-    }
-
-    /* Map legend */
-    .map-legend {
-      margin-top: 6px;
-      font-size: 11px;
-      color: #4b5563;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .legend-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      display: inline-block;
-    }
-
-    .legend-completed {
-      background: #16a34a;
-    }
-
-    .legend-visited {
-      background: #f97316;
-    }
-
-    .legend-notvisited {
-      background: #dc2626;
-    }
-
-    .legend-selected {
-      background: #0070c9;
+      margin-top: 4px;
     }
 
     @media (max-width: 1024px) {
@@ -442,11 +476,9 @@
         grid-template-columns: 1fr;
         grid-gap: 10px;
       }
+      .left-col,
       .right-col {
-        order: 2;
-      }
-      .container > div:first-child {
-        order: 1;
+        order: initial;
       }
     }
   </style>
@@ -461,7 +493,7 @@
       <div class="header-center">
         <h1>Qatar North Traffic Junctions Survey Dashboard</h1>
         <div class="subtitle">
-          Live from Google Sheet -- Junctions, Survey Completion &amp; Operations Status
+          Live from Google Sheet — Junctions, Survey Completion &amp; Operations Status
         </div>
         <div class="datetime-header" id="currentDateTime"></div>
       </div>
@@ -477,7 +509,7 @@
 
     <div class="container">
       <!-- LEFT COLUMN -->
-      <div>
+      <div class="left-col">
         <div class="kpi-grid">
           <div class="card">
             <div class="card-title">Total Junctions</div>
@@ -581,23 +613,58 @@
           </div>
         </div>
 
-        <!-- SCOPE DONUT CHART moved to left, big area -->
-        <div class="card scope-card">
-          <div class="card-title">Scope Distribution</div>
-          <!-- height increased to use previous map size -->
-          <canvas id="scopeChart" height="420"></canvas>
-          <div class="card-sub">
-            Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
+        <!-- MAP BIG CARD -->
+        <div class="card map-card">
+          <div class="map-card-header">
+            <div class="card-title">Junction Map (Satellite Imagery)</div>
+            <button id="map-mode-toggle" class="map-toggle-btn map-toggle-btn-active" type="button">
+              Map Mode: Selected Junction Only
+            </button>
+          </div>
+          <div id="map"></div>
+          <div class="map-meta">
+            <span id="lastUpdated"></span>
+          </div>
+          <div class="map-legend">
+            <div class="legend-item">
+              <span class="legend-dot legend-completed"></span>
+              <span>Survey completed</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-visited"></span>
+              <span>Site visited (Pole/Controller)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-notvisited"></span>
+              <span>Not visited</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot legend-selected"></span>
+              <span>Selected from junction list</span>
+            </div>
           </div>
         </div>
 
-        <div class="card zone-card">
-          <div class="card-title">Zone-wise Survey Completion</div>
-          <div class="zone-chart-wrapper">
-            <canvas id="zoneChart"></canvas>
+        <!-- CHARTS GRID: donut + zone side-by-side -->
+        <div class="charts-grid">
+          <div class="card scope-card">
+            <div class="card-title">Scope Distribution</div>
+            <div class="scope-chart-wrapper">
+              <canvas id="scopeChart"></canvas>
+            </div>
+            <div class="card-sub">
+              Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
+            </div>
           </div>
-          <div class="card-sub">
-            Percentage of junctions with completed survey status in each zone.
+
+          <div class="card zone-card">
+            <div class="card-title">Zone-wise Survey Completion</div>
+            <div class="zone-chart-wrapper">
+              <canvas id="zoneChart"></canvas>
+            </div>
+            <div class="card-sub">
+              Percentage of junctions with completed survey status in each zone.
+            </div>
           </div>
         </div>
 
@@ -685,32 +752,6 @@
             </table>
           </div>
         </div>
-
-        <!-- MAP moved to right column, smaller area -->
-        <div class="card map-card">
-          <div class="card-title">Junction Map (Satellite Imagery)</div>
-          <div id="map"></div>
-          <div id="lastUpdated"></div>
-          <!-- NEW LEGEND -->
-          <div class="map-legend">
-            <div class="legend-item">
-              <span class="legend-dot legend-completed"></span>
-              <span>Survey completed</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot legend-visited"></span>
-              <span>Site visited (Pole/Controller)</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot legend-notvisited"></span>
-              <span>Not visited</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot legend-selected"></span>
-              <span>Selected from junction list</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -785,8 +826,9 @@
     let zoneChart = null;
     let scopeChart = null;
     let tableSearchTerm = "";
+    let singleSelectionMode = true; // true = Selected Junction Only, false = All Filtered markers
 
-    /* ===== POPUP BUILDER (used by auto pins + selected pin) ===== */
+    /* ===== POPUP BUILDER (shared) ===== */
     function buildPopupHtml(row) {
       const surveyDone = isTruthy(row[COLS.surveyStatus]);
       const poleDone = isTruthy(row[COLS.poleSurvey]);
@@ -818,7 +860,7 @@
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
           maxZoom: 19,
-          attribution: "Tiles © Esri -- Source: Esri, Maxar, Earthstar Geographics"
+          attribution: "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics"
         }
       ).addTo(map);
 
@@ -868,6 +910,18 @@
         if (bounds && bounds.isValid()) {
           map.fitBounds(bounds.pad(0.1));
         }
+      }
+    }
+
+    function updateMapModeButton() {
+      const btn = document.getElementById("map-mode-toggle");
+      if (!btn) return;
+      if (singleSelectionMode) {
+        btn.textContent = "Map Mode: Selected Junction Only";
+        btn.classList.add("map-toggle-btn-active");
+      } else {
+        btn.textContent = "Map Mode: All Filtered Markers";
+        btn.classList.remove("map-toggle-btn-active");
       }
     }
 
@@ -1046,24 +1100,34 @@
           <td>${getStatusHtml(row[COLS.surveyStatus])}</td>
         `;
 
-        // Click: show ONLY this junction pin with full details
+        // Click: either show ONLY this junction (selected mode) or pan & popup (all markers mode)
         tr.addEventListener("click", () => {
           const lat = parseFloat(row[COLS.lat]);
           const lon = parseFloat(row[COLS.lon]);
 
           if (!isNaN(lat) && !isNaN(lon) && map) {
-            clearMarkers();
+            if (singleSelectionMode) {
+              // Selected Junction Only
+              clearMarkers();
 
-            const marker = L.circleMarker([lat, lon], {
-              radius: 8,
-              color: "#0070c9",
-              fillColor: "#0070c9",
-              fillOpacity: 1,
-              weight: 2
-            }).addTo(markersLayer);
+              const marker = L.circleMarker([lat, lon], {
+                radius: 8,
+                color: "#0070c9",
+                fillColor: "#0070c9",
+                fillOpacity: 1,
+                weight: 2
+              }).addTo(markersLayer);
 
-            marker.bindPopup(buildPopupHtml(row)).openPopup();
-            map.setView([lat, lon], 16, { animate: true });
+              marker.bindPopup(buildPopupHtml(row)).openPopup();
+              map.setView([lat, lon], 16, { animate: true });
+            } else {
+              // All Filtered Markers mode: keep markers, just open popup at that point
+              const popup = L.popup()
+                .setLatLng([lat, lon])
+                .setContent(buildPopupHtml(row));
+              popup.openOn(map);
+              map.setView([lat, lon], 16, { animate: true });
+            }
           }
         });
 
@@ -1182,6 +1246,7 @@
             },
           },
           cutout: "60%",
+          maintainAspectRatio: false
         },
       });
     }
@@ -1478,6 +1543,19 @@
           renderTable(currentFiltered);
         });
 
+      const mapModeBtn = document.getElementById("map-mode-toggle");
+      if (mapModeBtn) {
+        mapModeBtn.addEventListener("click", () => {
+          singleSelectionMode = !singleSelectionMode;
+          updateMapModeButton();
+          if (!singleSelectionMode) {
+            // Switching to "All Filtered Markers" -> redraw all markers
+            addMarkers(currentFiltered);
+          }
+        });
+      }
+
+      updateMapModeButton();
       updateCurrentDateTime();
       setInterval(updateCurrentDateTime, 30 * 1000);
     });
