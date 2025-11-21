@@ -21,6 +21,7 @@
       --aktor-red: #e0283b;
       --algo-blue: #0070c9;
       --card-bg: #ffffff;
+      --bg-surface: rgba(15, 23, 42, 0.85);
     }
 
     * {
@@ -53,7 +54,7 @@
       background: linear-gradient(
         180deg,
         rgba(15, 23, 42, 0.5),
-        rgba(15, 23, 42, 0.8)
+        rgba(15, 23, 42, 0.9)
       );
     }
 
@@ -126,6 +127,7 @@
       gap: 12px;
     }
 
+    /* KPI cards */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
@@ -157,6 +159,69 @@
       font-size: 11px;
       color: #4b5563;
       margin-top: 4px;
+    }
+
+    /* ===== NEW CIRCULAR KPI ROW ===== */
+    .circular-kpi-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-gap: 10px;
+    }
+
+    .circular-kpi-card {
+      background: rgba(15, 23, 42, 0.03);
+      border-radius: 12px;
+      padding: 8px 10px 10px;
+      text-align: center;
+      border: 1px solid #e5e7eb;
+    }
+
+    .circular-kpi-title {
+      font-size: 11px;
+      color: #4b5563;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .circle-wrapper {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 4px;
+      position: relative;
+      border-radius: 50%;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .circle-fill {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(#22c55e 0deg, #e5e7eb 0deg);
+    }
+
+    .circle-inner {
+      position: relative;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .circle-caption {
+      font-size: 10px;
+      color: #6b7280;
+      margin-top: 2px;
     }
 
     /* Map big and clear */
@@ -240,6 +305,7 @@
       color: #6b7280;
     }
 
+    /* Filters & table */
     .filters-row-title {
       font-size: 11px;
       font-weight: 600;
@@ -406,6 +472,7 @@
       box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
     }
 
+    /* Charts */
     .charts-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -459,7 +526,6 @@
     #lastUpdated {
       font-size: 11px;
       color: #6b7280;
-      margin-top: 4px;
     }
 
     @media (max-width: 1024px) {
@@ -475,10 +541,6 @@
         padding: 8px 12px 16px;
         grid-template-columns: 1fr;
         grid-gap: 10px;
-      }
-      .left-col,
-      .right-col {
-        order: initial;
       }
     }
   </style>
@@ -510,6 +572,7 @@
     <div class="container">
       <!-- LEFT COLUMN -->
       <div class="left-col">
+        <!-- TOP KPI CARDS -->
         <div class="kpi-grid">
           <div class="card">
             <div class="card-title">Total Junctions</div>
@@ -610,6 +673,63 @@
               </div>
               <div class="progress-label" id="kpi-sites-visited-pct">–</div>
             </div>
+          </div>
+        </div>
+
+        <!-- NEW CIRCULAR KPI ROW (ROUND CARDS BELOW) -->
+        <div class="circular-kpi-grid">
+          <div class="circular-kpi-card">
+            <div class="circular-kpi-title">Survey Completion</div>
+            <div class="circle-wrapper">
+              <div id="circle-survey-fill" class="circle-fill"></div>
+              <div id="circle-survey-inner" class="circle-inner">0%</div>
+            </div>
+            <div class="circle-caption">Completed vs total junctions</div>
+          </div>
+
+          <div class="circular-kpi-card">
+            <div class="circular-kpi-title">Sites Visited</div>
+            <div class="circle-wrapper">
+              <div id="circle-sites-fill" class="circle-fill"></div>
+              <div id="circle-sites-inner" class="circle-inner">0%</div>
+            </div>
+            <div class="circle-caption">Pole or controller survey done</div>
+          </div>
+
+          <div class="circular-kpi-card">
+            <div class="circular-kpi-title">Pole Survey</div>
+            <div class="circle-wrapper">
+              <div id="circle-pole-fill" class="circle-fill"></div>
+              <div id="circle-pole-inner" class="circle-inner">0%</div>
+            </div>
+            <div class="circle-caption">Pole survey completion</div>
+          </div>
+
+          <div class="circular-kpi-card">
+            <div class="circular-kpi-title">Controller Survey</div>
+            <div class="circle-wrapper">
+              <div id="circle-ctrl-fill" class="circle-fill"></div>
+              <div id="circle-ctrl-inner" class="circle-inner">0%</div>
+            </div>
+            <div class="circle-caption">Controller survey completion</div>
+          </div>
+
+          <div class="circular-kpi-card">
+            <div class="circular-kpi-title">Doha Region</div>
+            <div class="circle-wrapper">
+              <div id="circle-doha-fill" class="circle-fill"></div>
+              <div id="circle-doha-inner" class="circle-inner">0%</div>
+            </div>
+            <div class="circle-caption">Survey completion in Doha</div>
+          </div>
+
+          <div class="circular-kpi-card">
+            <div class="circular-kpi-title">North Region</div>
+            <div class="circle-wrapper">
+              <div id="circle-north-fill" class="circle-fill"></div>
+              <div id="circle-north-inner" class="circle-inner">0%</div>
+            </div>
+            <div class="circle-caption">Survey completion in North</div>
           </div>
         </div>
 
@@ -925,6 +1045,20 @@
       }
     }
 
+    /* ===== CIRCULAR KPI HELPER ===== */
+    function updateCircularKpi(fillId, innerId, pct) {
+      const fillEl = document.getElementById(fillId);
+      const innerEl = document.getElementById(innerId);
+      const safePct = isFinite(pct) && pct >= 0 ? Math.max(0, Math.min(100, pct)) : 0;
+      if (fillEl) {
+        const angle = (safePct / 100) * 360;
+        fillEl.style.background = `conic-gradient(#22c55e 0deg ${angle}deg, #e5e7eb ${angle}deg 360deg)`;
+      }
+      if (innerEl) {
+        innerEl.textContent = safePct.toFixed(0) + "%";
+      }
+    }
+
     /* ===== KPIs ===== */
     function updateKPIs(data) {
       const total = data.length;
@@ -1026,6 +1160,14 @@
         (total > 0 ? pctVisited.toFixed(1) + "%" : "–") + " Visited";
       const visitedFill = document.getElementById("sites-visited-progress-fill");
       if (visitedFill) visitedFill.style.width = pctVisited.toFixed(1) + "%";
+
+      // Update circular KPIs (round cards)
+      updateCircularKpi("circle-survey-fill", "circle-survey-inner", pctSurvey);
+      updateCircularKpi("circle-sites-fill", "circle-sites-inner", pctVisited);
+      updateCircularKpi("circle-pole-fill", "circle-pole-inner", pctPole);
+      updateCircularKpi("circle-ctrl-fill", "circle-ctrl-inner", pctCtrl);
+      updateCircularKpi("circle-doha-fill", "circle-doha-inner", dohaPct);
+      updateCircularKpi("circle-north-fill", "circle-north-inner", northPct);
     }
 
     /* ===== FILTER POPULATION ===== */
@@ -1549,7 +1691,6 @@
           singleSelectionMode = !singleSelectionMode;
           updateMapModeButton();
           if (!singleSelectionMode) {
-            // Switching to "All Filtered Markers" -> redraw all markers
             addMarkers(currentFiltered);
           }
         });
