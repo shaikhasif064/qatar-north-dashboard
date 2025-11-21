@@ -127,11 +127,6 @@
       gap: 12px;
     }
 
-    /* OLD KPI cards (hidden now) */
-    .kpi-grid {
-      display: none; /* hide rectangular cards – only circles visible */
-    }
-
     .card {
       background: var(--card-bg);
       border-radius: 12px;
@@ -159,16 +154,49 @@
       margin-top: 4px;
     }
 
-    /* ===== NEW CIRCULAR KPI ROW ===== */
+    /* ===== RECTANGULAR KPI GRID ON TOP ===== */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      grid-gap: 10px;
+    }
+
+    .progress-wrapper {
+      margin-top: 6px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #22c55e, #0ea5e9);
+      transition: width 0.6s ease;
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: #4b5563;
+      margin-top: 3px;
+    }
+
+    /* ===== CIRCULAR KPI ROW ===== */
     .circular-kpi-grid {
-      margin-top: 4px;
+      margin-top: 6px;
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       grid-gap: 10px;
     }
 
     .circular-kpi-card {
-      background: #ffffff; /* solid white, as requested */
+      background: #ffffff;
       border-radius: 12px;
       padding: 8px 10px 10px;
       text-align: center;
@@ -478,12 +506,12 @@
       box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
     }
 
-    /* Charts */
-    .charts-grid {
+    /* Charts full-width row */
+    .charts-row {
+      padding: 0 16px 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      grid-gap: 10px;
-      margin-top: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      grid-gap: 16px;
     }
 
     .zone-chart-wrapper,
@@ -518,6 +546,9 @@
         grid-template-columns: 1fr;
         grid-gap: 10px;
       }
+      .charts-row {
+        padding: 0 12px 16px;
+      }
     }
   </style>
 </head>
@@ -548,12 +579,111 @@
     <div class="container">
       <!-- LEFT COLUMN -->
       <div class="left-col">
-        <!-- (hidden) top KPI cards block kept for JS, but not shown -->
+        <!-- TOP RECTANGULAR KPI CARDS -->
         <div class="kpi-grid">
-          <!-- contents irrelevant now -->
+          <div class="card">
+            <div class="card-title">Total Junctions</div>
+            <div class="card-value" id="kpi-total">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Doha Region</div>
+            <div class="card-value" id="kpi-doha-total">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="doha-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-doha-pct">–</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">North Region</div>
+            <div class="card-value" id="kpi-north-total">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="north-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-north-pct">–</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Pole Survey Status</div>
+            <div class="card-value" id="kpi-pole-completed">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="pole-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-pole-pct">–</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Controller Survey Status</div>
+            <div class="card-value" id="kpi-ctrl-completed">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="ctrl-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-ctrl-pct">–</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Junctions Under O&amp;M</div>
+            <div class="card-value" id="kpi-om">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Junctions Under Projects</div>
+            <div class="card-value" id="kpi-projects">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Junctions Switched Off</div>
+            <div class="card-value" id="kpi-off">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">SCATS Operated</div>
+            <div class="card-value" id="kpi-scats-operated">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Non-SCATS (Isolated)</div>
+            <div class="card-value" id="kpi-non-scats">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Survey Completed</div>
+            <div class="card-value" id="kpi-survey-completed">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="survey-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-survey-pct">–</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Survey Pending</div>
+            <div class="card-value" id="kpi-survey-pending">–</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">Sites Visited</div>
+            <div class="card-value" id="kpi-sites-visited">–</div>
+            <div class="progress-wrapper">
+              <div class="progress-bar">
+                <div class="progress-fill" id="sites-visited-progress-fill"></div>
+              </div>
+              <div class="progress-label" id="kpi-sites-visited-pct">–</div>
+            </div>
+          </div>
         </div>
 
-        <!-- CIRCULAR KPI ROW ONLY -->
+        <!-- CIRCULAR KPIs UNDERNEATH -->
         <div class="circular-kpi-grid">
           <div class="circular-kpi-card">
             <div class="circular-kpi-title">Survey Completion</div>
@@ -653,29 +783,6 @@
             </div>
           </div>
         </div>
-
-        <!-- CHARTS -->
-        <div class="charts-grid">
-          <div class="card scope-card">
-            <div class="card-title">Scope Distribution</div>
-            <div class="scope-chart-wrapper">
-              <canvas id="scopeChart"></canvas>
-            </div>
-            <div class="card-sub">
-              Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
-            </div>
-          </div>
-
-          <div class="card zone-card">
-            <div class="card-title">Zone-wise Survey Completion</div>
-            <div class="zone-chart-wrapper">
-              <canvas id="zoneChart"></canvas>
-            </div>
-            <div class="card-sub">
-              Percentage of junctions with completed survey status in each zone.
-            </div>
-          </div>
-        </div>
       </div>
 
       <!-- RIGHT COLUMN -->
@@ -726,7 +833,6 @@
           </button>
         </div>
 
-        <!-- moved here to fill right-side space -->
         <div class="card">
           <div class="card-title">Zones Needing Attention</div>
           <div id="attention-list" class="card-sub"></div>
@@ -761,6 +867,29 @@
               <tbody id="junction-table-body"></tbody>
             </table>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FULL-WIDTH CHARTS ROW TO FILL BOTTOM SPACE -->
+    <div class="charts-row">
+      <div class="card scope-card">
+        <div class="card-title">Scope Distribution</div>
+        <div class="scope-chart-wrapper">
+          <canvas id="scopeChart"></canvas>
+        </div>
+        <div class="card-sub">
+          Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
+        </div>
+      </div>
+
+      <div class="card zone-card">
+        <div class="card-title">Zone-wise Survey Completion</div>
+        <div class="zone-chart-wrapper">
+          <canvas id="zoneChart"></canvas>
+        </div>
+        <div class="card-sub">
+          Percentage of junctions with completed survey status in each zone.
         </div>
       </div>
     </div>
@@ -943,6 +1072,7 @@
         proj = 0,
         off = 0,
         surveyCompleted = 0,
+        surveyPending = 0,
         scatsOperated = 0,
         nonScats = 0,
         dohaTotal = 0,
@@ -961,6 +1091,7 @@
 
         const isDone = isTruthy(row[COLS.surveyStatus]);
         if (isDone) surveyCompleted++;
+        else surveyPending++;
 
         const poleDone = isTruthy(row[COLS.poleSurvey]);
         const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
@@ -982,13 +1113,58 @@
         }
       });
 
-      const pctSurvey = total > 0 ? (surveyCompleted / total) * 100 : 0;
-      const pctVisited = total > 0 ? (sitesVisited / total) * 100 : 0;
-      const pctPole = total > 0 ? (poleCompleted / total) * 100 : 0;
-      const pctCtrl = total > 0 ? (ctrlCompleted / total) * 100 : 0;
-      const dohaPct = dohaTotal > 0 ? (dohaCompleted / dohaTotal) * 100 : 0;
-      const northPct = northTotal > 0 ? (northCompleted / northTotal) * 100 : 0;
+      // Rectangular KPI values
+      document.getElementById("kpi-total").textContent = total;
+      document.getElementById("kpi-om").textContent = om;
+      document.getElementById("kpi-projects").textContent = proj;
+      document.getElementById("kpi-off").textContent = off;
+      document.getElementById("kpi-survey-completed").textContent = surveyCompleted;
+      document.getElementById("kpi-survey-pending").textContent = surveyPending;
+      document.getElementById("kpi-scats-operated").textContent = scatsOperated;
+      document.getElementById("kpi-non-scats").textContent = nonScats;
+      document.getElementById("kpi-sites-visited").textContent = sitesVisited;
 
+      const pctSurvey = total > 0 ? (surveyCompleted / total) * 100 : 0;
+      document.getElementById("kpi-survey-pct").textContent =
+        (total > 0 ? pctSurvey.toFixed(1) + "%" : "–") + " of total";
+      const surveyFill = document.getElementById("survey-progress-fill");
+      if (surveyFill) surveyFill.style.width = pctSurvey.toFixed(1) + "%";
+
+      const pctPole = total > 0 ? (poleCompleted / total) * 100 : 0;
+      document.getElementById("kpi-pole-completed").textContent = poleCompleted;
+      document.getElementById("kpi-pole-pct").textContent =
+        (total > 0 ? pctPole.toFixed(1) + "%" : "–") + " Completed";
+      const poleFill = document.getElementById("pole-progress-fill");
+      if (poleFill) poleFill.style.width = pctPole.toFixed(1) + "%";
+
+      const pctCtrl = total > 0 ? (ctrlCompleted / total) * 100 : 0;
+      document.getElementById("kpi-ctrl-completed").textContent = ctrlCompleted;
+      document.getElementById("kpi-ctrl-pct").textContent =
+        (total > 0 ? pctCtrl.toFixed(1) + "%" : "–") + " Completed";
+      const ctrlFill = document.getElementById("ctrl-progress-fill");
+      if (ctrlFill) ctrlFill.style.width = pctCtrl.toFixed(1) + "%";
+
+      const dohaPct = dohaTotal > 0 ? (dohaCompleted / dohaTotal) * 100 : 0;
+      document.getElementById("kpi-doha-total").textContent = dohaTotal;
+      document.getElementById("kpi-doha-pct").textContent =
+        dohaTotal > 0 ? `${dohaPct.toFixed(1)}% Completed` : "0% Completed";
+      const dohaFill = document.getElementById("doha-progress-fill");
+      if (dohaFill) dohaFill.style.width = dohaPct.toFixed(1) + "%";
+
+      const northPct = northTotal > 0 ? (northCompleted / northTotal) * 100 : 0;
+      document.getElementById("kpi-north-total").textContent = northTotal;
+      document.getElementById("kpi-north-pct").textContent =
+        northTotal > 0 ? `${northPct.toFixed(1)}% Completed` : "0% Completed";
+      const northFill = document.getElementById("north-progress-fill");
+      if (northFill) northFill.style.width = northPct.toFixed(1) + "%";
+
+      const pctVisited = total > 0 ? (sitesVisited / total) * 100 : 0;
+      document.getElementById("kpi-sites-visited-pct").textContent =
+        (total > 0 ? pctVisited.toFixed(1) + "%" : "–") + " Visited";
+      const visitedFill = document.getElementById("sites-visited-progress-fill");
+      if (visitedFill) visitedFill.style.width = pctVisited.toFixed(1) + "%";
+
+      // Circle KPIs
       updateCircularKpi({
         fillId: "circle-survey-fill",
         innerId: "circle-survey-inner",
