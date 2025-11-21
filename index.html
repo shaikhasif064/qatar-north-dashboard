@@ -543,7 +543,20 @@
   transform: translateY(-1px);
 }
 
-    .filters-row-extra {
+    
+/* Options dropdown (open list) */
+.filters select option,
+.filters select optgroup {
+  background-color: #020617;
+  color: #e5e7eb;
+}
+
+/* For some browsers that use the select background for the menu surface */
+.filters select::-ms-expand {
+  background-color: transparent;
+}
+
+.filters-row-extra {
       display: flex;
       align-items: center;
       justify-content: space-between;
