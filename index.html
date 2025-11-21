@@ -507,56 +507,36 @@
   border: 1px solid rgba(148, 163, 184, 0.85);
   font-size: 11px;
   min-width: 130px;
-
-  /* Fully match dashboard color palette */
-  background:
-    radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.25), transparent 60%),
-    linear-gradient(135deg, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 0.92));
-  color: #e5e7eb;
-
+  background-color: rgba(15, 23, 42, 0.98) !important;
+  background-image:
+    radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), transparent 60%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.98)) !important;
+  color: var(--text-strong) !important;
   outline: none;
   transition:
     border-color var(--transition-fast),
     box-shadow var(--transition-fast),
     background var(--transition-fast),
     transform var(--transition-fast);
-
   appearance: none;
   -webkit-appearance: none;
+  position: relative;
 }
 
-/* Hover */
-.filters select:hover {
-  border-color: rgba(248, 250, 252, 0.7);
-  background:
-    radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.32), transparent 60%),
-    linear-gradient(135deg, rgba(15, 23, 42, 0.99), rgba(15, 23, 42, 0.94));
-}
-
-/* Focus */
 .filters select:focus {
-  border-color: rgba(56, 189, 248, 1);
-  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.9);
-  background:
-    radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.45), transparent 60%),
-    linear-gradient(135deg, rgba(15, 23, 42, 1), rgba(15, 23, 42, 0.98));
+  border-color: rgba(56, 189, 248, 0.9);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.8);
+  background-image:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 60%),
+    linear-gradient(135deg, rgba(15, 23, 42, 1), rgba(15, 23, 42, 1)) !important;
   transform: translateY(-1px);
 }
 
-    
-/* Options dropdown (open list) */
-.filters select option,
-.filters select optgroup {
-  background-color: #020617;
-  color: #e5e7eb;
+.filters select:hover {
+  border-color: rgba(248, 250, 252, 0.5);
 }
 
-/* For some browsers that use the select background for the menu surface */
-.filters select::-ms-expand {
-  background-color: transparent;
-}
-
-.filters-row-extra {
+    .filters-row-extra {
       display: flex;
       align-items: center;
       justify-content: space-between;
