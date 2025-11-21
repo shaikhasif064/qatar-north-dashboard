@@ -1069,6 +1069,47 @@
   </style>
 </head>
 <body>
+<div class="container"><nav style="position: fixed; top: 0; left: 0; right: 0; background: linear-gradient(90deg, #4e54c8, #8f94fb); color: white; padding: 10px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; gap: 20px; z-index: 9999;">
+      <a href="index.html" style="color: white; text-decoration: none; font-weight: 600;">Home</a>
+      <a href="its-dashboard.html" style="color: white; text-decoration: none; font-weight: 600;">ITS Dashboard</a>
+    </nav>
+    <style>
+    a:hover {
+      text-decoration: underline;
+      color: #ffea00;
+      transition: color 0.3s ease;
+    }
+    body {
+      padding-top: 50px; /* to prevent content hiding under nav */
+      background: #f4f6fc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      line-height: 1.6;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      color: #4e54c8;
+    }
+    button, .btn {
+      background: #4e54c8;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    button:hover, .btn:hover {
+      background: #8f94fb;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 12px rgb(0 0 0 / 0.1);
+      border-radius: 8px;
+    }
+    </style>
+    
   <div class="page">
     <div class="shell">
       <!-- HEADER -->
@@ -2213,6 +2254,6 @@
       updateCurrentDateTime();
       setInterval(updateCurrentDateTime, 30 * 1000);
     });
-  </script>
+  </script></div>
 </body>
 </html>
