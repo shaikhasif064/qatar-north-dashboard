@@ -56,7 +56,7 @@
       color: #111827;
       display: flex;
       flex-direction: column;
-	  align-items: center;   /* keeps content centered horizontally */
+      align-items: center;
     }
 
     .page {
@@ -414,6 +414,11 @@
       background: #f9fafb;
     }
 
+    tbody tr:hover {
+      background: #e0f2fe;
+      cursor: pointer;
+    }
+
     .badge {
       display: inline-flex;
       align-items: center;
@@ -464,6 +469,32 @@
       font-size: 11px;
       color: #6b7280;
       margin-top: 4px;
+    }
+
+    /* Map header + toggle (Traffic-style) */
+
+    .map-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .map-toggle-btn {
+      border-radius: var(--radius-pill);
+      border: 1px solid #d1d5db;
+      padding: 4px 10px;
+      font-size: 11px;
+      background: #f9fafb;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .map-toggle-btn-active {
+      border-color: #0070c9;
+      background: #e0f2fe;
+      color: #074b86;
     }
   </style>
 </head>
@@ -761,11 +792,20 @@
       <!-- MAP + TABLE -->
       <section class="layout-row">
         <div class="card map-card">
-          <div class="map-title">ITS Assets Map (Leaflet / OpenStreetMap)</div>
+          <div class="map-header">
+            <div class="map-title">ITS Assets Map (Satellite Imagery)</div>
+            <button
+              id="mapModeToggle"
+              class="map-toggle-btn map-toggle-btn-active"
+              type="button"
+            >
+              Map Mode: Selected Asset Only
+            </button>
+          </div>
           <div id="map"></div>
           <div class="map-footer" id="map-footer">
-            Map shows surveyed (green) and pending (red) ITS assets in Qatar
-            North.
+            ESRI World Imagery showing surveyed (green) and pending (red) ITS
+            assets in Qatar North. Map respects current filters and search.
           </div>
         </div>
 
@@ -790,6 +830,7 @@
             <table>
               <thead>
                 <tr>
+                  <th style="width: 55px">Sr. No.</th>
                   <th style="width: 70px">ID</th>
                   <th>Name</th>
                   <th>Device Type</th>
@@ -842,6 +883,9 @@
     let markerLayer;
     let deviceTypeChart;
     let deviceCompletionChart;
+
+    // map mode: true = selected asset only (clear others on click)
+    let singleSelectionMode = true;
 
     // === UTILITIES =======================================================
 
@@ -988,6 +1032,31 @@
       document
         .getElementById("downloadBtn")
         .addEventListener("click", downloadCurrentView);
+
+      const toggleBtn = document.getElementById("mapModeToggle");
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+          singleSelectionMode = !singleSelectionMode;
+          updateMapModeButton();
+          if (!singleSelectionMode) {
+            // switching to "All Filtered Assets" – redraw full set
+            updateMap(filteredAssets);
+          }
+        });
+        updateMapModeButton();
+      }
+    }
+
+    function updateMapModeButton() {
+      const btn = document.getElementById("mapModeToggle");
+      if (!btn) return;
+      if (singleSelectionMode) {
+        btn.textContent = "Map Mode: Selected Asset Only";
+        btn.classList.add("map-toggle-btn-active");
+      } else {
+        btn.textContent = "Map Mode: All Filtered Assets";
+        btn.classList.remove("map-toggle-btn-active");
+      }
     }
 
     function applyFilters() {
@@ -1155,12 +1224,27 @@
         zoom: 9
       });
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://openstreetmap.org">OSM</a> contributors'
-      }).addTo(map);
+      // ESRI World Imagery (same as Traffic dashboard)
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 19,
+          attribution: "Tiles \u00a9 Esri — Source: Esri, Maxar, Earthstar Geographics"
+        }
+      ).addTo(map);
 
       markerLayer = L.layerGroup().addTo(map);
+    }
+
+    function buildPopupHtml(asset) {
+      return `
+        <strong>${asset.id || ""} - ${asset.name || ""}</strong><br/>
+        <strong>Device:</strong> ${asset.deviceType || ""}<br/>
+        <strong>Zone Area:</strong> ${asset.zoneArea || ""}<br/>
+        <strong>Zone:</strong> ${asset.zone || ""}<br/>
+        <strong>Survey:</strong> ${asset.surveyStatus}<br/>
+        <strong>Remarks:</strong> ${asset.remarks || "—"}
+      `;
     }
 
     function updateMap(assets) {
@@ -1185,16 +1269,7 @@
           weight: 1
         });
 
-        marker.bindPopup(
-          `<strong>${asset.id || ""} - ${
-            asset.name || ""
-          }</strong><br/>
-           <strong>Device:</strong> ${asset.deviceType || ""}<br/>
-           <strong>Zone Area:</strong> ${asset.zoneArea || ""}<br/>
-           <strong>Zone:</strong> ${asset.zone || ""}<br/>
-           <strong>Survey:</strong> ${asset.surveyStatus}<br/>
-           <strong>Remarks:</strong> ${asset.remarks || "—"}`
-        );
+        marker.bindPopup(buildPopupHtml(asset));
 
         marker.addTo(markerLayer);
         bounds.push([asset.latitude, asset.longitude]);
@@ -1207,14 +1282,49 @@
       }
     }
 
+    function flyToAsset(asset) {
+      if (!map || !asset) return;
+      const latlng = [asset.latitude, asset.longitude];
+
+      if (singleSelectionMode) {
+        // Show only the selected asset in blue
+        markerLayer.clearLayers();
+        const marker = L.circleMarker(latlng, {
+          radius: 8,
+          color: "#0070c9",
+          fillColor: "#0070c9",
+          fillOpacity: 1,
+          weight: 2
+        }).addTo(markerLayer);
+        marker.bindPopup(buildPopupHtml(asset)).openPopup();
+      } else {
+        // Keep all markers but highlight selected with an extra blue marker
+        const marker = L.circleMarker(latlng, {
+          radius: 8,
+          color: "#0070c9",
+          fillColor: "#0070c9",
+          fillOpacity: 1,
+          weight: 2
+        }).addTo(markerLayer);
+        marker.bindPopup(buildPopupHtml(asset)).openPopup();
+      }
+
+      map.setView(latlng, 16, { animate: true });
+    }
+
     // === TABLE ===========================================================
 
     function updateTable(assets) {
       const tbody = document.getElementById("asset-table-body");
       tbody.innerHTML = "";
 
-      assets.forEach((asset) => {
+      assets.forEach((asset, index) => {
         const tr = document.createElement("tr");
+
+        // Sr. No.
+        const tdSr = document.createElement("td");
+        tdSr.textContent = index + 1;
+        tr.appendChild(tdSr);
 
         const tdId = document.createElement("td");
         tdId.textContent = asset.id || "";
@@ -1252,6 +1362,11 @@
         const tdRemarks = document.createElement("td");
         tdRemarks.textContent = asset.remarks || "";
         tr.appendChild(tdRemarks);
+
+        // clicking a row moves map to that asset (Traffic-style behaviour)
+        tr.addEventListener("click", () => {
+          flyToAsset(asset);
+        });
 
         tbody.appendChild(tr);
       });
@@ -1392,6 +1507,7 @@
       }
 
       const csvHeader = [
+        "Sr.No",
         "ID",
         "Name",
         "Device Type",
@@ -1403,7 +1519,8 @@
         "Remarks"
       ];
 
-      const rows = filteredAssets.map((a) => [
+      const rows = filteredAssets.map((a, index) => [
+        index + 1,
         a.id || "",
         a.name || "",
         a.deviceType || "",
