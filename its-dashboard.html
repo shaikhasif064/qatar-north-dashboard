@@ -27,18 +27,33 @@
 
   <style>
     :root {
-      --bg: #02051b;
-      --card-bg: rgba(255, 255, 255, 0.94);
-      --card-border: rgba(255, 255, 255, 0.2);
-      --accent: #0099ff;
-      --accent-soft: #1b6eff;
-      --accent-green: #1bbf6b;
-      --accent-red: #ff4b5c;
-      --accent-orange: #ffb347;
-      --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.35);
-      --radius-lg: 14px;
-      --radius-md: 10px;
-      --radius-pill: 999px;
+      --aktor-blue: #0b1120;
+      --aktor-red: #e0283b;
+      --algo-blue: #38bdf8;
+
+      --bg-surface: rgba(15, 23, 42, 0.88);
+
+      --glass-bg: rgba(15, 23, 42, 0.72);
+      --glass-border: rgba(148, 163, 184, 0.45);
+      --glass-shadow-soft: 0 22px 45px rgba(15, 23, 42, 0.65);
+      --glass-radius-lg: 18px;
+      --glass-radius-md: 14px;
+
+      --text-soft: #9ca3af;
+      --text-subtle: #6b7280;
+      --text-strong: #e5e7eb;
+      --text-stronger: #f9fafb;
+
+      --accent-green: #22c55e;
+      --accent-amber: #fbbf24;
+      --accent-blue: #38bdf8;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --accent-pink: #ec4899;
+      --accent-orange: #f97316;
+
+      --transition-fast: 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+      --transition-med: 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
     }
 
     * {
@@ -49,431 +64,471 @@
         sans-serif;
     }
 
+    html,
+    body {
+      height: 100%;
+    }
+
     body {
       min-height: 100vh;
-      background: #02051b url("bg-image.png") no-repeat center top fixed;
+      background-color: #020617;
+      background-attachment: fixed;
       background-size: cover;
-      color: #111827;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      color: var(--text-strong);
     }
 
     .page {
       width: 100%;
-      max-width: 1700px;
-      margin: 0 auto 40px auto;
-      padding: 0 18px 40px 18px;
+      min-height: 100vh;
+      margin: 0;
+      padding-bottom: 24px;
+      /* Colorful multi-layer background */
+      background:
+        radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.26), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.22), transparent 55%),
+        radial-gradient(circle at 0% 100%, rgba(249, 115, 22, 0.18), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.22), transparent 60%),
+        linear-gradient(180deg, #020617 0%, #020617 18%, #020617 100%);
     }
 
+    .shell {
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 12px 16px 24px;
+    }
+
+    /* ===== HEADER ===== */
     header {
-      width: 100vw !important;
-      margin-left: calc(50% - 50vw);
-      padding-left: 40px;
-      padding-right: 40px;
-      background: linear-gradient(
-        90deg,
-        rgba(2, 6, 23, 0.96),
-        rgba(15, 23, 42, 0.96)
-      );
-      color: #f9fafb;
-      border-radius: 0 0 var(--radius-lg) var(--radius-lg);
-      box-shadow: var(--shadow-soft);
-      padding-top: 10px;
-      padding-bottom: 14px;
+      width: 100%;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      padding: 10px 20px;
+      background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 0.92)),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.35), rgba(168, 85, 247, 0.35), rgba(236, 72, 153, 0.26));
+      box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.85),
+        0 0 0 1px rgba(148, 163, 184, 0.35);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      border-bottom: 3px solid #ff375f;
+      gap: 18px;
+      position: relative; /* not sticky */
+      top: auto;
+      z-index: auto;
     }
 
     .header-left,
     .header-right {
+      flex: 0 0 auto;
       display: flex;
       align-items: center;
-      gap: 16px;
-    }
-
-    .header-logo {
-      height: 55px;
-      object-fit: contain;
+      gap: 8px;
     }
 
     .header-center {
+      flex: 1 1 auto;
       text-align: center;
-      flex: 1;
+    }
+
+    .header-logo {
+      max-height: 52px;
+      height: auto;
+      filter: drop-shadow(0 8px 20px rgba(15, 23, 42, 0.8));
+    }
+
+    .header-logo-small {
+      max-height: 42px;
     }
 
     .header-title {
-      font-size: 26px;
+      font-size: clamp(20px, 2vw, 26px);
       font-weight: 700;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.06em;
+      color: var(--text-stronger);
+      text-transform: uppercase;
     }
 
     .header-subtitle {
-      font-size: 12px;
-      opacity: 0.8;
-      margin-top: 2px;
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     .header-meta {
       font-size: 11px;
-      opacity: 0.85;
+      color: #c7d2fe;
       margin-top: 4px;
     }
 
-    main {
-      margin-top: 16px;
+    /* ===== LAYOUT: HIERARCHY ===== */
+    main.dashboard {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
+      margin-top: 4px;
     }
 
-    /* KPI cards */
+    .section {
+      display: block;
+      animation: fade-slide-up 0.65s var(--transition-med);
+    }
 
+    .section-kpis {
+      margin-top: 4px;
+    }
+
+    .section-insights,
+    .section-filters,
+    .section-main,
+    .section-table {
+      margin-top: 2px;
+    }
+
+    /* ===== GLASS CARD BASE ===== */
+    .glass-card {
+      position: relative;
+      background:
+        radial-gradient(circle at top left, rgba(248, 250, 252, 0.16), transparent 40%),
+        linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+      border-radius: var(--glass-radius-lg);
+      padding: 10px 14px;
+      box-shadow: var(--glass-shadow-soft);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      overflow: hidden;
+      transition:
+        transform var(--transition-med),
+        box-shadow var(--transition-med),
+        border-color var(--transition-med),
+        background var(--transition-med);
+    }
+
+    .glass-card::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      opacity: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.16), transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.16), transparent 45%);
+      transition: opacity var(--transition-med);
+      pointer-events: none;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 26px 55px rgba(15, 23, 42, 0.95);
+      border-color: rgba(248, 250, 252, 0.35);
+      background:
+        radial-gradient(circle at top left, rgba(248, 250, 252, 0.22), transparent 40%),
+        linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94));
+    }
+
+    .glass-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #9ca3af;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-title::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.75);
+    }
+
+    .card-sub {
+      font-size: 11px;
+      color: var(--text-subtle);
+      margin-top: 2px;
+    }
+
+    /* ===== KPI GRID ===== */
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    @media (max-width: 1450px) {
-      .kpi-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 1024px) {
-      .kpi-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 640px) {
-      .kpi-grid {
-        grid-template-columns: 1fr;
-      }
-      header {
-        flex-direction: column;
-        gap: 8px;
-        text-align: center;
-      }
-      .header-left,
-      .header-right {
-        justify-content: center;
-      }
-    }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      padding: 12px 16px;
-      box-shadow: var(--shadow-soft);
-      border: 1px solid var(--card-border);
-      backdrop-filter: blur(8px);
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 8px;
     }
 
     .kpi-card {
+      position: relative;
+      background:
+        linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9)),
+        linear-gradient(120deg, rgba(56, 189, 248, 0.22), rgba(168, 85, 247, 0.18), rgba(236, 72, 153, 0.18));
+      border-radius: var(--glass-radius-md);
+      padding: 8px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      box-shadow: 0 16px 35px rgba(15, 23, 42, 0.9);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       min-height: 84px;
+      gap: 2px;
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+      cursor: default;
+    }
+
+    .kpi-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.25), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.25), transparent 55%);
+      transition: opacity var(--transition-fast);
+      pointer-events: none;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.98);
+      border-color: rgba(248, 250, 252, 0.5);
+      background:
+        linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94)),
+        linear-gradient(120deg, rgba(56, 189, 248, 0.28), rgba(168, 85, 247, 0.24), rgba(236, 72, 153, 0.24));
+    }
+
+    .kpi-card:hover::after {
+      opacity: 1;
     }
 
     .kpi-label {
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 600;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: #6b7280;
-      margin-bottom: 6px;
+      color: var(--text-soft);
+      margin-bottom: 4px;
     }
 
     .kpi-value {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
-      color: #111827;
+      color: var(--text-stronger);
     }
 
     .kpi-subtext {
       font-size: 11px;
-      color: #4b5563;
-      margin-top: 4px;
+      color: var(--text-subtle);
+      margin-top: 2px;
     }
 
     .progress-track {
       margin-top: 6px;
       height: 5px;
-      border-radius: var(--radius-pill);
-      background: #e5e7eb;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.8);
       overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.6);
     }
 
     .progress-bar {
       height: 100%;
       width: 0;
-      background: linear-gradient(
-        90deg,
-        var(--accent-green),
-        var(--accent-soft)
-      );
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
       transition: width 0.4s ease-out;
     }
 
     .kpi-pct {
       font-size: 11px;
-      color: #111827;
+      color: var(--text-strong);
       margin-top: 3px;
     }
 
-    /* Filters */
-
-    .filters-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 14px;
-      align-items: stretch;
+    /* ===== INSIGHTS BAR ===== */
+    .insights-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
-    @media (max-width: 1100px) {
-      .filters-row {
-        grid-template-columns: 1fr;
-      }
+    .insights-main-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
+    .insights-main-label span.badge-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-amber);
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.9);
+      position: relative;
+    }
+
+    .insights-main-label span.badge-pulse::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      border: 1px solid rgba(251, 191, 36, 0.6);
+      opacity: 0;
+      animation: pulse 1.5s infinite;
+    }
+
+    /* ===== FILTER BAR (PILL STYLE) ===== */
     .filters-card {
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
 
-    .filters-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 2px;
-    }
-
-    .filters-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      align-items: center;
-    }
-
-    @media (max-width: 900px) {
-      .filters-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    .field-label {
+    .filters-row-title {
       font-size: 11px;
-      color: #6b7280;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
       margin-bottom: 2px;
     }
 
-    select,
-    input[type="text"] {
-      width: 100%;
-      border-radius: var(--radius-md);
-      border: 1px solid #d1d5db;
-      padding: 6px 10px;
-      font-size: 12px;
-      background: #f9fafb;
-      color: #111827;
-      outline: none;
-    }
-
-    select:focus,
-    input[type="text"]:focus {
-      border-color: var(--accent-soft);
-      box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.3);
-      background: #ffffff;
-    }
-
-    .btn-primary {
-      display: inline-flex;
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       align-items: center;
-      justify-content: center;
-      border-radius: var(--radius-pill);
-      padding: 7px 16px;
-      font-size: 12px;
-      font-weight: 600;
-      border: none;
-      background: linear-gradient(
-        90deg,
-        var(--accent-soft),
-        var(--accent-green)
-      );
-      color: white;
-      cursor: pointer;
-      gap: 6px;
-      margin-top: 8px;
-      align-self: flex-start;
     }
 
-    .btn-primary:hover {
-      filter: brightness(1.05);
+    .filters label {
+      font-size: 10px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filters select {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.65);
+      font-size: 11px;
+      min-width: 130px;
+      background:
+        radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), transparent 60%),
+        linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.96));
+      color: var(--text-strong);
+      outline: none;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        transform var(--transition-fast);
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+    }
+
+    .filters select:focus {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.8);
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 60%),
+        linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.98));
+      transform: translateY(-1px);
+    }
+
+    .filters select:hover {
+      border-color: rgba(248, 250, 252, 0.35);
+    }
+
+    .filters-row-extra {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 2px;
     }
 
     .filters-note {
+      font-size: 10px;
+      color: var(--text-subtle);
+    }
+
+    .export-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.9);
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.35), transparent 55%),
+        linear-gradient(135deg, rgba(37, 99, 235, 0.96), rgba(56, 189, 248, 0.95));
+      color: #ecfeff;
       font-size: 11px;
-      color: #6b7280;
-      margin-top: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 16px 35px rgba(30, 64, 175, 0.8);
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        filter var(--transition-fast);
     }
 
-    /* Layout: map + table + charts */
+    .export-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 22px 48px rgba(30, 64, 175, 0.95);
+      filter: brightness(1.05);
+    }
 
-    .layout-row {
+    .export-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.9);
+    }
+
+    /* ===== MAIN: MAP & CHARTS ===== */
+    .main-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);
-      gap: 14px;
-    }
-
-    @media (max-width: 1200px) {
-      .layout-row {
-        grid-template-columns: 1fr;
-      }
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+      gap: 12px;
+      align-items: stretch;
     }
 
     .map-card {
-      padding: 10px 10px 6px 10px;
+      border-radius: var(--glass-radius-lg);
     }
 
-    .map-title,
-    .table-title,
-    .chart-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 6px;
-    }
-
-    #map {
-      width: 100%;
-      height: 420px;
-      border-radius: var(--radius-md);
-    }
-
-    .map-footer {
-      font-size: 10px;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-
-    .table-card {
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 440px;
-    }
-
-    .table-header-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 4px;
-    }
-
-    .search-input {
-      font-size: 12px;
-    }
-
-    .table-wrapper {
-      flex: 1;
-      overflow: auto;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 11px;
-    }
-
-    thead {
-      position: sticky;
-      top: 0;
-      background: #f9fafb;
-      z-index: 1;
-    }
-
-    th,
-    td {
-      padding: 6px 8px;
-      border-bottom: 1px solid #f3f4f6;
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    tbody tr:nth-child(even) {
-      background: #f9fafb;
-    }
-
-    tbody tr:hover {
-      background: #e0f2fe;
-      cursor: pointer;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 1px 6px;
-      border-radius: var(--radius-pill);
-      font-size: 10px;
-      font-weight: 600;
-      color: white;
-    }
-
-    .badge-success {
-      background: #16a34a;
-    }
-
-    .badge-pending {
-      background: #dc2626;
-    }
-
-    .badge-neutral {
-      background: #6b7280;
-    }
-
-    .bottom-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
-      gap: 14px;
-    }
-
-    @media (max-width: 1300px) {
-      .bottom-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .chart-card {
-      padding: 10px 12px;
-    }
-
-    #deviceTypeChart {
-      max-height: 280px;
-    }
-
-    #deviceCompletionChart {
-      max-height: 280px;
-    }
-
-    .chart-legend {
-      font-size: 11px;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-
-    /* Map header + toggle (Traffic-style) */
-
-    .map-header {
+    .map-card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -481,393 +536,775 @@
       margin-bottom: 6px;
     }
 
-    .map-toggle-btn {
-      border-radius: var(--radius-pill);
-      border: 1px solid #d1d5db;
-      padding: 4px 10px;
+    .map-title {
       font-size: 11px;
-      background: #f9fafb;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .map-title span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }
+
+    .map-toggle-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 5px 12px;
+      font-size: 11px;
+      background:
+        radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), transparent 60%),
+        rgba(15, 23, 42, 0.96);
+      color: var(--text-soft);
       cursor: pointer;
       white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast),
+        color var(--transition-fast);
     }
 
     .map-toggle-btn-active {
-      border-color: #0070c9;
-      background: #e0f2fe;
-      color: #074b86;
+      border-color: rgba(56, 189, 248, 0.95);
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.25), transparent 55%),
+        linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+      color: #e0f2fe;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.95);
+    }
+
+    #map {
+      width: 100%;
+      height: 420px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      transition: transform var(--transition-med), box-shadow var(--transition-med), border-color var(--transition-med);
+    }
+
+    .map-card:hover #map {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 52px rgba(15, 23, 42, 0.98);
+      border-color: rgba(248, 250, 252, 0.55);
+    }
+
+    .map-footer {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    /* Charts column */
+    .charts-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chart-card {
+      border-radius: var(--glass-radius-lg);
+    }
+
+    .chart-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+      margin: 0;
+    }
+
+    .chart-wrapper {
+      height: 230px;
+      margin-top: 4px;
+    }
+
+    .chart-legend {
+      font-size: 11px;
+      color: var(--text-subtle);
+      margin-top: 4px;
+    }
+
+    /* ===== TABLE SECTION ===== */
+    .table-card {
+      border-radius: var(--glass-radius-lg);
+    }
+
+    .table-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .table-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .table-header-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+    }
+
+    .table-header-sub {
+      font-size: 11px;
+      color: var(--text-subtle);
+    }
+
+    .table-controls {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      width: 100%;
+    }
+
+    .table-search {
+      flex: 1;
+      max-width: 360px;
+    }
+
+    .table-search input {
+      width: 100%;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 11px;
+      background:
+        radial-gradient(circle at 0 0, rgba(248, 250, 252, 0.06), transparent 60%),
+        rgba(15, 23, 42, 0.96);
+      color: var(--text-strong);
+      outline: none;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        transform var(--transition-fast);
+    }
+
+    .table-search input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .table-search input:focus {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.8);
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.2), transparent 60%),
+        rgba(15, 23, 42, 0.98);
+      transform: translateY(-1px);
+    }
+
+    .table-wrapper {
+      max-height: 320px;
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background:
+        radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(3, 7, 18, 0.98));
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.95);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      color: var(--text-strong);
+    }
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    th,
+    td {
+      padding: 5px 8px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.95));
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.82);
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(3, 7, 18, 0.96);
+    }
+
+    tbody tr:hover {
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.18), transparent 55%),
+        rgba(3, 7, 18, 0.98);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 6px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 0 14px rgba(15, 23, 42, 0.9);
+    }
+
+    .badge-success {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .badge-pending {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .badge-neutral {
+      background: linear-gradient(135deg, #6b7280, #4b5563);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fade-slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      from {
+        opacity: 0.55;
+        transform: scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: scale(1.4);
+      }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      }
+
+      #map {
+        height: 380px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .shell {
+        padding: 10px 10px 20px;
+      }
+
+      header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        padding: 10px 14px;
+      }
+
+      .header-center {
+        text-align: left;
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .charts-stack {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .charts-stack .chart-card {
+        flex: 1 1 260px;
+      }
+
+      #map {
+        height: 360px;
+      }
+
+      .table-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .table-search {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        border-radius: 16px;
+      }
+
+      .insights-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      #map {
+        height: 320px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .header-logo {
+        max-height: 44px;
+      }
+
+      .header-logo-small {
+        max-height: 34px;
+      }
+
+      .header-title {
+        font-size: 17px;
+        letter-spacing: 0.08em;
+      }
+
+      .filters select {
+        min-width: 100px;
+      }
     }
   </style>
 </head>
 
 <body>
   <div class="page">
-    <header>
-      <div class="header-left">
-        <img src="aktor-logo.png" alt="Aktor Qatar" class="header-logo" />
-      </div>
-
-      <div class="header-center">
-        <div class="header-title">Qatar North ITS Survey Dashboard</div>
-        <div class="header-subtitle">
-          Traffic Junctions Dashboard · ITS Devices &amp; Systems
-        </div>
-        <div class="header-meta">
-          Live from Google Sheet — assets, survey completion &amp; location
-          overview · <span id="last-updated">Loading…</span>
-        </div>
-      </div>
-
-      <div class="header-right">
-        <img
-          src="algosystems-logo.png"
-          alt="Algosystems"
-          class="header-logo"
-        />
-      </div>
-    </header>
-
-    <main>
-      <!-- KPI GRID -->
-      <section class="kpi-grid">
-        <!-- row 1 -->
-        <div class="card kpi-card">
-          <div class="kpi-label">Total ITS Assets</div>
-          <div class="kpi-value" id="total-assets-count">–</div>
+    <div class="shell">
+      <!-- HEADER -->
+      <header>
+        <div class="header-left">
+          <img src="aktor-logo.png" alt="Aktor Qatar" class="header-logo" />
         </div>
 
-        <div class="card kpi-card">
-          <div class="kpi-label">Assets Surveyed</div>
-          <div class="kpi-value" id="assets-surveyed-count">–</div>
-          <div class="kpi-subtext" id="assets-surveyed-percent-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">Survey Completion</div>
-          <div class="kpi-value" id="survey-completion-percent">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="survey-completion-bar"
-              style="width: 0%"
-            ></div>
+        <div class="header-center">
+          <div class="header-title">Qatar North ITS Survey Dashboard</div>
+          <div class="header-subtitle">
+            Traffic Junctions · ITS Devices &amp; Systems
           </div>
-          <div class="kpi-pct" id="survey-completion-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">Assets Pending</div>
-          <div class="kpi-value" id="assets-pending-count">–</div>
-          <div class="kpi-subtext">Assets with survey status “Pending”.</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">CCTV Assets</div>
-          <div class="kpi-value" id="cctv-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="cctv-survey-bar"
-              style="width: 0%"
-            ></div>
+          <div class="header-meta">
+            Live from Google Sheet — assets, survey completion &amp; location overview ·
+            <span id="last-updated">Loading…</span>
           </div>
-          <div class="kpi-pct" id="cctv-survey-text">–</div>
         </div>
 
-        <div class="card kpi-card">
-          <div class="kpi-label">DMS Assets</div>
-          <div class="kpi-value" id="dms-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="dms-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="dms-survey-text">–</div>
+        <div class="header-right">
+          <img
+            src="algosystems-logo.png"
+            alt="Algosystems"
+            class="header-logo header-logo-small"
+          />
         </div>
+      </header>
 
-        <!-- row 2 -->
-        <div class="card kpi-card">
-          <div class="kpi-label">RVD Assets</div>
-          <div class="kpi-value" id="rvd-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="rvd-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="rvd-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">PTZ Assets</div>
-          <div class="kpi-value" id="ptz-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="ptz-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="ptz-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">LPR Assets</div>
-          <div class="kpi-value" id="lpr-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="lpr-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="lpr-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">AID Assets</div>
-          <div class="kpi-value" id="aid-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="aid-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="aid-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">OVDS Assets</div>
-          <div class="kpi-value" id="ovds-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="ovds-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="ovds-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">RWIS Assets</div>
-          <div class="kpi-value" id="rwis-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="rwis-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="rwis-survey-text">–</div>
-        </div>
-
-        <!-- row 3 -->
-        <div class="card kpi-card">
-          <div class="kpi-label">LCS Assets</div>
-          <div class="kpi-value" id="lcs-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="lcs-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="lcs-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">AQMS Assets</div>
-          <div class="kpi-value" id="aqms-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="aqms-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="aqms-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">Magnetometer AP</div>
-          <div class="kpi-value" id="magap-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="magap-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="magap-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">Magnetometer Dots</div>
-          <div class="kpi-value" id="magdot-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="magdot-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="magdot-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">WIM Sensor</div>
-          <div class="kpi-value" id="wim-sensor-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="wim-sensor-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="wim-sensor-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">WIM Controller</div>
-          <div class="kpi-value" id="wim-controller-assets-count">–</div>
-          <div class="progress-track">
-            <div
-              class="progress-bar"
-              id="wim-controller-survey-bar"
-              style="width: 0%"
-            ></div>
-          </div>
-          <div class="kpi-pct" id="wim-controller-survey-text">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">Assets in Doha Region</div>
-          <div class="kpi-value" id="assets-doha-count">–</div>
-        </div>
-
-        <div class="card kpi-card">
-          <div class="kpi-label">Assets in North Region</div>
-          <div class="kpi-value" id="assets-north-count">–</div>
-        </div>
-      </section>
-
-      <!-- FILTERS -->
-      <section class="filters-row">
-        <div class="card filters-card">
-          <div class="filters-title">Filters</div>
-          <div class="filters-grid">
-            <div>
-              <div class="field-label">Zone Area</div>
-              <select id="zoneAreaFilter">
-                <option value="All">All</option>
-              </select>
+      <main class="dashboard">
+        <!-- KPI GRID -->
+        <section class="section section-kpis">
+          <div class="kpi-grid">
+            <!-- row 1 -->
+            <div class="kpi-card">
+              <div class="kpi-label">Total ITS Assets</div>
+              <div class="kpi-value" id="total-assets-count">–</div>
             </div>
-            <div>
-              <div class="field-label">Device Type</div>
-              <select id="deviceTypeFilter">
-                <option value="All">All</option>
-              </select>
+
+            <div class="kpi-card">
+              <div class="kpi-label">Assets Surveyed</div>
+              <div class="kpi-value" id="assets-surveyed-count">–</div>
+              <div class="kpi-subtext" id="assets-surveyed-percent-text">–</div>
             </div>
-            <div>
-              <div class="field-label">Survey Status</div>
-              <select id="surveyStatusFilter">
-                <option value="All">All</option>
-                <option value="Completed">Completed</option>
-                <option value="Pending">Pending</option>
-              </select>
-            </div>
-          </div>
 
-          <button id="downloadBtn" class="btn-primary">
-            Download Current View (CSV)
-          </button>
-          <div class="filters-note">No filters applied.</div>
-        </div>
-      </section>
-
-      <!-- MAP + TABLE -->
-      <section class="layout-row">
-        <div class="card map-card">
-          <div class="map-header">
-            <div class="map-title">ITS Assets Map (Satellite Imagery)</div>
-            <button
-              id="mapModeToggle"
-              class="map-toggle-btn map-toggle-btn-active"
-              type="button"
-            >
-              Map Mode: Selected Asset Only
-            </button>
-          </div>
-          <div id="map"></div>
-          <div class="map-footer" id="map-footer">
-            ESRI World Imagery showing surveyed (green) and pending (red) ITS
-            assets in Qatar North. Map respects current filters and search.
-          </div>
-        </div>
-
-        <div class="card table-card">
-          <div class="table-title">ITS Asset List</div>
-
-          <div class="table-header-grid">
-            <div>
-              <div class="field-label">
-                Search by ID, Name, Device Type, Zone Area, or Remarks
+            <div class="kpi-card">
+              <div class="kpi-label">Survey Completion</div>
+              <div class="kpi-value" id="survey-completion-percent">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="survey-completion-bar"
+                  style="width: 0%"
+                ></div>
               </div>
-              <input
-                type="text"
-                id="assetSearch"
-                class="search-input"
-                placeholder="Start typing to filter the ITS asset list..."
-              />
+              <div class="kpi-pct" id="survey-completion-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">Assets Pending</div>
+              <div class="kpi-value" id="assets-pending-count">–</div>
+              <div class="kpi-subtext">Assets with survey status “Pending”.</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">CCTV Assets</div>
+              <div class="kpi-value" id="cctv-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="cctv-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="cctv-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">DMS Assets</div>
+              <div class="kpi-value" id="dms-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="dms-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="dms-survey-text">–</div>
+            </div>
+
+            <!-- row 2 -->
+            <div class="kpi-card">
+              <div class="kpi-label">RVD Assets</div>
+              <div class="kpi-value" id="rvd-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="rvd-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="rvd-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">PTZ Assets</div>
+              <div class="kpi-value" id="ptz-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="ptz-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="ptz-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">LPR Assets</div>
+              <div class="kpi-value" id="lpr-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="lpr-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="lpr-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">AID Assets</div>
+              <div class="kpi-value" id="aid-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="aid-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="aid-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">OVDS Assets</div>
+              <div class="kpi-value" id="ovds-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="ovds-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="ovds-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">RWIS Assets</div>
+              <div class="kpi-value" id="rwis-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="rwis-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="rwis-survey-text">–</div>
+            </div>
+
+            <!-- row 3 -->
+            <div class="kpi-card">
+              <div class="kpi-label">LCS Assets</div>
+              <div class="kpi-value" id="lcs-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="lcs-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="lcs-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">AQMS Assets</div>
+              <div class="kpi-value" id="aqms-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="aqms-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="aqms-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">Magnetometer AP</div>
+              <div class="kpi-value" id="magap-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="magap-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="magap-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">Magnetometer Dots</div>
+              <div class="kpi-value" id="magdot-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="magdot-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="magdot-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">WIM Sensor</div>
+              <div class="kpi-value" id="wim-sensor-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="wim-sensor-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="wim-sensor-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">WIM Controller</div>
+              <div class="kpi-value" id="wim-controller-assets-count">–</div>
+              <div class="progress-track">
+                <div
+                  class="progress-bar"
+                  id="wim-controller-survey-bar"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <div class="kpi-pct" id="wim-controller-survey-text">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">Assets in Doha Region</div>
+              <div class="kpi-value" id="assets-doha-count">–</div>
+            </div>
+
+            <div class="kpi-card">
+              <div class="kpi-label">Assets in North Region</div>
+              <div class="kpi-value" id="assets-north-count">–</div>
             </div>
           </div>
+        </section>
 
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th style="width: 55px">Sr. No.</th>
-                  <th style="width: 70px">ID</th>
-                  <th>Name</th>
-                  <th>Device Type</th>
-                  <th>Zone Area</th>
-                  <th>Zone</th>
-                  <th>Survey</th>
-                  <th>Remarks</th>
-                </tr>
-              </thead>
-              <tbody id="asset-table-body"></tbody>
-            </table>
+        <!-- INSIGHTS BAR -->
+        <section class="section section-insights">
+          <div class="glass-card">
+            <div class="insights-bar">
+              <div class="insights-main-label">
+                <span class="badge-pulse"></span>
+                <span>Device Types Needing Attention</span>
+              </div>
+              <div id="device-insights" class="card-sub"></div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- CHARTS -->
-      <section class="bottom-row">
-        <div class="card chart-card">
-          <div class="chart-title">Assets by Device Type</div>
-          <canvas id="deviceTypeChart"></canvas>
-          <div class="chart-legend" id="chart-legend">
-            Distribution of ITS assets by device type for the current
-            selection.
-          </div>
-        </div>
+        <!-- FILTERS -->
+        <section class="section section-filters">
+          <div class="glass-card filters-card">
+            <div class="filters-row-title">Filters</div>
+            <div class="filters">
+              <label>
+                Zone Area
+                <select id="zoneAreaFilter">
+                  <option value="All">All</option>
+                </select>
+              </label>
+              <label>
+                Device Type
+                <select id="deviceTypeFilter">
+                  <option value="All">All</option>
+                </select>
+              </label>
+              <label>
+                Survey Status
+                <select id="surveyStatusFilter">
+                  <option value="All">All</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Pending">Pending</option>
+                </select>
+              </label>
+            </div>
 
-        <div class="card chart-card">
-          <div class="chart-title">
-            Survey Completion % by Device Type
+            <div class="filters-row-extra">
+              <div class="filters-note">No filters applied.</div>
+              <button id="downloadBtn" class="export-btn">
+                Download Current View (CSV)
+              </button>
+            </div>
           </div>
-          <canvas id="deviceCompletionChart"></canvas>
-          <div class="chart-legend" id="completion-legend">
-            Percentage of surveyed devices for each device type.
+        </section>
+
+        <!-- MAP + CHARTS -->
+        <section class="section section-main">
+          <div class="main-grid">
+            <div class="glass-card map-card">
+              <div class="map-card-header">
+                <div class="map-title">
+                  <span class="dot"></span>
+                  <span>ITS Assets Map (Satellite Imagery)</span>
+                </div>
+                <button
+                  id="mapModeToggle"
+                  class="map-toggle-btn map-toggle-btn-active"
+                  type="button"
+                >
+                  Map Mode: Selected Asset Only
+                </button>
+              </div>
+              <div id="map"></div>
+              <div class="map-footer" id="map-footer">
+                ESRI World Imagery showing surveyed (green) and pending (red) ITS
+                assets in Qatar North. Map respects current filters and search.
+              </div>
+            </div>
+
+            <div class="charts-stack">
+              <div class="glass-card chart-card">
+                <p class="chart-title">Assets by Device Type</p>
+                <div class="chart-wrapper">
+                  <canvas id="deviceTypeChart"></canvas>
+                </div>
+                <div class="chart-legend" id="chart-legend">
+                  Distribution of ITS assets by device type for the current selection.
+                </div>
+              </div>
+
+              <div class="glass-card chart-card">
+                <p class="chart-title">Survey Completion % by Device Type</p>
+                <div class="chart-wrapper">
+                  <canvas id="deviceCompletionChart"></canvas>
+                </div>
+                <div class="chart-legend" id="completion-legend">
+                  Percentage of surveyed devices for each device type.
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
+        </section>
+
+        <!-- TABLE -->
+        <section class="section section-table">
+          <div class="glass-card table-card">
+            <div class="table-header-row">
+              <div class="table-header-left">
+                <div class="table-header-title">ITS Asset List</div>
+                <div class="table-header-sub">
+                  Tap a row to highlight on map. Search by ID, Name, Device Type, Zone Area, Zone, or Remarks.
+                </div>
+              </div>
+            </div>
+
+            <div class="table-controls">
+              <div class="table-search">
+                <input
+                  type="text"
+                  id="assetSearch"
+                  placeholder="Start typing to filter the ITS asset list..."
+                />
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 55px">Sr. No.</th>
+                    <th style="width: 70px">ID</th>
+                    <th>Name</th>
+                    <th>Device Type</th>
+                    <th>Zone Area</th>
+                    <th>Zone</th>
+                    <th>Survey</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="asset-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
   </div>
 
   <script>
@@ -1229,7 +1666,7 @@
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
           maxZoom: 19,
-          attribution: "Tiles \u00a9 Esri — Source: Esri, Maxar, Earthstar Geographics"
+          attribution: "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics"
         }
       ).addTo(map);
 
@@ -1291,8 +1728,8 @@
         markerLayer.clearLayers();
         const marker = L.circleMarker(latlng, {
           radius: 8,
-          color: "#0070c9",
-          fillColor: "#0070c9",
+          color: "#38bdf8",
+          fillColor: "#38bdf8",
           fillOpacity: 1,
           weight: 2
         }).addTo(markerLayer);
@@ -1301,8 +1738,8 @@
         // Keep all markers but highlight selected with an extra blue marker
         const marker = L.circleMarker(latlng, {
           radius: 8,
-          color: "#0070c9",
-          fillColor: "#0070c9",
+          color: "#38bdf8",
+          fillColor: "#38bdf8",
           fillOpacity: 1,
           weight: 2
         }).addTo(markerLayer);
@@ -1363,7 +1800,7 @@
         tdRemarks.textContent = asset.remarks || "";
         tr.appendChild(tdRemarks);
 
-        // clicking a row moves map to that asset (Traffic-style behaviour)
+        // clicking a row moves map to that asset
         tr.addEventListener("click", () => {
           flyToAsset(asset);
         });
@@ -1372,7 +1809,7 @@
       });
     }
 
-    // === CHARTS ==========================================================
+    // === CHARTS & INSIGHTS ===============================================
 
     function updateDeviceCharts(assets) {
       const ctxDonut = document
@@ -1438,7 +1875,8 @@
               labels: {
                 boxWidth: 10,
                 boxHeight: 10,
-                font: { size: 10 }
+                font: { size: 10 },
+                color: "#e5e7eb"
               }
             }
           },
@@ -1454,22 +1892,29 @@
             {
               label: "Survey Completion %",
               data: dataPct,
-              backgroundColor: "#22c55e"
+              backgroundColor: "rgba(34, 197, 94, 0.9)"
             }
           ]
         },
         options: {
           scales: {
+            x: {
+              ticks: { color: "#e5e7eb" },
+              grid: { color: "rgba(55, 65, 81, 0.8)" }
+            },
             y: {
               beginAtZero: true,
               max: 100,
               ticks: {
-                callback: (value) => value + "%"
+                callback: (value) => value + "%",
+                color: "#e5e7eb"
               },
               title: {
                 display: true,
-                text: "Completion %"
-              }
+                text: "Completion %",
+                color: "#e5e7eb"
+              },
+              grid: { color: "rgba(55, 65, 81, 0.8)" }
             }
           },
           plugins: {
@@ -1496,6 +1941,56 @@
 
       document.getElementById("completion-legend").textContent =
         "Bars show the percentage of surveyed devices for each device type.";
+
+      updateDeviceInsights(labels, counts, completed);
+    }
+
+    function updateDeviceInsights(labels, counts, completed) {
+      const el = document.getElementById("device-insights");
+      if (!el) return;
+
+      if (!labels.length) {
+        el.textContent = "No data for current selection.";
+        return;
+      }
+
+      const arr = labels.map((label) => {
+        const total = counts[label] || 0;
+        const comp = completed[label] || 0;
+        const pct = total ? (comp / total) * 100 : 0;
+        return { label, total, comp, pct };
+      });
+
+      arr.sort((a, b) => a.pct - b.pct);
+
+      const threshold = 60;
+      const needing = arr.filter((x) => x.pct < threshold);
+
+      if (!needing.length) {
+        el.textContent =
+          "All device types have survey completion ≥ " + threshold + "%.";
+        return;
+      }
+
+      const top5 = needing.slice(0, 5);
+      el.innerHTML =
+        "<strong>Lowest completion device types (under " +
+        threshold +
+        "%):</strong><br/>";
+      top5.forEach((x) => {
+        const line =
+          x.label +
+          ": " +
+          x.comp +
+          "/" +
+          x.total +
+          " (" +
+          x.pct.toFixed(1) +
+          "%)";
+        const div = document.createElement("div");
+        div.textContent = line;
+        el.appendChild(div);
+      });
     }
 
     // === DOWNLOAD CURRENT VIEW ==========================================
