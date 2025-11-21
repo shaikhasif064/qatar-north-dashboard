@@ -17,11 +17,29 @@
 
   <style>
     :root {
-      --aktor-blue: #111827;
+      --aktor-blue: #0b1120;
       --aktor-red: #e0283b;
-      --algo-blue: #0070c9;
-      --card-bg: #ffffff;
-      --bg-surface: rgba(15, 23, 42, 0.85);
+      --algo-blue: #38bdf8;
+      --bg-surface: rgba(15, 23, 42, 0.88);
+
+      --glass-bg: rgba(15, 23, 42, 0.72);
+      --glass-border: rgba(148, 163, 184, 0.45);
+      --glass-shadow-soft: 0 22px 45px rgba(15, 23, 42, 0.65);
+      --glass-radius-lg: 18px;
+      --glass-radius-md: 14px;
+
+      --text-soft: #9ca3af;
+      --text-subtle: #6b7280;
+      --text-strong: #e5e7eb;
+      --text-stronger: #f9fafb;
+
+      --accent-green: #22c55e;
+      --accent-amber: #fbbf24;
+      --accent-blue: #38bdf8;
+      --accent-red: #ef4444;
+
+      --transition-fast: 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+      --transition-med: 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
     }
 
     * {
@@ -38,37 +56,52 @@
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
         sans-serif;
-      color: #111827;
-      background-image: url('bg-image.png');
+      color: var(--text-strong);
+      background-image: radial-gradient(circle at top left, #1e293b 0, #020617 45%, #000 100%);
       background-color: #020617;
       background-repeat: no-repeat;
-      background-position: center center;
       background-attachment: fixed;
       background-size: cover;
+      -webkit-font-smoothing: antialiased;
     }
 
     .page {
       width: 100%;
       min-height: 100vh;
       margin: 0;
-      background: linear-gradient(
-        180deg,
-        rgba(15, 23, 42, 0.5),
-        rgba(15, 23, 42, 0.9)
-      );
+      padding-bottom: 24px;
+      background: radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
+                  radial-gradient(circle at 100% 0%, rgba(248, 250, 252, 0.05), transparent 55%),
+                  linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.98));
+    }
+
+    .shell {
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 12px 16px 24px;
     }
 
     /* ===== HEADER ===== */
     header {
       width: 100%;
-      background: linear-gradient(90deg, #020617, #111827);
-      backdrop-filter: blur(8px);
-      border-bottom: 3px solid rgba(224, 40, 59, 0.9);
-      padding: 10px 24px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      padding: 10px 20px;
+      background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.86)),
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.35), transparent 55%);
+      box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.85),
+        0 0 0 1px rgba(148, 163, 184, 0.35);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 18px;
+      position: sticky;
+      top: 8px;
+      z-index: 50;
     }
 
     .header-left,
@@ -76,6 +109,7 @@
       flex: 0 0 auto;
       display: flex;
       align-items: center;
+      gap: 8px;
     }
 
     .header-center {
@@ -84,8 +118,9 @@
     }
 
     .logo-img {
-      max-height: 56px;
+      max-height: 52px;
       height: auto;
+      filter: drop-shadow(0 8px 20px rgba(15, 23, 42, 0.8));
     }
 
     .logo-img-small {
@@ -94,160 +129,487 @@
 
     header h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: clamp(20px, 2vw, 26px);
       font-weight: 700;
-      letter-spacing: 0.03em;
-      color: #f9fafb;
+      letter-spacing: 0.06em;
+      color: var(--text-stronger);
+      text-transform: uppercase;
     }
 
     header .subtitle {
       font-size: 11px;
-      color: #e5e7eb;
-      margin-top: 2px;
+      color: var(--text-soft);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     .datetime-header {
       font-size: 11px;
-      color: #cbd5ff;
+      color: #c7d2fe;
       margin-top: 4px;
     }
 
-    /* ===== MAIN GRID ===== */
-    .container {
-      padding: 12px 16px 20px;
-      display: grid;
-      grid-template-columns: 1.7fr 1.3fr;
-      grid-gap: 16px;
-    }
-
-    .left-col,
-    .right-col {
+    /* ===== LAYOUT: HIERARCHY ===== */
+    main.dashboard {
       display: flex;
       flex-direction: column;
       gap: 12px;
+      margin-top: 4px;
     }
 
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
+    .section {
+      display: block;
+      animation: fade-slide-up 0.65s var(--transition-med);
+    }
+
+    .section-kpis {
+      margin-top: 4px;
+    }
+
+    .section-kpis-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-insights,
+    .section-filters,
+    .section-main,
+    .section-table {
+      margin-top: 2px;
+    }
+
+    /* ===== GLASS CARD BASE ===== */
+    .glass-card {
+      position: relative;
+      background: radial-gradient(circle at top left, rgba(248, 250, 252, 0.14), transparent 40%),
+                  linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.88));
+      border-radius: var(--glass-radius-lg);
       padding: 10px 14px;
-      box-shadow: 0 3px 12px rgba(15, 23, 42, 0.35);
+      box-shadow: var(--glass-shadow-soft);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      overflow: hidden;
+      transition:
+        transform var(--transition-med),
+        box-shadow var(--transition-med),
+        border-color var(--transition-med),
+        background var(--transition-med);
+    }
+
+    .glass-card::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      opacity: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.14), transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(190, 242, 100, 0.12), transparent 45%);
+      transition: opacity var(--transition-med);
+      pointer-events: none;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 26px 55px rgba(15, 23, 42, 0.95);
+      border-color: rgba(248, 250, 252, 0.35);
+      background: radial-gradient(circle at top left, rgba(248, 250, 252, 0.18), transparent 40%),
+                  linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.92));
+    }
+
+    .glass-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
     }
 
     .card-title {
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #6b7280;
-      margin-bottom: 4px;
+      letter-spacing: 0.14em;
+      color: #9ca3af;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-title::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.75);
     }
 
     .card-sub {
       font-size: 11px;
-      color: #4b5563;
-      margin-top: 4px;
+      color: var(--text-subtle);
+      margin-top: 2px;
     }
 
-    /* ===== KPI GRIDS ===== */
-    .kpi-grid {
+    /* ===== KPI ROWS ===== */
+    .kpi-strip {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-      grid-gap: 10px;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
     }
 
-    /* top row: number-only cards */
-    .kpi-grid-numbers .kpi-card {
-      min-height: 110px;
-    }
-
-    /* bottom row: circle cards */
-    .kpi-grid-circles {
-      margin-top: 4px;
-    }
-    .kpi-grid-circles .kpi-card {
-      min-height: 130px;
+    .kpi-strip-compact {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     }
 
     .kpi-card {
+      position: relative;
+      background: radial-gradient(circle at top left, rgba(248, 250, 252, 0.22), transparent 40%),
+                  linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+      border-radius: var(--glass-radius-md);
+      padding: 8px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow: 0 16px 35px rgba(15, 23, 42, 0.9);
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
-      text-align: center;
+      gap: 2px;
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+      cursor: default;
+    }
+
+    .kpi-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.25), transparent 55%);
+      transition: opacity var(--transition-fast);
+      pointer-events: none;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.98);
+      border-color: rgba(248, 250, 252, 0.4);
+    }
+
+    .kpi-card:hover::after {
+      opacity: 1;
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .kpi-number {
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
-      color: #111827;
-      margin-top: 4px;
+      color: var(--text-stronger);
+      margin-top: 2px;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .kpi-number span.unit {
+      font-size: 11px;
+      color: var(--text-soft);
+      font-weight: 500;
     }
 
     .kpi-caption {
       font-size: 11px;
-      color: #4b5563;
+      color: var(--text-subtle);
       margin-top: 2px;
     }
 
-    .kpi-circle-card .card-title {
-      margin-bottom: 6px;
+    /* Circle KPI cards */
+    .kpi-circle-layout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .kpi-circle-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .kpi-circle-text-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
     }
 
     .circle-wrapper {
-      width: 74px;
-      height: 74px;
+      width: 72px;
+      height: 72px;
       position: relative;
       border-radius: 50%;
-      background: #e5e7eb;
+      background: radial-gradient(circle at 30% 10%, #f9fafb, #374151);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 4px;
+      flex-shrink: 0;
+      box-shadow: 0 10px 32px rgba(15, 23, 42, 0.9);
     }
 
     .circle-fill {
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      background: conic-gradient(#22c55e 0deg, #e5e7eb 0deg);
+      background: conic-gradient(var(--accent-green) 0deg, rgba(15, 23, 42, 0.32) 0deg);
+      opacity: 0.96;
+      transition: background 360ms ease-out;
     }
 
     .circle-inner {
       position: relative;
-      width: 56px;
-      height: 56px;
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
-      background: #ffffff;
+      background: radial-gradient(circle at 30% 0, #f9fafb, #020617);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 11px;
-      font-weight: 700;
-      color: #111827;
+      font-weight: 600;
+      color: #f9fafb;
       padding: 0 4px;
       line-height: 1.2;
+      border: 1px solid rgba(248, 250, 252, 0.25);
     }
 
     .circle-caption {
       font-size: 10px;
-      color: #6b7280;
+      color: var(--text-subtle);
     }
 
     .circle-caption strong {
       font-weight: 600;
       margin-right: 2px;
+      color: var(--accent-green);
     }
 
-    /* Map */
-    #map {
-      width: 100%;
-      height: 480px; /* bigger to fill right side space */
-      border-radius: 12px;
-      overflow: hidden;
+    /* ===== INSIGHTS BAR ===== */
+    .insights-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .insights-main-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .insights-main-label span.badge-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-amber);
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.9);
+      position: relative;
+    }
+
+    .insights-main-label span.badge-pulse::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      border: 1px solid rgba(251, 191, 36, 0.6);
+      opacity: 0;
+      animation: pulse 1.5s infinite;
+    }
+
+    #attention-list {
+      font-size: 11px;
+      color: var(--text-strong);
+    }
+
+    /* ===== FILTER BAR (PILL STYLE) ===== */
+    .filters-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filters-row-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 2px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filters label {
+      font-size: 10px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filters select {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.65);
+      font-size: 11px;
+      min-width: 130px;
+      background: radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), transparent 60%),
+                  rgba(15, 23, 42, 0.92);
+      color: var(--text-strong);
+      outline: none;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        transform var(--transition-fast);
+      appearance: none;
+      -webkit-appearance: none;
+      position: relative;
+    }
+
+    .filters select:focus {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.8);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 60%),
+                  rgba(15, 23, 42, 0.98);
+      transform: translateY(-1px);
+    }
+
+    .filters select:hover {
+      border-color: rgba(248, 250, 252, 0.35);
+    }
+
+    .filters-row-extra {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+    }
+
+    .filter-chip button {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+      color: #7dd3fc;
+      padding: 0;
+    }
+
+    .filter-chip:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: rgba(248, 250, 252, 0.6);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.9);
+    }
+
+    .export-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.9);
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.35), transparent 55%),
+                  linear-gradient(135deg, rgba(37, 99, 235, 0.96), rgba(56, 189, 248, 0.95));
+      color: #ecfeff;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 16px 35px rgba(30, 64, 175, 0.8);
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        filter var(--transition-fast);
+    }
+
+    .export-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 22px 48px rgba(30, 64, 175, 0.95);
+      filter: brightness(1.05);
+    }
+
+    .export-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.9);
+    }
+
+    /* ===== MAIN: MAP & CHARTS ===== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+      gap: 12px;
+      align-items: stretch;
     }
 
     .map-card {
-      margin-top: 4px;
+      border-radius: var(--glass-radius-lg);
     }
 
     .map-card-header {
@@ -258,13 +620,95 @@
       margin-bottom: 6px;
     }
 
+    .map-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .map-title span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }
+
+    .map-toggle-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 5px 12px;
+      font-size: 11px;
+      background: radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), transparent 60%),
+                  rgba(15, 23, 42, 0.96);
+      color: var(--text-soft);
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast),
+        color var(--transition-fast);
+    }
+
+    .map-toggle-btn::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.7);
+    }
+
+    .map-toggle-btn-active {
+      border-color: rgba(56, 189, 248, 0.95);
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.25), transparent 55%),
+                  linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+      color: #e0f2fe;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.95);
+    }
+
+    .map-toggle-btn-active::before {
+      background: #38bdf8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.95);
+    }
+
+    #map {
+      width: 100%;
+      height: 420px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      transition: transform var(--transition-med), box-shadow var(--transition-med), border-color var(--transition-med);
+    }
+
+    .map-card:hover #map {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 52px rgba(15, 23, 42, 0.98);
+      border-color: rgba(248, 250, 252, 0.55);
+    }
+
+    .map-meta {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
     .map-legend {
       margin-top: 6px;
-      font-size: 11px;
-      color: #4b5563;
+      font-size: 10px;
+      color: var(--text-subtle);
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
     }
 
@@ -275,533 +719,686 @@
     }
 
     .legend-dot {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 999px;
       display: inline-block;
     }
 
     .legend-completed {
-      background: #16a34a;
+      background: var(--accent-green);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
     }
 
     .legend-visited {
       background: #f97316;
+      box-shadow: 0 0 8px rgba(249, 115, 22, 0.9);
     }
 
     .legend-notvisited {
-      background: #dc2626;
+      background: var(--accent-red);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
     }
 
     .legend-selected {
-      background: #0070c9;
+      background: var(--accent-blue);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.9);
     }
 
-    .map-toggle-btn {
-      border-radius: 999px;
-      border: 1px solid #d1d5db;
-      padding: 4px 10px;
-      font-size: 11px;
-      background: #f9fafb;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .map-toggle-btn-active {
-      border-color: #0070c9;
-      background: #e0f2fe;
-      color: #074b86;
-    }
-
-    .map-meta {
-      margin-top: 4px;
-      font-size: 11px;
-      color: #6b7280;
-    }
-
-    /* Filters & table */
-    .filters-row-title {
-      font-size: 11px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 4px;
-    }
-
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: flex-start;
-      margin-top: 4px;
-    }
-
-    .filters label {
-      font-size: 11px;
-      color: #374151;
+    /* Charts column */
+    .charts-stack {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 10px;
     }
 
-    .filters select {
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      font-size: 11px;
-      min-width: 110px;
-      background: #f9fafb;
+    .chart-card {
+      border-radius: var(--glass-radius-lg);
     }
 
-    .filters select:focus {
-      outline: none;
-      border-color: var(--algo-blue);
-      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
+    .scope-card {
+      background:
+        radial-gradient(circle at 0 0, rgba(250, 250, 250, 0.06), transparent 55%),
+        linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9));
     }
 
-    .active-filters {
-      margin-top: 6px;
+    .zone-card {
+      background:
+        radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.12), transparent 60%),
+        linear-gradient(145deg, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 0.9));
+    }
+
+    .zone-chart-wrapper,
+    .scope-chart-wrapper {
+      height: 210px;
+      margin-top: 4px;
+    }
+
+    /* ===== TABLE SECTION ===== */
+    .table-card {
+      border-radius: var(--glass-radius-lg);
+    }
+
+    .table-header-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      font-size: 10px;
-    }
-
-    .filter-chip {
-      display: inline-flex;
       align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .table-header-left {
+      display: flex;
+      flex-direction: column;
       gap: 4px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(0, 112, 201, 0.12);
-      color: #1d4ed8;
     }
 
-    .filter-chip button {
-      border: none;
-      background: transparent;
-      cursor: pointer;
+    .table-header-title {
       font-size: 11px;
-      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
     }
 
-    .export-btn {
-      margin-top: 8px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      border: 1px solid #0070c9;
-      background: #0070c9;
-      color: #fff;
+    .table-header-sub {
       font-size: 11px;
-      cursor: pointer;
+      color: var(--text-subtle);
     }
 
-    .export-btn:hover {
-      background: #005fa3;
+    .table-controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      width: 100%;
+    }
+
+    .table-search {
+      flex: 1;
+      max-width: 320px;
+    }
+
+    .table-search input {
+      width: 100%;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 11px;
+      background: radial-gradient(circle at 0 0, rgba(248, 250, 252, 0.06), transparent 60%),
+                  rgba(15, 23, 42, 0.96);
+      color: var(--text-strong);
+      outline: none;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        transform var(--transition-fast);
+    }
+
+    .table-search input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .table-search input:focus {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.8);
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.2), transparent 60%),
+                  rgba(15, 23, 42, 0.98);
+      transform: translateY(-1px);
+    }
+
+    .table-wrapper {
+      max-height: 320px;
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(3, 7, 18, 0.98));
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.95);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
       font-size: 11px;
+      color: var(--text-strong);
     }
 
     th,
     td {
-      padding: 4px 6px;
-      border-bottom: 1px solid #e5e7eb;
+      padding: 5px 8px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
       text-align: left;
       white-space: nowrap;
     }
 
     th {
-      background: #f9fafb;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.95));
       font-weight: 600;
       position: sticky;
       top: 0;
       z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: #9ca3af;
     }
 
     td:nth-child(2) {
       white-space: normal;
     }
 
-    .table-wrapper {
-      max-height: 310px;
-      overflow: auto;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.82);
     }
 
-    tbody tr:nth-child(even) {
-      background: #f3f4f6;
+    tbody tr:nth-child(odd) {
+      background: rgba(3, 7, 18, 0.96);
     }
 
     tbody tr:hover {
-      background: #e5edff;
+      background: radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.18), transparent 55%),
+                  rgba(3, 7, 18, 0.98);
       cursor: pointer;
+      transition: background var(--transition-fast);
     }
 
     .status-pill {
       display: inline-block;
-      padding: 2px 6px;
+      padding: 2px 7px;
       border-radius: 999px;
       font-size: 10px;
       font-weight: 600;
-      color: #fff;
+      color: #f9fafb;
+      box-shadow: 0 0 14px rgba(15, 23, 42, 0.9);
     }
 
     .status-completed {
-      background: #16a34a;
+      background: linear-gradient(135deg, #22c55e, #16a34a);
     }
 
     .status-pending {
-      background: #dc2626;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
     }
 
-    .table-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-    }
-
-    .table-search {
-      flex: 1;
-    }
-
-    .table-search input {
-      width: 100%;
-      padding: 4px 8px;
-      border-radius: 6px;
-      border: 1px solid #d1d5db;
-      font-size: 11px;
-      background: #f9fafb;
-    }
-
-    .table-search input:focus {
-      outline: none;
-      border-color: var(--algo-blue);
-      box-shadow: 0 0 0 1px rgba(0, 112, 201, 0.3);
-    }
-
-    /* Charts full-width row */
-    .charts-row {
-      padding: 0 16px 20px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      grid-gap: 16px;
-    }
-
-    .zone-chart-wrapper,
-    .scope-chart-wrapper {
-      height: 230px;
-    }
-
-    .zone-card {
-      background: linear-gradient(135deg, #eff6ff, #ffffff);
-    }
-
-    .scope-card {
-      background: linear-gradient(135deg, #fef9c3, #ffffff);
-    }
-
+    /* ===== UTILITIES ===== */
     #lastUpdated {
-      font-size: 11px;
-      color: #6b7280;
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fade-slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      from {
+        opacity: 0.55;
+        transform: scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: scale(1.4);
+      }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      }
+
+      #map {
+        height: 380px;
+      }
     }
 
     @media (max-width: 1024px) {
+      .shell {
+        padding: 10px 10px 20px;
+      }
+
       header {
-        padding: 8px 12px;
         flex-wrap: wrap;
         align-items: flex-start;
+        padding: 10px 14px;
       }
+
       .header-center {
         text-align: left;
       }
-      .container {
-        padding: 8px 12px 16px;
-        grid-template-columns: 1fr;
-        grid-gap: 10px;
+
+      .kpi-strip {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
       }
-      .charts-row {
-        padding: 0 12px 16px;
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .charts-stack {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .charts-stack .chart-card {
+        flex: 1 1 260px;
+      }
+
+      #map {
+        height: 360px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        position: static;
+        border-radius: 16px;
+      }
+
+      .insights-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .table-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .table-search {
+        max-width: 100%;
+      }
+
+      #map {
+        height: 320px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo-img {
+        max-height: 44px;
+      }
+
+      .logo-img-small {
+        max-height: 34px;
+      }
+
+      header h1 {
+        font-size: 17px;
+        letter-spacing: 0.08em;
+      }
+
+      .filters select {
+        min-width: 100px;
       }
     }
   </style>
 </head>
 <body>
   <div class="page">
-    <header>
-      <div class="header-left">
-        <img src="aktor-logo.png" alt="AKTOR Qatar" class="logo-img" />
-      </div>
-
-      <div class="header-center">
-        <h1>Qatar North Traffic Junctions Survey Dashboard</h1>
-        <div class="subtitle">
-          Live from Google Sheet — Junctions, Survey Completion &amp; Operations Status
-        </div>
-        <div class="datetime-header" id="currentDateTime"></div>
-      </div>
-
-      <div class="header-right">
-        <img
-          src="algosystems-logo.png"
-          alt="ALGOSYSTEMS Qatar"
-          class="logo-img logo-img-small"
-        />
-      </div>
-    </header>
-
-    <div class="container">
-      <!-- LEFT COLUMN -->
-      <div class="left-col">
-        <!-- TOP: NUMBER-ONLY KPI CARDS -->
-        <div class="kpi-grid kpi-grid-numbers">
-          <div class="card kpi-card">
-            <div class="card-title">Total Junctions</div>
-            <div class="kpi-number" id="kpi-total">–</div>
-          </div>
-
-          <div class="card kpi-card">
-            <div class="card-title">Junctions Under O&amp;M</div>
-            <div class="kpi-number" id="kpi-om">–</div>
-          </div>
-
-          <div class="card kpi-card">
-            <div class="card-title">Junctions Under Projects</div>
-            <div class="kpi-number" id="kpi-projects">–</div>
-          </div>
-
-          <div class="card kpi-card">
-            <div class="card-title">Junctions Switched Off</div>
-            <div class="kpi-number" id="kpi-off">–</div>
-          </div>
-
-          <div class="card kpi-card">
-            <div class="card-title">SCATS Operated</div>
-            <div class="kpi-number" id="kpi-scats-operated">–</div>
-          </div>
-
-          <div class="card kpi-card">
-            <div class="card-title">Non-SCATS (Isolated)</div>
-            <div class="kpi-number" id="kpi-non-scats">–</div>
-          </div>
+    <div class="shell">
+      <!-- HEADER -->
+      <header>
+        <div class="header-left">
+          <img src="aktor-logo.png" alt="AKTOR Qatar" class="logo-img" />
         </div>
 
-        <!-- SECOND ROW: ALL CIRCLE (PERCENTAGE) CARDS -->
-        <div class="kpi-grid kpi-grid-circles">
-          <div class="card kpi-card kpi-circle-card">
-            <div class="card-title">Survey Completion</div>
-            <div class="circle-wrapper">
-              <div id="circle-survey-fill" class="circle-fill"></div>
-              <div id="circle-survey-inner" class="circle-inner">0 / 0</div>
-            </div>
-            <div class="circle-caption">
-              <strong id="circle-survey-pct">0%</strong> Completed vs total
-            </div>
+        <div class="header-center">
+          <h1>Qatar North Traffic Junctions Survey</h1>
+          <div class="subtitle">
+            Live from Google Sheet — Junctions, Survey Completion &amp; Operations Status
           </div>
-
-          <div class="card kpi-card kpi-circle-card">
-            <div class="card-title">Sites Visited</div>
-            <div class="circle-wrapper">
-              <div id="circle-sites-fill" class="circle-fill"></div>
-              <div id="circle-sites-inner" class="circle-inner">0 / 0</div>
-            </div>
-            <div class="circle-caption">
-              <strong id="circle-sites-pct">0%</strong> Pole or controller survey done
-            </div>
-          </div>
-
-          <div class="card kpi-card kpi-circle-card">
-            <div class="card-title">Pole Survey</div>
-            <div class="circle-wrapper">
-              <div id="circle-pole-fill" class="circle-fill"></div>
-              <div id="circle-pole-inner" class="circle-inner">0 / 0</div>
-            </div>
-            <div class="circle-caption">
-              <strong id="circle-pole-pct">0%</strong> Completion
-            </div>
-          </div>
-
-          <div class="card kpi-card kpi-circle-card">
-            <div class="card-title">Controller Survey</div>
-            <div class="circle-wrapper">
-              <div id="circle-ctrl-fill" class="circle-fill"></div>
-              <div id="circle-ctrl-inner" class="circle-inner">0 / 0</div>
-            </div>
-            <div class="circle-caption">
-              <strong id="circle-ctrl-pct">0%</strong> Completion
-            </div>
-          </div>
-
-          <div class="card kpi-card kpi-circle-card">
-            <div class="card-title">Doha Region</div>
-            <div class="circle-wrapper">
-              <div id="circle-doha-fill" class="circle-fill"></div>
-              <div id="circle-doha-inner" class="circle-inner">0 / 0</div>
-            </div>
-            <div class="circle-caption">
-              <strong id="circle-doha-pct">0%</strong> Survey completion in Doha
-            </div>
-          </div>
-
-          <div class="card kpi-card kpi-circle-card">
-            <div class="card-title">North Region</div>
-            <div class="circle-wrapper">
-              <div id="circle-north-fill" class="circle-fill"></div>
-              <div id="circle-north-inner" class="circle-inner">0 / 0</div>
-            </div>
-            <div class="circle-caption">
-              <strong id="circle-north-pct">0%</strong> Survey completion in North
-            </div>
-          </div>
+          <div class="datetime-header" id="currentDateTime"></div>
         </div>
 
-        <!-- JUNCTION LIST UNDER CARDS -->
-        <div class="card">
-          <div class="card-title">Junction List</div>
-          <div class="table-controls">
-            <div class="table-search">
-              <input
-                type="text"
-                id="table-search"
-                placeholder="Search junction, street, zone, district or remarks..."
-              />
+        <div class="header-right">
+          <img
+            src="algosystems-logo.png"
+            alt="ALGOSYSTEMS Qatar"
+            class="logo-img logo-img-small"
+          />
+        </div>
+      </header>
+
+      <!-- DASHBOARD BODY -->
+      <main class="dashboard">
+        <!-- KPIs: compact, horizontal -->
+        <section class="section section-kpis">
+          <div class="section-kpis-inner">
+            <!-- Number-only KPIs -->
+            <div class="kpi-strip kpi-strip-compact">
+              <div class="kpi-card">
+                <div class="kpi-label">Total Junctions</div>
+                <div class="kpi-number">
+                  <span id="kpi-total">–</span>
+                </div>
+                <div class="kpi-caption">All junctions in current view</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Under O&amp;M</div>
+                <div class="kpi-number">
+                  <span id="kpi-om">–</span>
+                  <span class="unit">junctions</span>
+                </div>
+                <div class="kpi-caption">Confirmed in O&amp;M scope</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Under Projects</div>
+                <div class="kpi-number">
+                  <span id="kpi-projects">–</span>
+                  <span class="unit">junctions</span>
+                </div>
+                <div class="kpi-caption">Yet to be fully handed over</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Switched Off</div>
+                <div class="kpi-number">
+                  <span id="kpi-off">–</span>
+                  <span class="unit">sites</span>
+                </div>
+                <div class="kpi-caption">Currently non-operational</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">SCATS Operated</div>
+                <div class="kpi-number">
+                  <span id="kpi-scats-operated">–</span>
+                </div>
+                <div class="kpi-caption">Connected to SCATS</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Non-SCATS (Isolated)</div>
+                <div class="kpi-number">
+                  <span id="kpi-non-scats">–</span>
+                </div>
+                <div class="kpi-caption">Isolated / non-SCATS junctions</div>
+              </div>
+            </div>
+
+            <!-- Circular KPI row -->
+            <div class="kpi-strip kpi-strip-compact">
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-survey-fill" class="circle-fill"></div>
+                    <div id="circle-survey-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Survey Completion</div>
+                    <div class="circle-caption">
+                      <strong id="circle-survey-pct">0%</strong> completed vs total junctions
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-sites-fill" class="circle-fill"></div>
+                    <div id="circle-sites-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Sites Visited</div>
+                    <div class="circle-caption">
+                      <strong id="circle-sites-pct">0%</strong> pole or controller survey done
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-pole-fill" class="circle-fill"></div>
+                    <div id="circle-pole-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Pole Survey</div>
+                    <div class="circle-caption">
+                      <strong id="circle-pole-pct">0%</strong> pole survey completion
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-ctrl-fill" class="circle-fill"></div>
+                    <div id="circle-ctrl-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Controller Survey</div>
+                    <div class="circle-caption">
+                      <strong id="circle-ctrl-pct">0%</strong> controller survey completion
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-doha-fill" class="circle-fill"></div>
+                    <div id="circle-doha-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Doha Region</div>
+                    <div class="circle-caption">
+                      <strong id="circle-doha-pct">0%</strong> survey completion in Doha
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-north-fill" class="circle-fill"></div>
+                    <div id="circle-north-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">North Region</div>
+                    <div class="circle-caption">
+                      <strong id="circle-north-pct">0%</strong> survey completion in North
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="table-wrapper">
-            <table>
-              <thead>
-                <tr>
-                  <th>Junct No</th>
-                  <th>Region</th>
-                  <th>Zone</th>
-                  <th>Area</th>
-                  <th>Street</th>
-                  <th>Remarks</th>
-                  <th>Pole Survey</th>
-                  <th>Ctrl Survey</th>
-                  <th>Survey</th>
-                </tr>
-              </thead>
-              <tbody id="junction-table-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- RIGHT COLUMN -->
-      <div class="right-col">
-        <div class="card">
-          <div class="filters-row-title">Filters</div>
-          <div class="filters">
-            <label>
-              Region
-              <select id="filter-region">
-                <option value="">All</option>
-              </select>
-            </label>
-            <label>
-              Area
-              <select id="filter-area">
-                <option value="">All</option>
-              </select>
-            </label>
-            <label>
-              Zone
-              <select id="filter-zone">
-                <option value="">All</option>
-              </select>
-            </label>
-            <label>
-              Survey Status
-              <select id="filter-survey">
-                <option value="">All</option>
-                <option value="completed">Completed</option>
-                <option value="pending">Pending</option>
-              </select>
-            </label>
-            <label>
-              Remarks
-              <select id="filter-remarks">
-                <option value="">All</option>
-                <option value="om">Under O&amp;M</option>
-                <option value="projects">Under Projects</option>
-                <option value="off">Switched Off</option>
-                <option value="other">Other</option>
-              </select>
-            </label>
-          </div>
-          <div class="active-filters" id="active-filters"></div>
-          <button id="export-btn" class="export-btn">
-            Download Current View (CSV)
-          </button>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Zones Needing Attention</div>
-          <div id="attention-list" class="card-sub"></div>
-        </div>
-
-        <!-- MAP NOW ON THE RIGHT, BIGGER -->
-        <div class="card map-card">
-          <div class="map-card-header">
-            <div class="card-title">Junction Map (Satellite Imagery)</div>
-            <button id="map-mode-toggle" class="map-toggle-btn map-toggle-btn-active" type="button">
-              Map Mode: Selected Junction Only
-            </button>
-          </div>
-          <div id="map"></div>
-          <div class="map-meta">
-            <span id="lastUpdated"></span>
-          </div>
-          <div class="map-legend">
-            <div class="legend-item">
-              <span class="legend-dot legend-completed"></span>
-              <span>Survey completed</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot legend-visited"></span>
-              <span>Site visited (Pole/Controller)</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot legend-notvisited"></span>
-              <span>Not visited</span>
-            </div>
-            <div class="legend-item">
-              <span class="legend-dot legend-selected"></span>
-              <span>Selected from junction list</span>
+        <!-- INSIGHTS BAR -->
+        <section class="section section-insights">
+          <div class="glass-card">
+            <div class="insights-bar">
+              <div class="insights-main-label">
+                <span class="badge-pulse"></span>
+                <span>Zones Needing Attention</span>
+              </div>
+              <div id="attention-list" class="card-sub"></div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+        </section>
 
-    <!-- FULL-WIDTH CHARTS ROW -->
-    <div class="charts-row">
-      <div class="card scope-card">
-        <div class="card-title">Scope Distribution</div>
-        <div class="scope-chart-wrapper">
-          <canvas id="scopeChart"></canvas>
-        </div>
-        <div class="card-sub">
-          Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
-        </div>
-      </div>
+        <!-- FILTERS: pill bar -->
+        <section class="section section-filters">
+          <div class="glass-card filters-card">
+            <div class="filters-row-title">Filters</div>
+            <div class="filters">
+              <label>
+                Region
+                <select id="filter-region">
+                  <option value="">All</option>
+                </select>
+              </label>
+              <label>
+                Area
+                <select id="filter-area">
+                  <option value="">All</option>
+                </select>
+              </label>
+              <label>
+                Zone
+                <select id="filter-zone">
+                  <option value="">All</option>
+                </select>
+              </label>
+              <label>
+                Survey
+                <select id="filter-survey">
+                  <option value="">All</option>
+                  <option value="completed">Completed</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </label>
+              <label>
+                Remarks
+                <select id="filter-remarks">
+                  <option value="">All</option>
+                  <option value="om">Under O&amp;M</option>
+                  <option value="projects">Under Projects</option>
+                  <option value="off">Switched Off</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+            </div>
 
-      <div class="card zone-card">
-        <div class="card-title">Zone-wise Survey Completion</div>
-        <div class="zone-chart-wrapper">
-          <canvas id="zoneChart"></canvas>
-        </div>
-        <div class="card-sub">
-          Percentage of junctions with completed survey status in each zone.
-        </div>
-      </div>
+            <div class="filters-row-extra">
+              <div class="active-filters" id="active-filters"></div>
+              <button id="export-btn" class="export-btn" type="button">
+                Download Current View (CSV)
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- MAIN: MAP & CHARTS -->
+        <section class="section section-main">
+          <div class="main-grid">
+            <!-- MAP COLUMN -->
+            <div class="glass-card map-card">
+              <div class="map-card-header">
+                <div class="map-title">
+                  <span class="dot"></span>
+                  <span>Junction Map (ESRI Satellite)</span>
+                </div>
+                <button id="map-mode-toggle" class="map-toggle-btn map-toggle-btn-active" type="button">
+                  Map Mode: Selected Junction Only
+                </button>
+              </div>
+              <div id="map"></div>
+              <div class="map-meta">
+                <span id="lastUpdated"></span>
+              </div>
+              <div class="map-legend">
+                <div class="legend-item">
+                  <span class="legend-dot legend-completed"></span>
+                  <span>Survey completed</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot legend-visited"></span>
+                  <span>Site visited (Pole/Controller)</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot legend-notvisited"></span>
+                  <span>Not visited</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot legend-selected"></span>
+                  <span>Selected from junction list</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- CHARTS COLUMN -->
+            <div class="charts-stack">
+              <div class="glass-card chart-card scope-card">
+                <div class="card-header-row">
+                  <p class="card-title">Scope Distribution</p>
+                </div>
+                <div class="scope-chart-wrapper">
+                  <canvas id="scopeChart"></canvas>
+                </div>
+                <div class="card-sub">
+                  Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
+                </div>
+              </div>
+
+              <div class="glass-card chart-card zone-card">
+                <div class="card-header-row">
+                  <p class="card-title">Zone-wise Survey Completion</p>
+                </div>
+                <div class="zone-chart-wrapper">
+                  <canvas id="zoneChart"></canvas>
+                </div>
+                <div class="card-sub">
+                  Percentage of junctions with completed survey status in each zone.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TABLE: full-width at bottom -->
+        <section class="section section-table">
+          <div class="glass-card table-card">
+            <div class="table-header-row">
+              <div class="table-header-left">
+                <div class="table-header-title">Junction List</div>
+                <div class="table-header-sub">
+                  Tap a row to highlight on map. Use search to find junctions by ID, region, street, zone, or remarks.
+                </div>
+              </div>
+            </div>
+
+            <div class="table-controls">
+              <div class="table-search">
+                <input
+                  type="text"
+                  id="table-search"
+                  placeholder="Search junction, street, zone, district or remarks..."
+                />
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Junct No</th>
+                    <th>Region</th>
+                    <th>Zone</th>
+                    <th>Area</th>
+                    <th>Street</th>
+                    <th>Remarks</th>
+                    <th>Pole Survey</th>
+                    <th>Ctrl Survey</th>
+                    <th>Survey</th>
+                  </tr>
+                </thead>
+                <tbody id="junction-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 
@@ -966,7 +1563,7 @@
       if (fillEl) {
         const angle = (safePct / 100) * 360;
         fillEl.style.background =
-          `conic-gradient(#22c55e 0deg ${angle}deg, #e5e7eb ${angle}deg 360deg)`;
+          `conic-gradient(#22c55e 0deg ${angle}deg, rgba(15,23,42,0.45) ${angle}deg 360deg)`;
       }
       if (innerEl) {
         innerEl.textContent = safeDen > 0 ? `${safeNum} / ${safeDen}` : `${safeNum} / 0`;
@@ -1021,7 +1618,6 @@
         }
       });
 
-      // number KPIs
       document.getElementById("kpi-total").textContent = total;
       document.getElementById("kpi-om").textContent = om;
       document.getElementById("kpi-projects").textContent = proj;
@@ -1029,7 +1625,6 @@
       document.getElementById("kpi-scats-operated").textContent = scatsOperated;
       document.getElementById("kpi-non-scats").textContent = nonScats;
 
-      // percentages
       const pctSurvey = total > 0 ? (surveyCompleted / total) * 100 : 0;
       const pctVisited = total > 0 ? (sitesVisited / total) * 100 : 0;
       const pctPole = total > 0 ? (poleCompleted / total) * 100 : 0;
@@ -1037,7 +1632,6 @@
       const dohaPct = dohaTotal > 0 ? (dohaCompleted / dohaTotal) * 100 : 0;
       const northPct = northTotal > 0 ? (northCompleted / northTotal) * 100 : 0;
 
-      // circle KPIs
       updateCircularKpi({
         fillId: "circle-survey-fill",
         innerId: "circle-survey-inner",
@@ -1174,8 +1768,8 @@
               clearMarkers();
               const marker = L.circleMarker([lat, lon], {
                 radius: 8,
-                color: "#0070c9",
-                fillColor: "#0070c9",
+                color: "#38bdf8",
+                fillColor: "#38bdf8",
                 fillOpacity: 1,
                 weight: 2
               }).addTo(markersLayer);
@@ -1230,7 +1824,7 @@
             {
               label: "Survey Completion %",
               data: values,
-              backgroundColor: "rgba(0, 112, 201, 0.75)",
+              backgroundColor: "rgba(56, 189, 248, 0.78)",
             },
           ],
         },
@@ -1247,15 +1841,19 @@
           },
           scales: {
             x: {
-              title: { display: true, text: "Zone No" },
+              title: { display: true, text: "Zone No", color: "#9ca3af" },
+              ticks: { color: "#9ca3af" },
+              grid: { color: "rgba(55, 65, 81, 0.8)" }
             },
             y: {
               beginAtZero: true,
               max: 100,
-              title: { display: true, text: "Completion %" },
+              title: { display: true, text: "Completion %", color: "#9ca3af" },
               ticks: {
+                color: "#9ca3af",
                 callback: (v) => v + "%",
               },
+              grid: { color: "rgba(55, 65, 81, 0.8)" }
             },
           },
         },
@@ -1284,10 +1882,10 @@
             {
               data: [om, proj, off, other],
               backgroundColor: [
-                "rgba(34, 197, 94, 0.9)",
-                "rgba(59, 130, 246, 0.9)",
-                "rgba(239, 68, 68, 0.9)",
-                "rgba(148, 163, 184, 0.95)",
+                "rgba(34, 197, 94, 0.96)",
+                "rgba(59, 130, 246, 0.96)",
+                "rgba(239, 68, 68, 0.96)",
+                "rgba(148, 163, 184, 0.96)",
               ],
               borderWidth: 0,
             },
@@ -1297,7 +1895,7 @@
           plugins: {
             legend: {
               position: "bottom",
-              labels: { boxWidth: 12 },
+              labels: { boxWidth: 10, color: "#e5e7eb" },
             },
           },
           cutout: "60%",
@@ -1388,7 +1986,7 @@
 
       if (filters.length === 0) {
         container.textContent = "No filters applied.";
-        container.style.color = "#e5e7eb";
+        container.style.color = "#6b7280";
         return;
       }
 
