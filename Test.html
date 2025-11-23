@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Qatar North Traffic Junctions Survey Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Leaflet & Charts & CSV -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <!-- Export libs -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    :root {
+      --aktor-blue: #0b1120;
+      --aktor-red: #e0283b;
+      --algo-blue: #38bdf8;
+
+      --bg-surface: rgba(15, 23, 42, 0.88);
+      --glass-bg: rgba(15, 23, 42, 0.72);
+      --glass-border: rgba(148, 163, 184, 0.45);
+      --glass-shadow-soft: 0 22px 45px rgba(15, 23, 42, 0.65);
+      --glass-radius-lg: 18px;
+      --glass-radius-md: 14px;
+
+      --text-soft: #9ca3af;
+      --text-subtle: #6b7280;
+      --text-strong: #e5e7eb;
+      --text-stronger: #f9fafb;
+
+      --accent-green: #22c55e;
+      --accent-amber: #fbbf24;
+      --accent-blue: #38bdf8;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+
+      --transition-fast: 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+      --transition-med: 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-strong);
+      background-color: #020617;
+      background-attachment: fixed;
+      background-size: cover;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 16px;
+      background:
+        radial-gradient(circle at top left, rgba(56,189,248,0.22), transparent 58%),
+        radial-gradient(circle at bottom right, rgba(248,113,113,0.22), transparent 55%),
+        radial-gradient(circle at top right, rgba(94,234,212,0.16), transparent 50%),
+        radial-gradient(circle at bottom left, rgba(129,140,248,0.18), transparent 50%),
+        #020617;
+    }
+
+    .shell {
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(15,23,42,0.96), rgba(15,23,42,0.92));
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(24px);
+    }
+
+    .header-left, .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-img {
+      max-height: 44px;
+      width: auto;
+      display: block;
+    }
+
+    .logo-img-small {
+      max-height: 34px;
+    }
+
+    .header-center {
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-stronger);
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+
+    .datetime-header {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--accent-blue);
+    }
+
+    /* header nav inside header-right */
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 8px;
+    }
+    .header-nav-link {
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(148,163,184,0.6);
+      color: var(--text-soft);
+      text-decoration: none;
+      background: radial-gradient(circle at top left, rgba(148,163,184,0.28), rgba(15,23,42,0.9));
+      transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+      box-shadow: 0 8px 18px rgba(15,23,42,0.65);
+    }
+    .header-nav-link:hover {
+      color: var(--text-stronger);
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(15,23,42,0.85);
+    }
+    .header-nav-link.is-active {
+      background: linear-gradient(135deg, var(--accent-blue), #2563eb);
+      color: #0f172a;
+      border-color: transparent;
+      box-shadow: 0 16px 32px rgba(37,99,235,0.6);
+    }
+
+    .theme-toggle {
+      margin-left: 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      background: radial-gradient(circle at top, rgba(15,23,42,0.8), rgba(15,23,42,0.95));
+      color: var(--text-soft);
+      padding: 4px 8px;
+      font-size: 14px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
+    }
+    .theme-toggle:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(15,23,42,0.85);
+      color: var(--text-stronger);
+    }
+    .theme-toggle:focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
+
+    main.dashboard {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding-bottom: 24px;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* KPI strip */
+    .section-kpis-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .kpi-strip-compact {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+    }
+
+    .kpi-card {
+      background: var(--glass-bg);
+      border-radius: var(--glass-radius-md);
+      padding: 10px 12px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 78px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-subtle);
+    }
+
+    .kpi-number {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text-stronger);
+    }
+
+    .kpi-caption {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .kpi-percent-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 2px;
+    }
+    .kpi-percent-label {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+    .kpi-percent-value {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+    .kpi-progress {
+      position: relative;
+      margin-top: 4px;
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(31,41,55,0.9);
+      overflow: hidden;
+    }
+    .kpi-progress-inner {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+      transform-origin: left center;
+      transform: scaleX(0.4);
+      transition: transform var(--transition-med);
+    }
+
+    /* Layout: filters + map + charts */
+    .section-main {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+    @media (max-width: 960px) {
+      .section-main {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      border-radius: var(--glass-radius-lg);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow-soft);
+      padding: 12px 14px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .filters-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 1 1 auto;
+    }
+    .filters select {
+      background: radial-gradient(circle at top left, rgba(15,23,42,0.95), rgba(15,23,42,1));
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      padding: 5px 26px 5px 10px;
+      font-size: 11px;
+      color: var(--text-soft);
+      outline: none;
+      min-width: 120px;
+      appearance: none;
+      position: relative;
+    }
+    .filters select:focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 1px;
+    }
+
+    .btn-pill {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      background: radial-gradient(circle at top, rgba(15,23,42,0.9), rgba(15,23,42,1));
+      color: var(--text-soft);
+      padding: 6px 10px;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+    }
+    .btn-pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 26px rgba(15,23,42,0.9);
+      border-color: var(--accent-blue);
+      color: var(--text-stronger);
+    }
+    .btn-pill:focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
+
+    .map-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #map {
+      width: 100%;
+      height: 360px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid rgba(30,64,175,0.5);
+    }
+    .map-footer {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+
+    .charts-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .chart-card {
+      padding-bottom: 10px;
+    }
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+    .card-title {
+      margin: 0;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-stronger);
+    }
+    .card-sub {
+      margin-top: 3px;
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+    .chart-wrapper {
+      position: relative;
+      width: 100%;
+      height: 220px;
+    }
+    .chart-wrapper canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+    .chart-hover-info {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--text-soft);
+      min-height: 16px;
+    }
+
+    /* Table */
+    .section-table .glass-card {
+      padding: 14px;
+    }
+    .table-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 8px;
+    }
+    .table-header-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-stronger);
+    }
+    .table-header-sub {
+      font-size: 11px;
+      color: var(--text-soft);
+    }
+    .table-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+    .table-search input {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      padding: 6px 10px;
+      font-size: 11px;
+      min-width: 220px;
+      background: rgba(15,23,42,0.95);
+      color: var(--text-strong);
+    }
+    .table-wrapper {
+      max-height: 360px;
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(51,65,85,0.8);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: rgba(15,23,42,0.98);
+    }
+    th, td {
+      padding: 6px 8px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    th {
+      font-weight: 500;
+      color: var(--text-subtle);
+      border-bottom: 1px solid rgba(55,65,81,0.9);
+      position: sticky;
+      top: 0;
+      background: inherit;
+    }
+    tbody tr:nth-child(odd) { background: rgba(15,23,42,0.96); }
+    tbody tr:nth-child(even) { background: rgba(15,23,42,0.9); }
+    tbody tr:hover {
+      background: rgba(30,64,175,0.65);
+      cursor: pointer;
+    }
+    tbody tr.is-highlighted {
+      outline: 1px solid var(--accent-blue);
+      background: rgba(37,99,235,0.38);
+    }
+
+    .pill-status {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid transparent;
+    }
+    .pill-status.completed {
+      background: rgba(22,163,74,0.2);
+      color: #bbf7d0;
+      border-color: rgba(22,163,74,0.7);
+    }
+    .pill-status.pending {
+      background: rgba(248,113,113,0.16);
+      color: #fecaca;
+      border-color: rgba(248,113,113,0.7);
+    }
+
+    /* Modal reused from your previous version – shortened for brevity */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-backdrop.is-open { display: flex; }
+    .modal {
+      position: relative;
+      background: var(--bg-surface);
+      border-radius: var(--glass-radius-lg);
+      padding: 16px 20px;
+      max-width: 520px;
+      width: 96%;
+      box-shadow: 0 26px 55px rgba(15,23,42,0.95);
+      border: 1px solid var(--glass-border);
+    }
+    .modal-title {
+      font-size: 15px;
+      margin-bottom: 6px;
+      color: var(--text-stronger);
+    }
+    .modal-body {
+      font-size: 12px;
+      color: var(--text-soft);
+    }
+    .modal-close {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .modal-close:focus-visible {
+      outline: 2px solid var(--accent-blue);
+      outline-offset: 2px;
+    }
+    .detail-list {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 12px;
+    }
+    .detail-list dt {
+      font-weight: 600;
+      color: var(--text-strong);
+    }
+    .detail-list dd {
+      margin: 0;
+      color: var(--text-soft);
+    }
+
+    /* Larger circles in case any remain */
+    .circle-wrapper {
+      width: 84px;
+      height: 84px;
+    }
+    .circle-inner {
+      width: 64px;
+      height: 64px;
+      font-size: 13px;
+    }
+
+    /* LIGHT THEME OVERRIDES */
+    body.light-theme {
+      background-color: #e5e7eb;
+      color: #0f172a;
+    }
+    body.light-theme .page {
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.18), transparent 60%),
+        radial-gradient(circle at bottom right, rgba(236,72,153,0.18), transparent 55%),
+        #e5e7eb;
+    }
+    body.light-theme header {
+      background: linear-gradient(135deg,#ffffff, #e5e7eb);
+      border-color: rgba(148,163,184,0.7);
+      box-shadow: 0 18px 40px rgba(148,163,184,0.6);
+    }
+    body.light-theme .kpi-card,
+    body.light-theme .glass-card {
+      background: rgba(255,255,255,0.86);
+      border-color: rgba(148,163,184,0.6);
+      box-shadow: 0 12px 28px rgba(148,163,184,0.45);
+    }
+    body.light-theme .table-wrapper {
+      border-color: rgba(148,163,184,0.9);
+    }
+    body.light-theme thead {
+      background: #e5e7eb;
+    }
+    body.light-theme tbody tr:nth-child(odd) { background: #ffffff; }
+    body.light-theme tbody tr:nth-child(even) { background: #f3f4f6; }
+    body.light-theme .table-search input {
+      background: #ffffff;
+      color: #111827;
+    }
+    body.light-theme .filters select,
+    body.light-theme .btn-pill,
+    body.light-theme .theme-toggle {
+      background: #ffffff;
+      color: #111827;
+    }
+    body.light-theme .header-nav-link {
+      background: #ffffff;
+      color: #111827;
+    }
+    body.light-theme .header-nav-link.is-active {
+      color: #ffffff;
+    }
+  </style>
+</head>
+
+<body class="dark-theme">
+  <div class="page">
+    <div class="shell">
+      <header>
+        <div class="header-left">
+          <img src="aktor-logo.png" alt="AKTOR Qatar" class="logo-img" />
+        </div>
+
+        <div class="header-center">
+          <h1>Qatar North Traffic Junctions Survey</h1>
+          <div class="subtitle">
+            Live from Google Sheet — Junctions, Survey Completion &amp; Operations Status
+          </div>
+          <div class="datetime-header" id="currentDateTime"></div>
+        </div>
+
+        <div class="header-right">
+          <img src="algosystems-logo.png" alt="ALGOSYSTEMS Qatar" class="logo-img logo-img-small" />
+          <nav class="header-nav" aria-label="Dashboards">
+            <a href="index.html" class="header-nav-link is-active">Traffic</a>
+            <a href="its-dashboard.html" class="header-nav-link">ITS</a>
+          </nav>
+          <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark or light mode">☾</button>
+        </div>
+      </header>
+
+      <main class="dashboard" id="main-content">
+        <!-- KPI STRIP -->
+        <section class="section section-kpis">
+          <div class="section-kpis-inner">
+            <div class="kpi-strip kpi-strip-compact">
+              <div class="kpi-card">
+                <div class="kpi-label">Total Junctions</div>
+                <div class="kpi-number"><span id="kpi-total">–</span></div>
+                <div class="kpi-caption">All junctions in current filters</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Under O&amp;M</div>
+                <div class="kpi-number">
+                  <span id="kpi-om">–</span>
+                </div>
+                <div class="kpi-percent-row">
+                  <span class="kpi-percent-label">% of Total</span>
+                  <span class="kpi-percent-value" id="kpi-om-pct">–</span>
+                </div>
+                <div class="kpi-progress">
+                  <div class="kpi-progress-inner" id="kpi-om-bar"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Under Projects</div>
+                <div class="kpi-number">
+                  <span id="kpi-projects">–</span>
+                </div>
+                <div class="kpi-percent-row">
+                  <span class="kpi-percent-label">% of Total</span>
+                  <span class="kpi-percent-value" id="kpi-projects-pct">–</span>
+                </div>
+                <div class="kpi-progress">
+                  <div class="kpi-progress-inner" id="kpi-projects-bar"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Switched Off</div>
+                <div class="kpi-number">
+                  <span id="kpi-off">–</span>
+                </div>
+                <div class="kpi-percent-row">
+                  <span class="kpi-percent-label">% of Total</span>
+                  <span class="kpi-percent-value" id="kpi-off-pct">–</span>
+                </div>
+                <div class="kpi-progress">
+                  <div class="kpi-progress-inner" id="kpi-off-bar"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">SCATS Operated</div>
+                <div class="kpi-number">
+                  <span id="kpi-scats-operated">–</span>
+                </div>
+                <div class="kpi-percent-row">
+                  <span class="kpi-percent-label">% of Total</span>
+                  <span class="kpi-percent-value" id="kpi-scats-pct">–</span>
+                </div>
+                <div class="kpi-progress">
+                  <div class="kpi-progress-inner" id="kpi-scats-bar"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Non-SCATS (Isolated)</div>
+                <div class="kpi-number">
+                  <span id="kpi-non-scats">–</span>
+                </div>
+                <div class="kpi-percent-row">
+                  <span class="kpi-percent-label">% of Total</span>
+                  <span class="kpi-percent-value" id="kpi-non-scats-pct">–</span>
+                </div>
+                <div class="kpi-progress">
+                  <div class="kpi-progress-inner" id="kpi-non-scats-bar"></div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Sites Visited</div>
+                <div class="kpi-number">
+                  <span id="kpi-sites-visited">–</span>
+                </div>
+                <div class="kpi-caption">Pole or controller survey done</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MAP + CHARTS -->
+        <section class="section section-main">
+          <!-- MAP COLUMN -->
+          <div class="glass-card">
+            <div class="filters">
+              <div class="filters-group">
+                <select id="filter-region">
+                  <option value="">Region – All</option>
+                </select>
+                <select id="filter-area">
+                  <option value="">Area – All</option>
+                </select>
+                <select id="filter-zone">
+                  <option value="">Zone – All</option>
+                </select>
+                <select id="filter-survey">
+                  <option value="">Survey Status – All</option>
+                  <option value="completed">Completed</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </div>
+              <button class="btn-pill" id="map-mode-toggle" type="button">
+                Map Mode: Selected Junction Only
+              </button>
+            </div>
+
+            <div class="map-shell">
+              <div id="map"></div>
+              <div class="map-footer">
+                ESRI World Imagery showing surveyed (green) and pending (red) junctions in Qatar North. Map respects current filters and search.
+                <span id="lastUpdated" style="margin-left:8px;"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CHARTS COLUMN -->
+          <div class="charts-stack">
+            <div class="glass-card chart-card">
+              <div class="card-header-row">
+                <p class="card-title">Scope Distribution</p>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="scopeChart"></canvas>
+              </div>
+              <div class="chart-hover-info" id="scopeChartHover" aria-live="polite"></div>
+              <div class="card-sub">
+                Split of junctions by remarks (Under O&amp;M / Under Projects / Switched Off / Other).
+              </div>
+            </div>
+
+            <div class="glass-card chart-card">
+              <div class="card-header-row">
+                <p class="card-title">Zone-wise Survey Completion</p>
+              </div>
+              <div class="chart-wrapper">
+                <canvas id="zoneChart"></canvas>
+              </div>
+              <div class="chart-hover-info" id="zoneChartHover" aria-live="polite"></div>
+              <div class="card-sub">
+                Percentage of junctions with completed survey status in each zone.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TABLE -->
+        <section class="section section-table">
+          <div class="glass-card table-card">
+            <div class="table-header-row">
+              <div>
+                <div class="table-header-title">Junction List</div>
+                <div class="table-header-sub">
+                  Tap a row to highlight on map. Use search to find junctions by ID, region, street, zone, or remarks.
+                </div>
+              </div>
+            </div>
+
+            <div class="table-controls">
+              <div class="table-search">
+                <input id="table-search" type="text"
+                       placeholder="Search junction, street, zone, district or remarks..." />
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn-pill" id="export-csv">Export CSV</button>
+                <button class="btn-pill" id="export-xlsx">Export XLSX</button>
+                <button class="btn-pill" id="export-pdf">Export PDF</button>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table id="junction-table">
+                <thead>
+                  <tr>
+                    <th>Junct No</th>
+                    <th>Region</th>
+                    <th>Zone</th>
+                    <th>Area</th>
+                    <th>Street</th>
+                    <th>Remarks</th>
+                    <th>Pole Survey</th>
+                    <th>Ctrl Survey</th>
+                    <th>Survey</th>
+                  </tr>
+                </thead>
+                <tbody id="junction-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div class="modal-backdrop" id="detailModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" type="button" aria-label="Close details">&times;</button>
+      <h2 id="modalTitle" class="modal-title">Junction Details</h2>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    // === THEME HANDLING (shared pattern for both dashboards) =================
+    (function () {
+      const STORAGE_KEY = "qn-dashboard-theme";
+      const prefersDark = window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const stored = localStorage.getItem(STORAGE_KEY);
+      let current = stored || (prefersDark ? "dark" : "light");
+
+      function applyTheme(theme) {
+        document.body.classList.toggle("light-theme", theme === "light");
+        document.body.classList.toggle("dark-theme", theme === "dark");
+        const btn = document.getElementById("themeToggle");
+        if (btn) {
+          btn.textContent = theme === "light" ? "☀" : "☾";
+          btn.title = theme === "light" ? "Switch to dark mode" : "Switch to light mode";
+          btn.setAttribute("aria-pressed", theme === "light" ? "true" : "false");
+        }
+      }
+
+      applyTheme(current);
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const btn = document.getElementById("themeToggle");
+        if (!btn) return;
+        btn.addEventListener("click", () => {
+          current = current === "dark" ? "light" : "dark";
+          localStorage.setItem(STORAGE_KEY, current);
+          applyTheme(current);
+        });
+      });
+    })();
+
+    // === DATA / CONSTANTS ====================================================
+    const SHEET_CSV_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5pFct4J8nDgw7VLuUJpfVgxewoZSkjh-cNxjgtOOZcjEM5Hx0xyJsziL9MUrEmK6wuls0C2Ffd1ku/pub?gid=1921347271&single=true&output=csv";
+
+    const COLS = {
+      junctNo: "Junct No",
+      street: "Street Details",
+      lat: "Latitude",
+      lon: "Longitude",
+      zone: "Zone No",
+      district: "District",
+      remarks: "Remarks",
+      surveyStatus: "Survey Status",
+      poleSurvey: "Pole Survey",
+      ctrlSurvey: "Controller Survey",
+      scats: "SCATS & Non SCATS",
+      operationStatus: "Operation Status",
+      region: "Region",
+      area: "Area"
+    };
+
+    function isTruthy(val) {
+      if (val == null) return false;
+      const v = String(val).trim().toLowerCase();
+      return ["true", "yes", "1", "y", "done", "completed", "✓", "✔"].includes(v);
+    }
+    function classifySurvey(v) {
+      return isTruthy(v) ? "completed" : "pending";
+    }
+    function classifyRemarks(remarks) {
+      const r = (remarks || "").toLowerCase();
+      if (r.includes("under o&m") || r.includes("under o & m")) return "om";
+      if (r.includes("under projects") || r.includes("under project")) return "projects";
+      if (r.includes("switched off") || r.includes("switch off")) return "off";
+      return "other";
+    }
+    function classifyScats(val) {
+      const v = (val || "").toLowerCase();
+      if (v.includes("operated")) return "scats";
+      if (v.includes("isolated") || v.includes("non scats") || v.includes("non-scats")) return "non";
+      return "unknown";
+    }
+
+    let allData = [];
+    let currentFiltered = [];
+    let map, markersLayer;
+    let zoneChart = null;
+    let scopeChart = null;
+    let tableSearchTerm = "";
+    let singleSelectionMode = true;
+
+    // === MAP ================================================================
+    function initMap() {
+      map = L.map("map", {
+        center: [25.35, 51.45],
+        zoom: 11,
+        zoomControl: false
+      });
+      L.control.zoom({ position: "bottomright" }).addTo(map);
+
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+          attribution: "&copy; Esri"
+        }
+      ).addTo(map);
+
+      markersLayer = L.layerGroup().addTo(map);
+    }
+
+    function addMarkers(rows) {
+      if (!map || !markersLayer) return;
+      markersLayer.clearLayers();
+      if (!rows || rows.length === 0) return;
+
+      rows.forEach(row => {
+        const lat = parseFloat(row[COLS.lat]);
+        const lon = parseFloat(row[COLS.lon]);
+        if (!isFinite(lat) || !isFinite(lon)) return;
+
+        const survey = classifySurvey(row[COLS.surveyStatus]);
+        const color = survey === "completed" ? "#22c55e" : "#ef4444";
+
+        const marker = L.circleMarker([lat, lon], {
+          radius: 5,
+          color,
+          weight: 1.5,
+          fillColor: color,
+          fillOpacity: 0.9
+        });
+
+        marker.on("click", () => {
+          if (singleSelectionMode) {
+            markersLayer.eachLayer(l => l.setStyle && l.setStyle({ radius: 4 }));
+          }
+          marker.setStyle({ radius: 7 });
+
+          const popupHtml = `
+            <strong>Junction ${row[COLS.junctNo] || ""}</strong><br/>
+            <strong>Street:</strong> ${row[COLS.street] || ""}<br/>
+            <strong>Region:</strong> ${row[COLS.region] || ""} | 
+            <strong>Area:</strong> ${row[COLS.area] || ""}<br/>
+            <strong>Zone:</strong> ${row[COLS.zone] || ""}<br/>
+            <strong>Survey:</strong> ${survey === "completed" ? "Completed" : "Pending"}<br/>
+            <strong>Pole Survey:</strong> ${isTruthy(row[COLS.poleSurvey]) ? "Done" : "Not Done"}<br/>
+            <strong>Controller Survey:</strong> ${isTruthy(row[COLS.ctrlSurvey]) ? "Done" : "Not Done"}<br/>
+            <strong>Remarks:</strong> ${row[COLS.remarks] || ""}`;
+          marker.bindPopup(popupHtml).openPopup();
+        });
+
+        markersLayer.addLayer(marker);
+      });
+
+      const group = L.featureGroup(markersLayer.getLayers());
+      try {
+        map.fitBounds(group.getBounds(), { padding: [28, 28] });
+      } catch (e) {
+        // ignore if only one marker
+      }
+    }
+
+    // === KPIs ==============================================================
+
+    function updateKpiCard(count, total, countId, pctId, barId) {
+      const countEl = document.getElementById(countId);
+      const pctEl = document.getElementById(pctId);
+      const barEl = document.getElementById(barId);
+      const pct = total > 0 ? (count / total) * 100 : 0;
+
+      if (countEl) countEl.textContent = count.toString();
+      if (pctEl) pctEl.textContent = pct.toFixed(1) + "%";
+      if (barEl) barEl.style.transform = "scaleX(" + (pct / 100).toFixed(3) + ")";
+    }
+
+    function updateKPIs(rows) {
+      const total = rows.length;
+      document.getElementById("kpi-total").textContent = total.toString();
+
+      let om = 0, projects = 0, off = 0, other = 0;
+      let scats = 0, nonScats = 0, sitesVisited = 0;
+
+      rows.forEach(r => {
+        const remarksClass = classifyRemarks(r[COLS.remarks]);
+        if (remarksClass === "om") om++;
+        else if (remarksClass === "projects") projects++;
+        else if (remarksClass === "off") off++;
+        else other++;
+
+        const sClass = classifyScats(r[COLS.scats]);
+        if (sClass === "scats") scats++;
+        else if (sClass === "non") nonScats++;
+
+        if (isTruthy(r[COLS.poleSurvey]) || isTruthy(r[COLS.ctrlSurvey])) {
+          sitesVisited++;
+        }
+      });
+
+      updateKpiCard(om, total, "kpi-om", "kpi-om-pct", "kpi-om-bar");
+      updateKpiCard(projects, total, "kpi-projects", "kpi-projects-pct", "kpi-projects-bar");
+      updateKpiCard(off, total, "kpi-off", "kpi-off-pct", "kpi-off-bar");
+      updateKpiCard(scats, total, "kpi-total", "kpi-scats-pct", "kpi-scats-bar"); // scats percentage vs total
+      updateKpiCard(scats, total, "kpi-scats-operated", "kpi-scats-pct", "kpi-scats-bar");
+      updateKpiCard(nonScats, total, "kpi-non-scats", "kpi-non-scats-pct", "kpi-non-scats-bar");
+
+      document.getElementById("kpi-sites-visited").textContent = sitesVisited.toString();
+    }
+
+    // === TABLE ==============================================================
+    function renderTable(rows) {
+      const tbody = document.getElementById("junction-table-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      const search = tableSearchTerm.trim().toLowerCase();
+
+      rows.forEach(r => {
+        const junctNo = (r[COLS.junctNo] || "").toString();
+        const region = r[COLS.region] || "";
+        const zone = r[COLS.zone] || "";
+        const area = r[COLS.area] || "";
+        const street = r[COLS.street] || "";
+        const remarks = r[COLS.remarks] || "";
+        const surveyClass = classifySurvey(r[COLS.surveyStatus]);
+        const surveyLabel = surveyClass === "completed" ? "Completed" : "Pending";
+
+        const haystack = (junctNo + region + zone + area + street + remarks).toLowerCase();
+        if (search && !haystack.includes(search)) return;
+
+        const tr = document.createElement("tr");
+        tr.dataset.lat = r[COLS.lat];
+        tr.dataset.lon = r[COLS.lon];
+
+        tr.innerHTML = `
+          <td>${junctNo}</td>
+          <td>${region}</td>
+          <td>${zone}</td>
+          <td>${area}</td>
+          <td>${street}</td>
+          <td>${remarks}</td>
+          <td>${isTruthy(r[COLS.poleSurvey]) ? "TRUE" : "FALSE"}</td>
+          <td>${isTruthy(r[COLS.ctrlSurvey]) ? "TRUE" : "FALSE"}</td>
+          <td><span class="pill-status ${surveyClass}">${surveyLabel}</span></td>
+        `;
+
+        tr.addEventListener("click", () => {
+          document.querySelectorAll("#junction-table-body tr.is-highlighted").forEach(row => {
+            row.classList.remove("is-highlighted");
+          });
+          tr.classList.add("is-highlighted");
+
+          const lat = parseFloat(tr.dataset.lat);
+          const lon = parseFloat(tr.dataset.lon);
+          if (isFinite(lat) && isFinite(lon) && map) {
+            map.setView([lat, lon], 15);
+          }
+
+          openDetailModal(r);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // === MODAL ==============================================================
+    function openDetailModal(row) {
+      const modal = document.getElementById("detailModal");
+      const body = document.getElementById("modalBody");
+      if (!modal || !body) return;
+
+      body.innerHTML = `
+        <dl class="detail-list">
+          <dt>Junct No</dt><dd>${row[COLS.junctNo] || ""}</dd>
+          <dt>Region</dt><dd>${row[COLS.region] || ""}</dd>
+          <dt>Zone</dt><dd>${row[COLS.zone] || ""}</dd>
+          <dt>Area</dt><dd>${row[COLS.area] || ""}</dd>
+          <dt>Street</dt><dd>${row[COLS.street] || ""}</dd>
+          <dt>District</dt><dd>${row[COLS.district] || ""}</dd>
+          <dt>Survey</dt><dd>${classifySurvey(row[COLS.surveyStatus]) === "completed" ? "Completed" : "Pending"}</dd>
+          <dt>Pole Survey</dt><dd>${isTruthy(row[COLS.poleSurvey]) ? "Done" : "Not Done"}</dd>
+          <dt>Controller Survey</dt><dd>${isTruthy(row[COLS.ctrlSurvey]) ? "Done" : "Not Done"}</dd>
+          <dt>SCATS Status</dt><dd>${row[COLS.scats] || ""}</dd>
+          <dt>Operation Status</dt><dd>${row[COLS.operationStatus] || ""}</dd>
+          <dt>Remarks</dt><dd>${row[COLS.remarks] || ""}</dd>
+        </dl>
+      `;
+
+      modal.classList.add("is-open");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    document.querySelector(".modal-close").addEventListener("click", () => {
+      const m = document.getElementById("detailModal");
+      m.classList.remove("is-open");
+      m.setAttribute("aria-hidden", "true");
+    });
+    document.getElementById("detailModal").addEventListener("click", (e) => {
+      if (e.target.id === "detailModal") {
+        const m = document.getElementById("detailModal");
+        m.classList.remove("is-open");
+        m.setAttribute("aria-hidden", "true");
+      }
+    });
+
+    // === CHARTS + DYNAMIC HOVER ============================================
+    function attachChartHoverInfo(chart, infoId, labelPrefix) {
+      const infoEl = document.getElementById(infoId);
+      if (!infoEl || !chart) return;
+      chart.options.onHover = (evt, elements) => {
+        if (elements.length > 0) {
+          const el = elements[0];
+          const label = chart.data.labels[el.index];
+          const val = chart.data.datasets[el.datasetIndex].data[el.index];
+          infoEl.textContent = `${labelPrefix}${label}: ${val}`;
+        } else {
+          infoEl.textContent = "";
+        }
+      };
+      chart.update();
+    }
+
+    function buildScopeChart(rows) {
+      const ctx = document.getElementById("scopeChart").getContext("2d");
+      const counts = { om: 0, projects: 0, off: 0, other: 0 };
+      rows.forEach(r => {
+        counts[classifyRemarks(r[COLS.remarks])] ++;
+      });
+
+      const labels = ["Under O&M", "Under Projects", "Switched Off", "Other"];
+      const data = [
+        counts.om,
+        counts.projects,
+        counts.off,
+        counts.other
+      ];
+      if (scopeChart) scopeChart.destroy();
+
+      scopeChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels,
+          datasets: [{
+            data,
+            backgroundColor: [
+              "#22c55e",
+              "#eab308",
+              "#ef4444",
+              "#64748b"
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { color: "#e5e7eb", font: { size: 10 } }
+            }
+          },
+          animation: {
+            animateScale: true,
+            animateRotate: true
+          }
+        }
+      });
+
+      attachChartHoverInfo(scopeChart, "scopeChartHover", "");
+    }
+
+    function buildZoneChart(rows) {
+      const ctx = document.getElementById("zoneChart").getContext("2d");
+      const byZone = {};
+      rows.forEach(r => {
+        const zone = (r[COLS.zone] || "").toString();
+        if (!zone) return;
+        if (!byZone[zone]) byZone[zone] = { total: 0, completed: 0 };
+        byZone[zone].total++;
+        if (classifySurvey(r[COLS.surveyStatus]) === "completed") byZone[zone].completed++;
+      });
+
+      const labels = Object.keys(byZone).sort((a,b)=>Number(a)-Number(b));
+      const pctData = labels.map(z => {
+        const v = byZone[z];
+        return v.total > 0 ? (v.completed / v.total) * 100 : 0;
+      });
+
+      if (zoneChart) zoneChart.destroy();
+
+      zoneChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{
+            label: "% Completed",
+            data: pctData,
+            backgroundColor: "#38bdf8"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              ticks: { color: "#e5e7eb", font: { size: 10 } },
+              grid: { display: false }
+            },
+            y: {
+              beginAtZero: true,
+              max: 100,
+              ticks: { color: "#9ca3af", font: { size: 10 }, callback: v => v + "%" },
+              grid: { color: "rgba(55,65,81,0.7)" }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => ctx.parsed.y.toFixed(1) + "%"
+              }
+            }
+          },
+          animation: {
+            duration: 800,
+            easing: "easeOutQuart"
+          }
+        }
+      });
+
+      attachChartHoverInfo(zoneChart, "zoneChartHover", "Zone ");
+    }
+
+    // === FILTERING ==========================================================
+    function updateFilters(allRows) {
+      const regionSel = document.getElementById("filter-region");
+      const areaSel = document.getElementById("filter-area");
+      const zoneSel = document.getElementById("filter-zone");
+
+      function fillSelect(select, values, prefix) {
+        const current = select.value;
+        select.innerHTML = `<option value="">${prefix} – All</option>`;
+        values.forEach(v => {
+          const opt = document.createElement("option");
+          opt.value = v;
+          opt.textContent = v;
+          select.appendChild(opt);
+        });
+        if (values.includes(current)) select.value = current;
+      }
+
+      const regions = Array.from(new Set(allRows.map(r => r[COLS.region]).filter(Boolean))).sort();
+      const areas = Array.from(new Set(allRows.map(r => r[COLS.area]).filter(Boolean))).sort();
+      const zones = Array.from(new Set(allRows.map(r => r[COLS.zone]).filter(Boolean))).sort((a,b)=>Number(a)-Number(b));
+
+      fillSelect(regionSel, regions, "Region");
+      fillSelect(areaSel, areas, "Area");
+      fillSelect(zoneSel, zones, "Zone");
+    }
+
+    function applyFilters() {
+      const regionVal = document.getElementById("filter-region").value;
+      const areaVal = document.getElementById("filter-area").value;
+      const zoneVal = document.getElementById("filter-zone").value;
+      const surveyVal = document.getElementById("filter-survey").value;
+
+      let filtered = allData.slice();
+
+      if (regionVal) filtered = filtered.filter(r => String(r[COLS.region]) === regionVal);
+      if (areaVal) filtered = filtered.filter(r => String(r[COLS.area]) === areaVal);
+      if (zoneVal) filtered = filtered.filter(r => String(r[COLS.zone]) === zoneVal);
+      if (surveyVal) {
+        filtered = filtered.filter(r => classifySurvey(r[COLS.surveyStatus]) === surveyVal);
+      }
+
+      currentFiltered = filtered;
+
+      updateKPIs(filtered);
+      addMarkers(filtered);
+      renderTable(filtered);
+      buildScopeChart(filtered);
+      buildZoneChart(filtered);
+    }
+
+    // === EXPORTS ============================================================
+    function exportCurrentViewToCSV() {
+      const rows = currentFiltered.length ? currentFiltered : allData;
+      if (!rows.length) {
+        alert("No data to export.");
+        return;
+      }
+      const headers = [
+        COLS.junctNo, COLS.region, COLS.zone, COLS.area,
+        COLS.district, COLS.street, COLS.remarks,
+        COLS.poleSurvey, COLS.ctrlSurvey, COLS.surveyStatus,
+        COLS.scats, COLS.lat, COLS.lon
+      ];
+      const csvLines = [headers.join(",")];
+      rows.forEach(row => {
+        const line = headers.map(h => {
+          const val = row[h] == null ? "" : String(row[h]).replace(/"/g, '""');
+          return `"${val}"`;
+        }).join(",");
+        csvLines.push(line);
+      });
+      const blob = new Blob([csvLines.join("\n")], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "qatar_north_junctions_view.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportTableToXLSX(filename) {
+      const table = document.getElementById("junction-table");
+      if (!table) return alert("Table not found");
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.table_to_sheet(table);
+      XLSX.utils.book_append_sheet(wb, ws, "Junctions");
+      XLSX.writeFile(wb, filename);
+    }
+
+    function exportTableToPDF(filename, title) {
+      const table = document.getElementById("junction-table");
+      if (!table) return alert("Table not found");
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "landscape" });
+      doc.setFontSize(11);
+      if (title) doc.text(title, 14, 10);
+      doc.autoTable({ html: table, startY: 14, styles: { fontSize: 8 } });
+      doc.save(filename);
+    }
+
+    // === TIME / INIT ========================================================
+    function setLastUpdated() {
+      const el = document.getElementById("lastUpdated");
+      if (!el) return;
+      const now = new Date();
+      el.textContent = "Last loaded: " + now.toLocaleString();
+    }
+
+    function updateCurrentDateTime() {
+      const el = document.getElementById("currentDateTime");
+      if (!el) return;
+      const now = new Date();
+      el.textContent = now.toLocaleString(undefined, {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function loadData() {
+      Papa.parse(SHEET_CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function (results) {
+          allData = results.data || [];
+          updateFilters(allData);
+          applyFilters();
+          setLastUpdated();
+        },
+        error: function (err) {
+          console.error("Error loading CSV:", err);
+          alert("Error loading data. Check the CSV URL or internet connection.");
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      initMap();
+      loadData();
+      updateCurrentDateTime();
+      setInterval(updateCurrentDateTime, 30 * 1000);
+
+      document.getElementById("filter-region").addEventListener("change", applyFilters);
+      document.getElementById("filter-area").addEventListener("change", applyFilters);
+      document.getElementById("filter-zone").addEventListener("change", applyFilters);
+      document.getElementById("filter-survey").addEventListener("change", applyFilters);
+
+      document.getElementById("table-search").addEventListener("input", (e) => {
+        tableSearchTerm = e.target.value;
+        renderTable(currentFiltered);
+      });
+
+      const mapModeBtn = document.getElementById("map-mode-toggle");
+      if (mapModeBtn) {
+        mapModeBtn.addEventListener("click", () => {
+          singleSelectionMode = !singleSelectionMode;
+          mapModeBtn.textContent =
+            singleSelectionMode ? "Map Mode: Selected Junction Only" : "Map Mode: All Filtered Junctions";
+          if (!singleSelectionMode) addMarkers(currentFiltered);
+        });
+      }
+
+      document.getElementById("export-csv").addEventListener("click", exportCurrentViewToCSV);
+      document.getElementById("export-xlsx").addEventListener("click", () =>
+        exportTableToXLSX("qatar_north_junctions.xlsx")
+      );
+      document.getElementById("export-pdf").addEventListener("click", () =>
+        exportTableToPDF("qatar_north_junctions.pdf", "Qatar North Traffic Junctions")
+      );
+    });
+  </script>
+</body>
+</html>
