@@ -1,0 +1,2682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Qatar North Traffic Junctions Survey Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+
+<style>
+    :root {
+      --aktor-blue: #0b1120;
+      --aktor-red: #e0283b;
+      --algo-blue: #38bdf8;
+
+      --bg-surface: rgba(15, 23, 42, 0.88);
+
+      --glass-bg: rgba(15, 23, 42, 0.72);
+      --glass-border: rgba(148, 163, 184, 0.45);
+      --glass-shadow-soft: 0 22px 45px rgba(15, 23, 42, 0.65);
+      --glass-radius-lg: 18px;
+      --glass-radius-md: 14px;
+
+      --text-soft: #9ca3af;
+      --text-subtle: #6b7280;
+      --text-strong: #e5e7eb;
+      --text-stronger: #f9fafb;
+
+      --accent-green: #22c55e;
+      --accent-amber: #fbbf24;
+      --accent-blue: #38bdf8;
+      --accent-red: #ef4444;
+      --accent-purple: #a855f7;
+      --accent-pink: #ec4899;
+      --accent-orange: #f97316;
+
+      --transition-fast: 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+      --transition-med: 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+
+    /* ===== THEME: AUTO DARK/LIGHT BASED ON SYSTEM PREFERENCE ===== */
+    body[data-theme="dark"] {
+      /* default (existing) dark theme */
+    }
+
+    body[data-theme="light"] {
+      --bg-surface: rgba(255, 255, 255, 0.92);
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --glass-border: rgba(148, 163, 184, 0.55);
+      --text-soft: #6b7280;
+      --text-subtle: #9ca3af;
+      --text-strong: #111827;
+      --text-stronger: #020617;
+    }
+
+    body[data-theme="light"] {
+      background: #f3f4f6;
+      color: var(--text-stronger);
+    }
+
+    body[data-theme="light"] .page {
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 55%),
+        linear-gradient(135deg, #e5e7eb, #f9fafb);
+    }
+
+    body[data-theme="light"] header,
+    body[data-theme="light"] .glass-card,
+    body[data-theme="light"] .kpi-card {
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.96), transparent 55%),
+        linear-gradient(145deg, #ffffff, #e5e7eb);
+      border-color: rgba(148, 163, 184, 0.55);
+      color: var(--text-stronger);
+    }
+
+    body[data-theme="light"] .kpi-badge,
+    body[data-theme="light"] .filter-chip {
+      background-color: rgba(15, 23, 42, 0.08);
+      border-color: rgba(148, 163, 184, 0.8);
+      color: var(--text-strong);
+    }
+
+    body[data-theme="light"] .filters-card,
+    body[data-theme="light"] .table-card,
+    body[data-theme="light"] .map-card,
+    body[data-theme="light"] .chart-card {
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    }
+
+    body[data-theme="light"] input,
+    body[data-theme="light"] select {
+      background-color: #ffffff;
+      border-color: rgba(148, 163, 184, 0.9);
+      color: var(--text-strong);
+    }
+
+    body[data-theme="light"] .table-wrapper {
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.96), rgba(243, 244, 246, 0.98));
+      border-color: rgba(148, 163, 184, 0.8);
+    }
+
+    body[data-theme="light"] th {
+      background: linear-gradient(180deg, #e5e7eb, #d1d5db);
+      color: #4b5563;
+    }
+
+    body[data-theme="light"] tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    body[data-theme="light"] tbody tr:nth-child(odd) {
+      background: #f3f4f6;
+    }
+
+    body[data-theme="light"] tbody tr:hover {
+      background:
+        radial-gradient(circle at 0 0, rgba(59, 130, 246, 0.12), transparent 55%),
+        #ffffff;
+    }
+
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      color: var(--text-strong);
+      background-color: #020617;
+      background-attachment: fixed;
+      background-size: cover;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      margin: 0;
+      padding-bottom: 24px;
+      /* More colorful multi-layer background */
+      background:
+        radial-gradient(circle at 0% 0%, rgba(56, 189, 248, 0.26), transparent 55%),
+        radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.22), transparent 55%),
+        radial-gradient(circle at 0% 100%, rgba(249, 115, 22, 0.18), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.22), transparent 60%),
+        linear-gradient(180deg, #020617 0%, #020617 18%, #020617 100%);
+    }
+
+    .shell {
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 12px 16px 24px;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      width: 100%;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      padding: 10px 20px;
+      /* Slightly richer gradient in header */
+      background:
+        linear-gradient(135deg, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 0.92)),
+        linear-gradient(90deg, rgba(56, 189, 248, 0.35), rgba(168, 85, 247, 0.35), rgba(236, 72, 153, 0.26));
+      box-shadow:
+        0 24px 60px rgba(15, 23, 42, 0.85),
+        0 0 0 1px rgba(148, 163, 184, 0.35);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      position: relative; /* NO sticky; header stays at top of page, scrolls away */
+      top: auto;
+      z-index: auto;
+    }
+
+    .header-left,
+    .header-right {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .header-center {
+      flex: 1 1 auto;
+      text-align: center;
+    }
+
+    .logo-img {
+      max-height: 52px;
+      height: auto;
+      filter: drop-shadow(0 8px 20px rgba(15, 23, 42, 0.8));
+    }
+
+    .logo-img-small {
+      max-height: 42px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: clamp(20px, 2vw, 26px);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--text-stronger);
+      text-transform: uppercase;
+    }
+
+    header .subtitle {
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 4px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .datetime-header {
+      font-size: 11px;
+      color: #c7d2fe;
+      margin-top: 4px;
+    }
+
+    /* ===== LAYOUT: HIERARCHY ===== */
+    main.dashboard {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .section {
+      display: block;
+      animation: fade-slide-up 0.65s var(--transition-med);
+    }
+
+    .section-kpis {
+      margin-top: 4px;
+    }
+
+    .section-kpis-inner {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section-insights,
+    .section-filters,
+    .section-main,
+    .section-table {
+      margin-top: 2px;
+    }
+
+    /* ===== GLASS CARD BASE ===== */
+    .glass-card {
+      position: relative;
+      background:
+        radial-gradient(circle at top left, rgba(248, 250, 252, 0.16), transparent 40%),
+        linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9));
+      border-radius: var(--glass-radius-lg);
+      padding: 10px 14px;
+      box-shadow: var(--glass-shadow-soft);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      overflow: hidden;
+      transition:
+        transform var(--transition-med),
+        box-shadow var(--transition-med),
+        border-color var(--transition-med),
+        background var(--transition-med);
+    }
+
+    .glass-card::before {
+      content: "";
+      position: absolute;
+      inset: -20%;
+      opacity: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.16), transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.16), transparent 45%);
+      transition: opacity var(--transition-med);
+      pointer-events: none;
+    }
+
+    .glass-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 26px 55px rgba(15, 23, 42, 0.95);
+      border-color: rgba(248, 250, 252, 0.35);
+      background:
+        radial-gradient(circle at top left, rgba(248, 250, 252, 0.22), transparent 40%),
+        linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94));
+    }
+
+    .glass-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #9ca3af;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .card-title::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.75);
+    }
+
+    .card-sub {
+      font-size: 11px;
+      color: var(--text-subtle);
+      margin-top: 2px;
+    }
+
+    /* ===== KPI ROWS ===== */
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .kpi-strip-compact {
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    }
+
+    .kpi-card {
+      position: relative;
+      background:
+        linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.9)),
+        linear-gradient(120deg, rgba(56, 189, 248, 0.22), rgba(168, 85, 247, 0.18), rgba(236, 72, 153, 0.18));
+      border-radius: var(--glass-radius-md);
+      padding: 8px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      box-shadow: 0 16px 35px rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        border-color var(--transition-fast),
+        background var(--transition-fast);
+      cursor: default;
+    }
+
+    .kpi-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.25), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.25), transparent 55%);
+      transition: opacity var(--transition-fast);
+      pointer-events: none;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.98);
+      border-color: rgba(248, 250, 252, 0.5);
+      background:
+        linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94)),
+        linear-gradient(120deg, rgba(56, 189, 248, 0.28), rgba(168, 85, 247, 0.24), rgba(236, 72, 153, 0.24));
+    }
+
+    .kpi-card:hover::after {
+      opacity: 1;
+    }
+
+    .kpi-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .kpi-number {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-stronger);
+      margin-top: 2px;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .kpi-number span.unit {
+      font-size: 11px;
+      color: var(--text-soft);
+      font-weight: 500;
+    }
+
+    .kpi-caption {
+      font-size: 11px;
+      color: var(--text-subtle);
+      margin-top: 2px;
+    }
+
+    /* Circle KPI cards */
+    .kpi-circle-layout {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .kpi-circle-text {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .kpi-circle-text-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+    }
+.circle-wrapper {
+      width: 92px;
+      height: 92px;
+      position: relative;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 10%, #f9fafb, #374151);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 12px 34px rgba(15, 23, 42, 0.9);
+    }
+
+
+    .circle-fill {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(var(--accent-green) 0deg, rgba(15, 23, 42, 0.32) 0deg);
+      opacity: 0.96;
+      transition: background 360ms ease-out;
+    }
+.circle-inner {
+      position: relative;
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 0, #f9fafb, #020617);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      color: #f9fafb;
+      padding: 0 6px;
+      line-height: 1.25;
+      border: 1px solid rgba(248, 250, 252, 0.25);
+      text-align: center;
+    }
+
+
+    .circle-caption {
+      font-size: 10px;
+      color: var(--text-subtle);
+    }
+
+    .circle-caption strong {
+      font-weight: 600;
+      margin-right: 2px;
+      color: var(--accent-green);
+    }
+
+    /* ===== INSIGHTS BAR ===== */
+    .insights-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .insights-main-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .insights-main-label span.badge-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-amber);
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.9);
+      position: relative;
+    }
+
+    .insights-main-label span.badge-pulse::after {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      border: 1px solid rgba(251, 191, 36, 0.6);
+      opacity: 0;
+      animation: pulse 1.5s infinite;
+    }
+
+    #attention-list {
+      font-size: 11px;
+      color: var(--text-strong);
+    }
+
+    /* ===== FILTER BAR (PILL STYLE) ===== */
+    .filters-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .filters-row-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 2px;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filters label {
+      font-size: 10px;
+      color: var(--text-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+	.filters select {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.85);
+  font-size: 11px;
+  min-width: 130px;
+  background-color: rgba(15, 23, 42, 0.98) !important;
+  background-image:
+    radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), transparent 60%),
+    linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.98)) !important;
+  color: var(--text-strong) !important;
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+}
+
+.filters select:focus {
+  border-color: rgba(56, 189, 248, 0.9);
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.8);
+  background-image:
+    radial-gradient(circle at top left, rgba(56, 189, 248, 0.25), transparent 60%),
+    linear-gradient(135deg, rgba(15, 23, 42, 1), rgba(15, 23, 42, 1)) !important;
+  transform: translateY(-1px);
+}
+
+.filters select:hover {
+  border-color: rgba(248, 250, 252, 0.5);
+}
+
+    .filters-row-extra {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      font-size: 10px;
+      margin-top: 2px;
+    }
+
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.12);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+    }
+
+    .filter-chip button {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 12px;
+      line-height: 1;
+      color: #7dd3fc;
+      padding: 0;
+    }
+
+    .filter-chip:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: rgba(248, 250, 252, 0.6);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.9);
+    }
+
+    .export-btn {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(56, 189, 248, 0.9);
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.35), transparent 55%),
+        linear-gradient(135deg, rgba(37, 99, 235, 0.96), rgba(56, 189, 248, 0.95));
+      color: #ecfeff;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 16px 35px rgba(30, 64, 175, 0.8);
+      transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        filter var(--transition-fast);
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .export-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 22px 48px rgba(30, 64, 175, 0.95);
+      filter: brightness(1.05);
+    }
+
+    .export-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.9);
+    }
+
+    /* ===== MAIN: MAP & CHARTS ===== */
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .map-card {
+      border-radius: var(--glass-radius-lg);
+    }
+
+    .map-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .map-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .map-title span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }
+
+    .map-toggle-btn {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 5px 12px;
+      font-size: 11px;
+      background:
+        radial-gradient(circle at top left, rgba(248, 250, 252, 0.06), transparent 60%),
+        rgba(15, 23, 42, 0.96);
+      color: var(--text-soft);
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition:
+        border-color var(--transition-fast),
+        background var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast),
+        color var(--transition-fast);
+    }
+
+    .map-toggle-btn::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.7);
+    }
+
+    .map-toggle-btn-active {
+      border-color: rgba(56, 189, 248, 0.95);
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.25), transparent 55%),
+        linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.96));
+      color: #e0f2fe;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.95);
+    }
+
+    .map-toggle-btn-active::before {
+      background: #38bdf8;
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.95);
+    }
+
+    #map {
+      width: 100%;
+      height: 420px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.55);
+      transition: transform var(--transition-med), box-shadow var(--transition-med), border-color var(--transition-med);
+    }
+
+    .map-card:hover #map {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 52px rgba(15, 23, 42, 0.98);
+      border-color: rgba(248, 250, 252, 0.55);
+    }
+
+    .map-meta {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    .map-legend {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--text-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    .legend-completed {
+      background: var(--accent-green);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+    }
+
+    .legend-visited {
+      background: var(--accent-orange);
+      box-shadow: 0 0 8px rgba(249, 115, 22, 0.9);
+    }
+
+    .legend-notvisited {
+      background: var(--accent-red);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+    }
+
+    .legend-selected {
+      background: var(--accent-blue);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.9);
+    }
+
+    /* Charts column */
+    .charts-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .chart-card {
+      border-radius: var(--glass-radius-lg);
+    }
+
+    .scope-card {
+      background:
+        radial-gradient(circle at 0 0, rgba(250, 250, 250, 0.06), transparent 55%),
+        linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.9));
+    }
+
+    .zone-card {
+      background:
+        radial-gradient(circle at 100% 0, rgba(56, 189, 248, 0.12), transparent 60%),
+        linear-gradient(145deg, rgba(15, 23, 42, 0.97), rgba(15, 23, 42, 0.9));
+    }
+
+    .zone-chart-wrapper,
+    .scope-chart-wrapper {
+      height: 210px;
+      margin-top: 4px;
+    }
+
+    /* ===== TABLE SECTION ===== */
+    .table-card {
+      border-radius: var(--glass-radius-lg);
+    }
+
+    .table-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+    }
+
+    .table-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .table-header-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-soft);
+    }
+
+    .table-header-sub {
+      font-size: 11px;
+      color: var(--text-subtle);
+    }
+
+    .table-controls {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+      width: 100%;
+    }
+
+    .table-search {
+      flex: 1;
+      max-width: 320px;
+    }
+
+    .table-search input {
+      width: 100%;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      font-size: 11px;
+      background:
+        radial-gradient(circle at 0 0, rgba(248, 250, 252, 0.06), transparent 60%),
+        rgba(15, 23, 42, 0.96);
+      color: var(--text-strong);
+      outline: none;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        transform var(--transition-fast);
+    }
+
+    .table-search input::placeholder {
+      color: rgba(148, 163, 184, 0.9);
+    }
+
+    .table-search input:focus {
+      border-color: rgba(56, 189, 248, 0.9);
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.8);
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.2), transparent 60%),
+        rgba(15, 23, 42, 0.98);
+      transform: translateY(-1px);
+    }
+
+    .table-wrapper {
+      max-height: 320px;
+      overflow: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(55, 65, 81, 0.9);
+      background:
+        radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(3, 7, 18, 0.98));
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.95);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      color: var(--text-strong);
+    }
+
+    th,
+    td {
+      padding: 5px 8px;
+      border-bottom: 1px solid rgba(31, 41, 55, 0.9);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.95));
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+
+    td:nth-child(2) {
+      white-space: normal;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15, 23, 42, 0.82);
+    }
+
+    tbody tr:nth-child(odd) {
+      background: rgba(3, 7, 18, 0.96);
+    }
+
+    tbody tr:hover {
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.18), transparent 55%),
+        rgba(3, 7, 18, 0.98);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #f9fafb;
+      box-shadow: 0 0 14px rgba(15, 23, 42, 0.9);
+    }
+
+    .status-completed {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .status-pending {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    /* ===== UTILITIES ===== */
+    #lastUpdated {
+      font-size: 10px;
+      color: var(--text-soft);
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes fade-slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes pulse {
+      from {
+        opacity: 0.55;
+        transform: scale(1);
+      }
+      to {
+        opacity: 0;
+        transform: scale(1.4);
+      }
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      }
+
+      #map {
+        height: 380px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .shell {
+        padding: 10px 10px 20px;
+      }
+
+      header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        padding: 10px 14px;
+      }
+
+      .header-center {
+        text-align: left;
+      }
+
+      .kpi-strip {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .charts-stack {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+
+      .charts-stack .chart-card {
+        flex: 1 1 260px;
+      }
+
+      #map {
+        height: 360px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        border-radius: 16px;
+      }
+
+      .insights-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .table-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .table-search {
+        max-width: 100%;
+      }
+
+      #map {
+        height: 320px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .logo-img {
+        max-height: 44px;
+      }
+
+      .logo-img-small {
+        max-height: 34px;
+      }
+
+      header h1 {
+        font-size: 17px;
+        letter-spacing: 0.08em;
+      }
+
+      .filters select {
+        min-width: 100px;
+      }
+    }
+  
+    /* === Global skip link === */
+    .skip-link {
+      position: absolute;
+      left: -999px;
+      top: 8px;
+      background: #000;
+      color: #fff;
+      padding: 8px 12px;
+      z-index: 10000;
+    }
+    .skip-link:focus {
+      left: 12px;
+    }
+
+    /* === Top navigation shared across dashboards (non-sticky, single-row) === */
+    .top-nav {
+      position: relative;
+      top: auto;
+      z-index: 10;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      background: transparent;
+      border-bottom: none;
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+
+    .top-nav-inner {
+      max-width: 1520px;
+      margin: 0 auto;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .top-nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0, #38bdf8, #a855f7);
+      box-shadow: 0 0 14px rgba(56,189,248,0.8);
+    }
+
+    .top-nav-links {
+      list-style: none;
+      display: flex;
+      gap: 8px;
+    }
+
+    .top-nav-links a {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-soft);
+      text-decoration: none;
+      border: 1px solid transparent;
+      transition:
+        color 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        background 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        border-color 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+        transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .top-nav-links a::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: radial-gradient(circle at 0 0, rgba(56,189,248,0.15), transparent 55%);
+      opacity: 0;
+      transition: opacity 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    .top-nav-links a:hover,
+    .top-nav-links a:focus-visible {
+      color: var(--text-strong);
+      border-color: rgba(148,163,184,0.7);
+      background: rgba(15,23,42,0.9);
+      transform: translateY(-1px);
+    }
+    .top-nav-links a:focus-visible {
+      outline: 2px solid #38bdf8;
+      outline-offset: 3px;
+    }
+
+    .top-nav-links a.is-active {
+      color: #e0f2fe;
+      border-color: rgba(56,189,248,0.95);
+      background:
+        radial-gradient(circle at 0 0, rgba(56,189,248,0.25), transparent 55%),
+        linear-gradient(135deg, rgba(15,23,42,0.98), rgba(15,23,42,0.94));
+      box-shadow: 0 12px 30px rgba(15,23,42,0.9);
+    }
+    .top-nav-links a.is-active::after {
+      opacity: 1;
+    }
+
+    /* === Modal for detail view === */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-backdrop.is-open {
+      display: flex;
+    }
+    .modal {
+      position: relative;
+      background: var(--bg-surface);
+      border-radius: var(--glass-radius-lg);
+      padding: 16px 20px;
+      max-width: 520px;
+      width: 96%;
+      box-shadow: 0 26px 55px rgba(15,23,42,0.95);
+      border: 1px solid var(--glass-border);
+    }
+    .modal-title {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: var(--text-stronger);
+    }
+    .modal-body {
+      font-size: 13px;
+      color: var(--text-soft);
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-soft);
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .modal-close:focus-visible {
+      outline: 2px solid #38bdf8;
+      outline-offset: 2px;
+    }
+    .detail-list {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 4px 12px;
+    }
+    .detail-list dt {
+      font-weight: 600;
+      color: var(--text-strong);
+    }
+    .detail-list dd {
+      margin: 0;
+      color: var(--text-soft);
+    }
+
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <nav class="top-nav" aria-label="Primary">
+    <div class="top-nav-inner">
+      <div class="top-nav-brand">
+        <span class="brand-dot" aria-hidden="true"></span>
+        <span class="brand-text">Qatar North Survey</span>
+      </div>
+      <ul class="top-nav-links">
+        <li><a href="index.html" data-page="traffic">Traffic Junctions</a></li>
+        <li><a href="its-dashboard.html" data-page="its">ITS Dashboard</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="shell">
+      <!-- HEADER -->
+      <header>
+        <div class="header-left">
+          <img src="aktor-logo.png" alt="AKTOR Qatar" class="logo-img" />
+        </div>
+
+        <div class="header-center">
+          <h1>Qatar North Traffic Junctions Survey</h1>
+          <div class="subtitle">
+            Live from Google Sheet — Junctions, Survey Completion &amp; Operations Status
+          </div>
+          <div class="datetime-header" id="currentDateTime"></div>
+        </div>
+
+        <div class="header-right">
+          <img
+            src="algosystems-logo.png"
+            alt="ALGOSYSTEMS Qatar"
+            class="logo-img logo-img-small"
+          />
+        </div>
+      </header>
+
+      <!-- DASHBOARD BODY -->
+      <main id="main-content" class="dashboard">
+        <!-- KPIs: compact, horizontal -->
+        <section class="section section-kpis">
+          <div class="section-kpis-inner">
+            <!-- Number-only KPIs -->
+            <div class="kpi-strip kpi-strip-compact">
+              <div class="kpi-card">
+                <div class="kpi-label">Total Junctions</div>
+                <div class="kpi-number">
+                  <span id="kpi-total">–</span>
+                </div>
+                <div class="kpi-caption">All junctions in current view</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Under O&amp;M</div>
+                <div class="kpi-number">
+                  <span id="kpi-om">–</span>
+                  <span class="unit">junctions</span>
+                </div>
+                <div class="kpi-caption">Confirmed in O&amp;M scope</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Under Projects</div>
+                <div class="kpi-number">
+                  <span id="kpi-projects">–</span>
+                  <span class="unit">junctions</span>
+                </div>
+                <div class="kpi-caption">Yet to be fully handed over</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Switched Off</div>
+                <div class="kpi-number">
+                  <span id="kpi-off">–</span>
+                  <span class="unit">sites</span>
+                </div>
+                <div class="kpi-caption">Currently non-operational</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">SCATS Operated</div>
+                <div class="kpi-number">
+                  <span id="kpi-scats-operated">–</span>
+                </div>
+                <div class="kpi-caption">Connected to SCATS</div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-label">Non-SCATS (Isolated)</div>
+                <div class="kpi-number">
+                  <span id="kpi-non-scats">–</span>
+                </div>
+                <div class="kpi-caption">Isolated / non-SCATS junctions</div>
+              </div>
+            </div>
+
+            <!-- Circular KPI row -->
+            <div class="kpi-strip kpi-strip-compact">
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-survey-fill" class="circle-fill"></div>
+                    <div id="circle-survey-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Survey Completion</div>
+                    <div class="circle-caption">
+                      <strong id="circle-survey-pct">0%</strong> completed vs total junctions
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-sites-fill" class="circle-fill"></div>
+                    <div id="circle-sites-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Sites Visited</div>
+                    <div class="circle-caption">
+                      <strong id="circle-sites-pct">0%</strong> pole or controller survey done
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-pole-fill" class="circle-fill"></div>
+                    <div id="circle-pole-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Pole Survey</div>
+                    <div class="circle-caption">
+                      <strong id="circle-pole-pct">0%</strong> pole survey completion
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-ctrl-fill" class="circle-fill"></div>
+                    <div id="circle-ctrl-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Controller Survey</div>
+                    <div class="circle-caption">
+                      <strong id="circle-ctrl-pct">0%</strong> controller survey completion
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-doha-fill" class="circle-fill"></div>
+                    <div id="circle-doha-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">Doha Region</div>
+                    <div class="circle-caption">
+                      <strong id="circle-doha-pct">0%</strong> survey completion in Doha
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="kpi-card">
+                <div class="kpi-circle-layout">
+                  <div class="circle-wrapper">
+                    <div id="circle-north-fill" class="circle-fill"></div>
+                    <div id="circle-north-inner" class="circle-inner">0 / 0</div>
+                  </div>
+                  <div class="kpi-circle-text">
+                    <div class="kpi-circle-text-title">North Region</div>
+                    <div class="circle-caption">
+                      <strong id="circle-north-pct">0%</strong> survey completion in North
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- INSIGHTS BAR -->
+        <section class="section section-insights">
+          <div class="glass-card">
+            <div class="insights-bar">
+              <div class="insights-main-label">
+                <span class="badge-pulse"></span>
+                <span>Zones Needing Attention</span>
+              </div>
+              <div id="attention-list" class="card-sub"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- FILTERS: pill bar -->
+        <section class="section section-filters">
+          <div class="glass-card filters-card">
+            <div class="filters-row-title">Filters</div>
+            <div class="filters">
+              <label>
+                Region
+                <select id="filter-region">
+                  <option value="">All</option>
+                </select>
+              </label>
+              <label>
+                Area
+                <select id="filter-area">
+                  <option value="">All</option>
+                </select>
+              </label>
+              <label>
+                Zone
+                <select id="filter-zone">
+                  <option value="">All</option>
+                </select>
+              </label>
+              <label>
+                Survey
+                <select id="filter-survey">
+                  <option value="">All</option>
+                  <option value="completed">Completed</option>
+                  <option value="pending">Pending</option>
+                </select>
+              </label>
+              <label>
+                Remarks
+                <select id="filter-remarks">
+                  <option value="">All</option>
+                  <option value="om">Under O&amp;M</option>
+                  <option value="projects">Under Projects</option>
+                  <option value="off">Switched Off</option>
+                  <option value="other">Other</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="filters-row-extra">
+              <div class="active-filters" id="active-filters"></div>
+              <div class="export-buttons">
+                <button id="export-csv-btn" class="export-btn" type="button">
+                  CSV
+                </button>
+                <button id="export-xlsx-btn" class="export-btn" type="button">
+                  Excel (XLSX)
+                </button>
+                <button id="export-pdf-btn" class="export-btn" type="button">
+                  PDF
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MAIN: MAP & CHARTS -->
+        <section class="section section-main">
+          <div class="main-grid">
+            <!-- MAP COLUMN -->
+            <div class="glass-card map-card">
+              <div class="map-card-header">
+                <div class="map-title">
+                  <span class="dot"></span>
+                  <span>Junction Map (ESRI Satellite)</span>
+                </div>
+                <button id="map-mode-toggle" class="map-toggle-btn map-toggle-btn-active" type="button">
+                  Map Mode: Selected Junction Only
+                </button>
+              </div>
+              <div id="map"></div>
+              <div class="map-meta">
+                <span id="lastUpdated"></span>
+              </div>
+              <div class="map-legend">
+                <div class="legend-item">
+                  <span class="legend-dot legend-completed"></span>
+                  <span>Survey completed</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot legend-visited"></span>
+                  <span>Site visited (Pole/Controller)</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot legend-notvisited"></span>
+                  <span>Not visited</span>
+                </div>
+                <div class="legend-item">
+                  <span class="legend-dot legend-selected"></span>
+                  <span>Selected from junction list</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- CHARTS COLUMN -->
+            <div class="charts-stack">
+              <div class="glass-card chart-card scope-card">
+                <div class="card-header-row">
+                  <p class="card-title">Scope Distribution</p>
+                </div>
+                <div class="scope-chart-wrapper">
+                  <canvas id="scopeChart"></canvas>
+                </div>
+                <div class="card-sub">
+                  Split of junctions by Remarks (Under O&amp;M / Under Projects / Switched Off / Other).
+                </div>
+              </div>
+
+              <div class="glass-card chart-card zone-card">
+                <div class="card-header-row">
+                  <p class="card-title">Zone-wise Survey Completion</p>
+                </div>
+                <div class="zone-chart-wrapper">
+                  <canvas id="zoneChart"></canvas>
+                </div>
+                <div class="card-sub">
+                  Percentage of junctions with completed survey status in each zone.
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- TABLE: full-width at bottom -->
+        <section class="section section-table">
+          <div class="glass-card table-card">
+            <div class="table-header-row">
+              <div class="table-header-left">
+                <div class="table-header-title">Junction List</div>
+                <div class="table-header-sub">
+                  Tap a row to highlight on map. Use search to find junctions by ID, region, street, zone, or remarks.
+                </div>
+              </div>
+            </div>
+
+            <div class="table-controls">
+              <div class="table-search">
+                <input
+                  type="text"
+                  id="table-search"
+                  placeholder="Search junction, street, zone, district or remarks..."
+                />
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Junct No</th>
+                    <th>Region</th>
+                    <th>Zone</th>
+                    <th>Area</th>
+                    <th>Street</th>
+                    <th>Remarks</th>
+                    <th>Pole Survey</th>
+                    <th>Ctrl Survey</th>
+                    <th>Survey</th>
+                  </tr>
+                </thead>
+                <tbody id="junction-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
+  <script>
+    const SHEET_CSV_URL =
+      "https://docs.google.com/spreadsheets/d/e/2PACX-1vS5pFct4J8nDgw7VLuUJpfVgxewoZSkjh-cNxjgtOOZcjEM5Hx0xyJsziL9MUrEmK6wuls0C2Ffd1ku/pub?gid=1921347271&single=true&output=csv";
+
+    const COLS = {
+      junctNo: "Junct No",
+      street: "Street Details",
+      lat: "Latitude",
+      lon: "Longitude",
+      zone: "Zone No",
+      district: "District",
+      remarks: "Remarks",
+      surveyStatus: "Survey Status",
+      poleSurvey: "Pole Survey",
+      ctrlSurvey: "Controller Survey",
+      scats: "SCATS & Non SCATS",
+      operationStatus: "Operation Status",
+      region: "Region",
+      area: "Area"
+    };
+
+    function isTruthy(val) {
+      if (val == null) return false;
+      const v = String(val).trim().toLowerCase();
+      return ["true", "yes", "1", "y", "done", "completed", "✓", "✔"].includes(v);
+    }
+
+    function classifySurvey(v) {
+      return isTruthy(v) ? "completed" : "pending";
+    }
+
+    function classifyRemarks(remarks) {
+      const r = (remarks || "").toLowerCase();
+      if (r.includes("under o&m") || r.includes("under o & m")) return "om";
+      if (r.includes("under projects") || r.includes("under project")) return "projects";
+      if (r.includes("switched off") || r.includes("switch off")) return "off";
+      return "other";
+    }
+
+    function classifyScats(val) {
+      const v = (val || "").toLowerCase();
+      if (v.includes("operated")) return "scats";
+      if (v.includes("isolated") || v.includes("non scats") || v.includes("non-scats")) {
+        return "non";
+      }
+      return "unknown";
+    }
+
+    let allData = [];
+    let currentFiltered = [];
+    let map;
+    let markersLayer;
+    let zoneChart = null;
+    let scopeChart = null;
+    let tableSearchTerm = "";
+    let singleSelectionMode = true;
+
+    function buildPopupHtml(row) {
+      const surveyDone = isTruthy(row[COLS.surveyStatus]);
+      const poleDone = isTruthy(row[COLS.poleSurvey]);
+      const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
+
+      return `
+        <strong>Junction ${row[COLS.junctNo] || ""}</strong><br/>
+        <strong>Street:</strong> ${row[COLS.street] || ""}<br/>
+        <strong>Region:</strong> ${row[COLS.region] || ""} &nbsp;|&nbsp;
+        <strong>Area:</strong> ${row[COLS.area] || ""}<br/>
+        <strong>Zone:</strong> ${row[COLS.zone] || ""} &nbsp;|&nbsp;
+        <strong>District:</strong> ${row[COLS.district] || ""}<br/>
+        <strong>Remarks:</strong> ${row[COLS.remarks] || ""}<br/>
+        <strong>Survey Status:</strong> ${surveyDone ? "Completed" : "Pending"}<br/>
+        <strong>Pole Survey:</strong> ${poleDone ? "Done" : "Not Done"} &nbsp;|&nbsp;
+        <strong>Controller Survey:</strong> ${ctrlDone ? "Done" : "Not Done"}<br/>
+        <strong>SCATS:</strong> ${row[COLS.scats] || ""}<br/>
+        <strong>Operation Status:</strong> ${row[COLS.operationStatus] || ""}<br/>
+        <strong>Lat / Lon:</strong> ${row[COLS.lat] || ""}, ${row[COLS.lon] || ""}
+      `;
+    }
+
+    function initMap() {
+      map = L.map("map").setView([25.3, 51.4], 9);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 19,
+          attribution: "Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics"
+        }
+      ).addTo(map);
+      markersLayer = L.featureGroup().addTo(map);
+    }
+
+    function clearMarkers() {
+      if (markersLayer) markersLayer.clearLayers();
+    }
+
+    function addMarkers(data) {
+      clearMarkers();
+      data.forEach((row) => {
+        const lat = parseFloat(row[COLS.lat]);
+        const lon = parseFloat(row[COLS.lon]);
+        if (isNaN(lat) || isNaN(lon)) return;
+
+        const surveyDone = isTruthy(row[COLS.surveyStatus]);
+        const poleDone = isTruthy(row[COLS.poleSurvey]);
+        const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
+
+        let color;
+        if (surveyDone) color = "#16a34a";
+        else if (poleDone || ctrlDone) color = "#f97316";
+        else color = "#dc2626";
+
+        const marker = L.circleMarker([lat, lon], {
+          radius: 5,
+          color,
+          fillColor: color,
+          fillOpacity: 0.9,
+          weight: 1,
+        });
+
+        marker.bindPopup(buildPopupHtml(row));
+        marker.addTo(markersLayer);
+      });
+
+      if (data.length > 0) {
+        const bounds = markersLayer.getBounds();
+        if (bounds && bounds.isValid()) map.fitBounds(bounds.pad(0.1));
+      }
+    }
+
+    function updateMapModeButton() {
+      const btn = document.getElementById("map-mode-toggle");
+      if (!btn) return;
+      if (singleSelectionMode) {
+        btn.textContent = "Map Mode: Selected Junction Only";
+        btn.classList.add("map-toggle-btn-active");
+      } else {
+        btn.textContent = "Map Mode: All Filtered Markers";
+        btn.classList.remove("map-toggle-btn-active");
+      }
+    }
+
+    function updateCircularKpi({ fillId, innerId, pctId, numerator, denominator, pct }) {
+      const fillEl = document.getElementById(fillId);
+      const innerEl = document.getElementById(innerId);
+      const pctEl = document.getElementById(pctId);
+
+      const safeNum = Number.isFinite(numerator) ? numerator : 0;
+      const safeDen = Number.isFinite(denominator) ? denominator : 0;
+      const safePct = Number.isFinite(pct) && pct >= 0
+        ? Math.max(0, Math.min(100, pct))
+        : 0;
+
+      if (fillEl) {
+        const angle = (safePct / 100) * 360;
+        fillEl.style.background =
+          `conic-gradient(#22c55e 0deg ${angle}deg, rgba(15,23,42,0.45) ${angle}deg 360deg)`;
+      }
+      if (innerEl) {
+        innerEl.textContent = safeDen > 0 ? `${safeNum} / ${safeDen}` : `${safeNum} / 0`;
+      }
+      if (pctEl) {
+        pctEl.textContent = `${safePct.toFixed(1)}%`;
+      }
+    }
+
+    function updateKPIs(data) {
+      const total = data.length;
+      let om = 0,
+        proj = 0,
+        off = 0,
+        surveyCompleted = 0,
+        scatsOperated = 0,
+        nonScats = 0,
+        dohaTotal = 0,
+        dohaCompleted = 0,
+        northTotal = 0,
+        northCompleted = 0,
+        poleCompleted = 0,
+        ctrlCompleted = 0,
+        sitesVisited = 0;
+
+      data.forEach((row) => {
+        const remarksType = classifyRemarks(row[COLS.remarks]);
+        if (remarksType === "om") om++;
+        else if (remarksType === "projects") proj++;
+        else if (remarksType === "off") off++;
+
+        const isDone = isTruthy(row[COLS.surveyStatus]);
+        if (isDone) surveyCompleted++;
+
+        const poleDone = isTruthy(row[COLS.poleSurvey]);
+        const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
+        if (poleDone) poleCompleted++;
+        if (ctrlDone) ctrlCompleted++;
+        if (poleDone || ctrlDone) sitesVisited++;
+
+        const scatsType = classifyScats(row[COLS.scats]);
+        if (scatsType === "scats") scatsOperated++;
+        else if (scatsType === "non") nonScats++;
+
+        const region = (row[COLS.region] || "").toLowerCase().trim();
+        if (region.includes("doha")) {
+          dohaTotal++;
+          if (isDone) dohaCompleted++;
+        } else if (region.includes("north")) {
+          northTotal++;
+          if (isDone) northCompleted++;
+        }
+      });
+
+      document.getElementById("kpi-total").textContent = total;
+      document.getElementById("kpi-om").textContent = om;
+      document.getElementById("kpi-projects").textContent = proj;
+      document.getElementById("kpi-off").textContent = off;
+      document.getElementById("kpi-scats-operated").textContent = scatsOperated;
+      document.getElementById("kpi-non-scats").textContent = nonScats;
+
+      const pctSurvey = total > 0 ? (surveyCompleted / total) * 100 : 0;
+      const pctVisited = total > 0 ? (sitesVisited / total) * 100 : 0;
+      const pctPole = total > 0 ? (poleCompleted / total) * 100 : 0;
+      const pctCtrl = total > 0 ? (ctrlCompleted / total) * 100 : 0;
+      const dohaPct = dohaTotal > 0 ? (dohaCompleted / dohaTotal) * 100 : 0;
+      const northPct = northTotal > 0 ? (northCompleted / northTotal) * 100 : 0;
+
+      updateCircularKpi({
+        fillId: "circle-survey-fill",
+        innerId: "circle-survey-inner",
+        pctId: "circle-survey-pct",
+        numerator: surveyCompleted,
+        denominator: total,
+        pct: pctSurvey,
+      });
+
+      updateCircularKpi({
+        fillId: "circle-sites-fill",
+        innerId: "circle-sites-inner",
+        pctId: "circle-sites-pct",
+        numerator: sitesVisited,
+        denominator: total,
+        pct: pctVisited,
+      });
+
+      updateCircularKpi({
+        fillId: "circle-pole-fill",
+        innerId: "circle-pole-inner",
+        pctId: "circle-pole-pct",
+        numerator: poleCompleted,
+        denominator: total,
+        pct: pctPole,
+      });
+
+      updateCircularKpi({
+        fillId: "circle-ctrl-fill",
+        innerId: "circle-ctrl-inner",
+        pctId: "circle-ctrl-pct",
+        numerator: ctrlCompleted,
+        denominator: total,
+        pct: pctCtrl,
+      });
+
+      updateCircularKpi({
+        fillId: "circle-doha-fill",
+        innerId: "circle-doha-inner",
+        pctId: "circle-doha-pct",
+        numerator: dohaCompleted,
+        denominator: dohaTotal,
+        pct: dohaPct,
+      });
+
+      updateCircularKpi({
+        fillId: "circle-north-fill",
+        innerId: "circle-north-inner",
+        pctId: "circle-north-pct",
+        numerator: northCompleted,
+        denominator: northTotal,
+        pct: northPct,
+      });
+
+      buildScopeChart(data, om, proj, off);
+    }
+
+    function populateDropdown(data, column, elementId) {
+      const select = document.getElementById(elementId);
+      const values = Array.from(
+        new Set(data.map((row) => row[column]).filter((v) => v != null && String(v).trim() !== ""))
+      ).sort((a, b) =>
+        String(a).localeCompare(String(b), undefined, { numeric: true })
+      );
+
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      values.forEach((v) => {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        select.appendChild(opt);
+      });
+    }
+
+    function updateFilters(data) {
+      populateDropdown(data, COLS.zone, "filter-zone");
+      populateDropdown(data, COLS.region, "filter-region");
+      populateDropdown(data, COLS.area, "filter-area");
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById("junction-table-body");
+      tbody.innerHTML = "";
+
+      const term = tableSearchTerm.trim().toLowerCase();
+      const filtered = term
+        ? data.filter((row) => {
+            const fields = [
+              row[COLS.junctNo],
+              row[COLS.street],
+              row[COLS.zone],
+              row[COLS.district],
+              row[COLS.remarks],
+              row[COLS.region],
+              row[COLS.area]
+            ];
+            return fields.some((v) =>
+              String(v || "").toLowerCase().includes(term)
+            );
+          })
+        : data;
+
+      filtered.slice(0, 200).forEach((row) => {
+        const tr = document.createElement("tr");
+
+        const getStatusHtml = (val) => {
+          const cls = classifySurvey(val);
+          const txt = cls === "completed" ? "Completed" : "Pending";
+          const css = cls === "completed" ? "status-completed" : "status-pending";
+          return `<span class="status-pill ${css}">${txt}</span>`;
+        };
+
+        tr.innerHTML = `
+          <td>${row[COLS.junctNo] || ""}</td>
+          <td>${row[COLS.region] || ""}</td>
+          <td>${row[COLS.zone] || ""}</td>
+          <td>${row[COLS.area] || ""}</td>
+          <td>${row[COLS.street] || ""}</td>
+          <td>${row[COLS.remarks] || ""}</td>
+          <td>${getStatusHtml(row[COLS.poleSurvey])}</td>
+          <td>${getStatusHtml(row[COLS.ctrlSurvey])}</td>
+          <td>${getStatusHtml(row[COLS.surveyStatus])}</td>
+        `;
+
+        tr.addEventListener("click", () => {
+          const lat = parseFloat(row[COLS.lat]);
+          const lon = parseFloat(row[COLS.lon]);
+
+          if (!isNaN(lat) && !isNaN(lon) && map) {
+            if (singleSelectionMode) {
+              clearMarkers();
+              const marker = L.circleMarker([lat, lon], {
+                radius: 8,
+                color: "#38bdf8",
+                fillColor: "#38bdf8",
+                fillOpacity: 1,
+                weight: 2
+              }).addTo(markersLayer);
+
+              marker.bindPopup(buildPopupHtml(row)).openPopup();
+              map.setView([lat, lon], 16, { animate: true });
+            } else {
+              const popup = L.popup()
+                .setLatLng([lat, lon])
+                .setContent(buildPopupHtml(row));
+              popup.openOn(map);
+              map.setView([lat, lon], 16, { animate: true });
+            }
+          }
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function buildZoneChart(data) {
+      const zoneMap = new Map();
+
+      data.forEach((row) => {
+        const zone = row[COLS.zone] || "NA";
+        if (!zoneMap.has(zone)) {
+          zoneMap.set(zone, { total: 0, completed: 0 });
+        }
+        const entry = zoneMap.get(zone);
+        entry.total++;
+        if (isTruthy(row[COLS.surveyStatus])) entry.completed++;
+      });
+
+      const labels = Array.from(zoneMap.keys()).sort((a, b) =>
+        String(a).localeCompare(String(b), undefined, { numeric: true })
+      );
+      const values = labels.map((z) => {
+        const { total, completed } = zoneMap.get(z);
+        return total > 0 ? +(completed / total * 100).toFixed(1) : 0;
+      });
+
+      const ctx = document.getElementById("zoneChart");
+      if (!ctx) return;
+
+      if (zoneChart) zoneChart.destroy();
+
+      zoneChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            {
+              label: "Survey Completion %",
+              data: values,
+              backgroundColor: "rgba(56, 189, 248, 0.78)",
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.parsed.y}% completed`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              title: { display: true, text: "Zone No", color: "#9ca3af" },
+              ticks: { color: "#9ca3af" },
+              grid: { color: "rgba(55, 65, 81, 0.8)" }
+            },
+            y: {
+              beginAtZero: true,
+              max: 100,
+              title: { display: true, text: "Completion %", color: "#9ca3af" },
+              ticks: {
+                color: "#9ca3af",
+                callback: (v) => v + "%",
+              },
+              grid: { color: "rgba(55, 65, 81, 0.8)" }
+            },
+          },
+        },
+      });
+
+      updateInsights(zoneMap);
+    }
+
+    function buildScopeChart(data, om, proj, off) {
+      let other = 0;
+      data.forEach((row) => {
+        const t = classifyRemarks(row[COLS.remarks]);
+        if (t !== "om" && t !== "projects" && t !== "off") other++;
+      });
+
+      const ctx = document.getElementById("scopeChart");
+      if (!ctx) return;
+
+      if (scopeChart) scopeChart.destroy();
+
+      scopeChart = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+          labels: ["Under O&M", "Under Projects", "Switched Off", "Other"],
+          datasets: [
+            {
+              data: [om, proj, off, other],
+              backgroundColor: [
+                "rgba(34, 197, 94, 0.96)",
+                "rgba(59, 130, 246, 0.96)",
+                "rgba(239, 68, 68, 0.96)",
+                "rgba(148, 163, 184, 0.96)",
+              ],
+              borderWidth: 0,
+            },
+          ],
+        },
+        options: {
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { boxWidth: 10, color: "#e5e7eb" },
+            },
+          },
+          cutout: "60%",
+          maintainAspectRatio: false
+        },
+      });
+    }
+
+    function updateInsights(zoneMap) {
+      const el = document.getElementById("attention-list");
+      if (!el) return;
+
+      const zonesArr = Array.from(zoneMap.entries()).map(
+        ([zone, { total, completed }]) => {
+          const pct = total > 0 ? (completed / total) * 100 : 0;
+          return { zone, total, completed, pct };
+        }
+      );
+
+      if (zonesArr.length === 0) {
+        el.textContent = "No data for current selection.";
+        return;
+      }
+
+      zonesArr.sort((a, b) => a.pct - b.pct);
+
+      const threshold = 60;
+      const needing = zonesArr.filter((z) => z.pct < threshold);
+
+      if (needing.length === 0) {
+        el.textContent =
+          "All zones have survey completion ≥ " + threshold + "%.";
+        return;
+      }
+
+      const top5 = needing.slice(0, 5);
+      el.innerHTML =
+        "<strong>Lowest completion zones (under " +
+        threshold +
+        "%):</strong><br/>";
+      top5.forEach((z) => {
+        const line =
+          "Zone " +
+          z.zone +
+          ": " +
+          z.completed +
+          "/" +
+          z.total +
+          " (" +
+          z.pct.toFixed(1) +
+          "%)";
+        const div = document.createElement("div");
+        div.textContent = line;
+        el.appendChild(div);
+      });
+    }
+
+    function updateFilterTags() {
+      const regionVal = document.getElementById("filter-region").value;
+      const areaVal = document.getElementById("filter-area").value;
+      const zoneVal = document.getElementById("filter-zone").value;
+      const surveyVal = document.getElementById("filter-survey").value;
+      const remarksVal = document.getElementById("filter-remarks").value;
+
+      const container = document.getElementById("active-filters");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const filters = [];
+      if (regionVal) filters.push({ key: "region", label: "Region: " + regionVal });
+      if (areaVal) filters.push({ key: "area", label: "Area: " + areaVal });
+      if (zoneVal) filters.push({ key: "zone", label: "Zone: " + zoneVal });
+      if (surveyVal)
+        filters.push({
+          key: "survey",
+          label:
+            "Survey: " + (surveyVal === "completed" ? "Completed" : "Pending"),
+        });
+      if (remarksVal) {
+        const map = {
+          om: "Under O&M",
+          projects: "Under Projects",
+          off: "Switched Off",
+          other: "Other",
+        };
+        filters.push({ key: "remarks", label: "Remarks: " + map[remarksVal] });
+      }
+
+      if (filters.length === 0) {
+        container.textContent = "No filters applied.";
+        container.style.color = "#6b7280";
+        return;
+      }
+
+      filters.forEach((f) => {
+        const chip = document.createElement("span");
+        chip.className = "filter-chip";
+        chip.innerHTML = `
+          <span>${f.label}</span>
+          <button aria-label="Clear filter ${f.key}">×</button>
+        `;
+        chip.querySelector("button").addEventListener("click", () => {
+          if (f.key === "region") document.getElementById("filter-region").value = "";
+          if (f.key === "area") document.getElementById("filter-area").value = "";
+          if (f.key === "zone") document.getElementById("filter-zone").value = "";
+          if (f.key === "survey") document.getElementById("filter-survey").value = "";
+          if (f.key === "remarks")
+            document.getElementById("filter-remarks").value = "";
+          applyFilters();
+        });
+        container.appendChild(chip);
+      });
+    }
+
+    function applyFilters() {
+      const regionVal = document.getElementById("filter-region").value;
+      const areaVal = document.getElementById("filter-area").value;
+      const zoneVal = document.getElementById("filter-zone").value;
+      const surveyVal = document.getElementById("filter-survey").value;
+      const remarksVal = document.getElementById("filter-remarks").value;
+
+      let filtered = allData.slice();
+
+      if (regionVal) {
+        filtered = filtered.filter((row) => String(row[COLS.region]) === regionVal);
+      }
+
+      if (areaVal) {
+        filtered = filtered.filter((row) => String(row[COLS.area]) === areaVal);
+      }
+
+      if (zoneVal) {
+        filtered = filtered.filter((row) => String(row[COLS.zone]) === zoneVal);
+      }
+
+      if (surveyVal) {
+        filtered = filtered.filter(
+          (row) => classifySurvey(row[COLS.surveyStatus]) === surveyVal
+        );
+      }
+
+      if (remarksVal) {
+        filtered = filtered.filter(
+          (row) => classifyRemarks(row[COLS.remarks]) === remarksVal
+        );
+      }
+
+      currentFiltered = filtered;
+
+      updateKPIs(filtered);
+      addMarkers(filtered);
+      renderTable(filtered);
+      buildZoneChart(filtered);
+      updateFilterTags();
+    }
+
+    
+    function buildTrafficCurrentViewTableData() {
+      const rows = currentFiltered.length > 0 ? currentFiltered : allData;
+      if (!rows || !rows.length) return null;
+
+      const headers = [
+        COLS.junctNo,
+        COLS.region,
+        COLS.zone,
+        COLS.area,
+        COLS.district,
+        COLS.street,
+        COLS.remarks,
+        COLS.poleSurvey,
+        COLS.ctrlSurvey,
+        COLS.surveyStatus,
+        COLS.scats,
+        COLS.lat,
+        COLS.lon,
+      ];
+
+      const body = rows.map((row) =>
+        headers.map((h) => (row[h] == null ? "" : row[h]))
+      );
+
+      return { headers, body };
+    }
+
+    function exportCurrentViewCsv() {
+      const data = buildTrafficCurrentViewTableData();
+      if (!data) {
+        alert("No data to export.");
+        return;
+      }
+
+      const { headers, body } = data;
+      const csvLines = [];
+      csvLines.push(headers.join(","));
+
+      body.forEach((row) => {
+        const line = row
+          .map((val) => {
+            const v = val == null ? "" : String(val).replace(/"/g, '""');
+            return `"${v}"`;
+          })
+          .join(",");
+        csvLines.push(line);
+      });
+
+      const blob = new Blob([csvLines.join("\n")], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "qatar_north_junctions_view.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportCurrentViewExcel() {
+      const data = buildTrafficCurrentViewTableData();
+      if (!data) {
+        alert("No data to export.");
+        return;
+      }
+
+      const { headers, body } = data;
+      const wsData = [headers, ...body];
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, "Current View");
+      XLSX.writeFile(wb, "qatar_north_junctions_view.xlsx");
+    }
+
+    function exportCurrentViewPdf() {
+      const data = buildTrafficCurrentViewTableData();
+      if (!data) {
+        alert("No data to export.");
+        return;
+      }
+
+      const { headers, body } = data;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "landscape" });
+
+      doc.setFontSize(11);
+      doc.text("Qatar North Traffic Junctions - Current View", 14, 12);
+
+      doc.autoTable({
+        head: [headers],
+        body: body,
+        startY: 16,
+        styles: { fontSize: 6, cellPadding: 1.2 },
+        headStyles: { fillColor: [15, 23, 42] },
+      });
+
+      doc.save("qatar_north_junctions_view.pdf");
+    }
+
+
+    function setLastUpdated() {
+      const el = document.getElementById("lastUpdated");
+      if (!el) return;
+      const now = new Date();
+      el.textContent =
+        "Last loaded: " +
+        now.toLocaleString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+    }
+
+    function loadData() {
+      Papa.parse(SHEET_CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function (results) {
+          allData = results.data;
+          updateFilters(allData);
+          applyFilters();
+          setLastUpdated();
+
+          if (!window._autoRefreshSet) {
+            window._autoRefreshSet = true;
+            setInterval(() => {
+              loadData();
+            }, 5 * 60 * 1000);
+          }
+        },
+        error: function (err) {
+          console.error("Error loading CSV:", err);
+          alert("Error loading data. Check the CSV URL or internet connection.");
+        },
+      });
+    }
+
+    function updateCurrentDateTime() {
+      const el = document.getElementById("currentDateTime");
+      if (!el) return;
+      const now = new Date();
+      el.textContent = now.toLocaleString(undefined, {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      initMap();
+      loadData();
+
+      document.getElementById("filter-region").addEventListener("change", applyFilters);
+      document.getElementById("filter-area").addEventListener("change", applyFilters);
+      document.getElementById("filter-zone").addEventListener("change", applyFilters);
+      document.getElementById("filter-survey").addEventListener("change", applyFilters);
+      document.getElementById("filter-remarks").addEventListener("change", applyFilters);
+
+      const csvBtn = document.getElementById("export-csv-btn");
+      if (csvBtn) csvBtn.addEventListener("click", exportCurrentViewCsv);
+
+      const xlsxBtn = document.getElementById("export-xlsx-btn");
+      if (xlsxBtn) xlsxBtn.addEventListener("click", exportCurrentViewExcel);
+
+      const pdfBtn = document.getElementById("export-pdf-btn");
+      if (pdfBtn) pdfBtn.addEventListener("click", exportCurrentViewPdf);
+
+      document
+        .getElementById("table-search")
+        .addEventListener("input", (e) => {
+          tableSearchTerm = e.target.value;
+          renderTable(currentFiltered);
+        });
+
+      const mapModeBtn = document.getElementById("map-mode-toggle");
+      if (mapModeBtn) {
+        mapModeBtn.addEventListener("click", () => {
+          singleSelectionMode = !singleSelectionMode;
+          updateMapModeButton();
+          if (!singleSelectionMode) addMarkers(currentFiltered);
+        });
+      }
+
+      updateMapModeButton();
+      updateCurrentDateTime();
+      setInterval(updateCurrentDateTime, 30 * 1000);
+    });
+  </script>
+
+  <div class="modal-backdrop" id="detailModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-close" type="button" aria-label="Close details">&times;</button>
+      <h2 id="modalTitle" class="modal-title">Details</h2>
+      <div id="modalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+
+  
+  <script>
+    (function () {
+      function applyTheme(prefersDark) {
+        document.body.setAttribute("data-theme", prefersDark ? "dark" : "light");
+      }
+      try {
+        const mql = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+        if (mql && typeof mql.matches === "boolean") {
+          applyTheme(mql.matches);
+          if (mql.addEventListener) {
+            mql.addEventListener("change", (e) => applyTheme(e.matches));
+          } else if (mql.addListener) {
+            mql.addListener((e) => applyTheme(e.matches));
+          }
+        } else {
+          document.body.setAttribute("data-theme", "dark");
+        }
+      } catch (e) {
+        document.body.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+
+<script>
+    // Global Chart.js hover glow plugin
+    if (window.Chart) {
+      Chart.register({
+        id: "hoverGlow",
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          const activeEls = chart.getActiveElements && chart.getActiveElements();
+          if (!activeEls || !activeEls.length) return;
+          activeEls.forEach((active) => {
+            const meta = chart.getDatasetMeta(active.datasetIndex);
+            const el = meta && meta.data && meta.data[active.index];
+            if (!el) return;
+            ctx.save();
+            ctx.shadowColor = "rgba(248, 250, 252, 0.9)";
+            ctx.shadowBlur = 18;
+            if (typeof el.draw === "function") {
+              el.draw(ctx);
+            }
+            ctx.restore();
+          });
+        }
+      });
+    }
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+      // Highlight active nav item based on current file
+      const path = location.pathname.toLowerCase();
+      document.querySelectorAll(".top-nav-links a").forEach((link) => {
+        const href = link.getAttribute("href").toLowerCase();
+        if (path.endsWith(href)) {
+          link.classList.add("is-active");
+        }
+      });
+
+      // Modal logic: assumes table rows call window.openDetailModal(record)
+      const modalBackdrop = document.getElementById("detailModal");
+      const modalBody = document.getElementById("modalBody");
+      const modalCloseBtn = modalBackdrop ? modalBackdrop.querySelector(".modal-close") : null;
+
+      function closeDetailModal() {
+        if (!modalBackdrop) return;
+        modalBackdrop.classList.remove("is-open");
+        modalBackdrop.setAttribute("aria-hidden", "true");
+      }
+
+      window.openDetailModal = function(record) {
+        if (!modalBackdrop || !modalBody) return;
+        let html = "<dl class=\"detail-list\">";
+        for (const [key, value] of Object.entries(record || {})) {
+          html += `<div><dt>${key}</dt><dd>${value ?? "-"}</dd></div>`;
+        }
+        html += "</dl>";
+        modalBody.innerHTML = html;
+        modalBackdrop.classList.add("is-open");
+        modalBackdrop.setAttribute("aria-hidden", "false");
+        if (modalCloseBtn) modalCloseBtn.focus();
+      };
+
+      if (modalCloseBtn && modalBackdrop) {
+        modalCloseBtn.addEventListener("click", closeDetailModal);
+        modalBackdrop.addEventListener("click", (e) => {
+          if (e.target === modalBackdrop) closeDetailModal();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && modalBackdrop.classList.contains("is-open")) {
+            closeDetailModal();
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
