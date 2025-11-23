@@ -16,10 +16,13 @@
     crossorigin=""
   />
 
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
-  <style>
+<style>
     :root {
       --aktor-blue: #0b1120;
       --aktor-red: #e0283b;
@@ -49,6 +52,91 @@
       --transition-fast: 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
       --transition-med: 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
     }
+
+
+    /* ===== THEME: AUTO DARK/LIGHT BASED ON SYSTEM PREFERENCE ===== */
+    body[data-theme="dark"] {
+      /* default (existing) dark theme */
+    }
+
+    body[data-theme="light"] {
+      --bg-surface: rgba(255, 255, 255, 0.92);
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --glass-border: rgba(148, 163, 184, 0.55);
+      --text-soft: #6b7280;
+      --text-subtle: #9ca3af;
+      --text-strong: #111827;
+      --text-stronger: #020617;
+    }
+
+    body[data-theme="light"] {
+      background: #f3f4f6;
+      color: var(--text-stronger);
+    }
+
+    body[data-theme="light"] .page {
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 55%),
+        linear-gradient(135deg, #e5e7eb, #f9fafb);
+    }
+
+    body[data-theme="light"] header,
+    body[data-theme="light"] .glass-card,
+    body[data-theme="light"] .kpi-card {
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.96), transparent 55%),
+        linear-gradient(145deg, #ffffff, #e5e7eb);
+      border-color: rgba(148, 163, 184, 0.55);
+      color: var(--text-stronger);
+    }
+
+    body[data-theme="light"] .kpi-badge,
+    body[data-theme="light"] .filter-chip {
+      background-color: rgba(15, 23, 42, 0.08);
+      border-color: rgba(148, 163, 184, 0.8);
+      color: var(--text-strong);
+    }
+
+    body[data-theme="light"] .filters-card,
+    body[data-theme="light"] .table-card,
+    body[data-theme="light"] .map-card,
+    body[data-theme="light"] .chart-card {
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    }
+
+    body[data-theme="light"] input,
+    body[data-theme="light"] select {
+      background-color: #ffffff;
+      border-color: rgba(148, 163, 184, 0.9);
+      color: var(--text-strong);
+    }
+
+    body[data-theme="light"] .table-wrapper {
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.96), rgba(243, 244, 246, 0.98));
+      border-color: rgba(148, 163, 184, 0.8);
+    }
+
+    body[data-theme="light"] th {
+      background: linear-gradient(180deg, #e5e7eb, #d1d5db);
+      color: #4b5563;
+    }
+
+    body[data-theme="light"] tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    body[data-theme="light"] tbody tr:nth-child(odd) {
+      background: #f3f4f6;
+    }
+
+    body[data-theme="light"] tbody tr:hover {
+      background:
+        radial-gradient(circle at 0 0, rgba(59, 130, 246, 0.12), transparent 55%),
+        #ffffff;
+    }
+
 
     * {
       box-sizing: border-box;
@@ -378,10 +466,9 @@
       letter-spacing: 0.14em;
       color: var(--text-soft);
     }
-
-    .circle-wrapper {
-      width: 72px;
-      height: 72px;
+.circle-wrapper {
+      width: 92px;
+      height: 92px;
       position: relative;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 10%, #f9fafb, #374151);
@@ -389,8 +476,9 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      box-shadow: 0 10px 32px rgba(15, 23, 42, 0.9);
+      box-shadow: 0 12px 34px rgba(15, 23, 42, 0.9);
     }
+
 
     .circle-fill {
       position: absolute;
@@ -400,23 +488,24 @@
       opacity: 0.96;
       transition: background 360ms ease-out;
     }
-
-    .circle-inner {
+.circle-inner {
       position: relative;
-      width: 54px;
-      height: 54px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
       background: radial-gradient(circle at 30% 0, #f9fafb, #020617);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
       color: #f9fafb;
-      padding: 0 4px;
-      line-height: 1.2;
+      padding: 0 6px;
+      line-height: 1.25;
       border: 1px solid rgba(248, 250, 252, 0.25);
+      text-align: center;
     }
+
 
     .circle-caption {
       font-size: 10px;
@@ -610,6 +699,13 @@
         transform var(--transition-fast),
         box-shadow var(--transition-fast),
         filter var(--transition-fast);
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .export-btn:hover {
@@ -1085,15 +1181,17 @@
       left: 12px;
     }
 
-    /* === Top navigation shared across dashboards (transparent, embedded) === */
+    /* === Top navigation shared across dashboards (non-sticky, single-row) === */
     .top-nav {
       position: relative;
       top: auto;
-      z-index: 20;
+      z-index: 10;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
       background: transparent;
       border-bottom: none;
+      padding-top: 4px;
+      padding-bottom: 4px;
     }
 
     .top-nav-inner {
@@ -1498,9 +1596,17 @@
 
             <div class="filters-row-extra">
               <div class="active-filters" id="active-filters"></div>
-              <button id="export-btn" class="export-btn" type="button">
-                Download Current View (CSV)
-              </button>
+              <div class="export-buttons">
+                <button id="export-csv-btn" class="export-btn" type="button">
+                  CSV
+                </button>
+                <button id="export-xlsx-btn" class="export-btn" type="button">
+                  Excel (XLSX)
+                </button>
+                <button id="export-pdf-btn" class="export-btn" type="button">
+                  PDF
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -1704,18 +1810,7 @@
     }
 
     function initMap() {
-      const qatarBounds = L.latLngBounds(
-        [24.0, 50.0],
-        [26.5, 52.5]
-      );
-
-      map = L.map("map", {
-        center: [25.3, 51.4],
-        zoom: 9,
-        maxBounds: qatarBounds,
-        maxBoundsViscosity: 1.0
-      });
-
+      map = L.map("map").setView([25.3, 51.4], 9);
       L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
@@ -2279,12 +2374,10 @@
       updateFilterTags();
     }
 
-    function exportCurrentView() {
+    
+    function buildTrafficCurrentViewTableData() {
       const rows = currentFiltered.length > 0 ? currentFiltered : allData;
-      if (!rows || rows.length === 0) {
-        alert("No data to export.");
-        return;
-      }
+      if (!rows || !rows.length) return null;
 
       const headers = [
         COLS.junctNo,
@@ -2302,14 +2395,29 @@
         COLS.lon,
       ];
 
+      const body = rows.map((row) =>
+        headers.map((h) => (row[h] == null ? "" : row[h]))
+      );
+
+      return { headers, body };
+    }
+
+    function exportCurrentViewCsv() {
+      const data = buildTrafficCurrentViewTableData();
+      if (!data) {
+        alert("No data to export.");
+        return;
+      }
+
+      const { headers, body } = data;
       const csvLines = [];
       csvLines.push(headers.join(","));
 
-      rows.forEach((row) => {
-        const line = headers
-          .map((h) => {
-            const val = row[h] == null ? "" : String(row[h]).replace(/"/g, '""');
-            return `"${val}"`;
+      body.forEach((row) => {
+        const line = row
+          .map((val) => {
+            const v = val == null ? "" : String(val).replace(/"/g, '""');
+            return `"${v}"`;
           })
           .join(",");
         csvLines.push(line);
@@ -2327,6 +2435,47 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
+
+    function exportCurrentViewExcel() {
+      const data = buildTrafficCurrentViewTableData();
+      if (!data) {
+        alert("No data to export.");
+        return;
+      }
+
+      const { headers, body } = data;
+      const wsData = [headers, ...body];
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, "Current View");
+      XLSX.writeFile(wb, "qatar_north_junctions_view.xlsx");
+    }
+
+    function exportCurrentViewPdf() {
+      const data = buildTrafficCurrentViewTableData();
+      if (!data) {
+        alert("No data to export.");
+        return;
+      }
+
+      const { headers, body } = data;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "landscape" });
+
+      doc.setFontSize(11);
+      doc.text("Qatar North Traffic Junctions - Current View", 14, 12);
+
+      doc.autoTable({
+        head: [headers],
+        body: body,
+        startY: 16,
+        styles: { fontSize: 6, cellPadding: 1.2 },
+        headStyles: { fillColor: [15, 23, 42] },
+      });
+
+      doc.save("qatar_north_junctions_view.pdf");
+    }
+
 
     function setLastUpdated() {
       const el = document.getElementById("lastUpdated");
@@ -2392,9 +2541,14 @@
       document.getElementById("filter-survey").addEventListener("change", applyFilters);
       document.getElementById("filter-remarks").addEventListener("change", applyFilters);
 
-      document
-        .getElementById("export-btn")
-        .addEventListener("click", exportCurrentView);
+      const csvBtn = document.getElementById("export-csv-btn");
+      if (csvBtn) csvBtn.addEventListener("click", exportCurrentViewCsv);
+
+      const xlsxBtn = document.getElementById("export-xlsx-btn");
+      if (xlsxBtn) xlsxBtn.addEventListener("click", exportCurrentViewExcel);
+
+      const pdfBtn = document.getElementById("export-pdf-btn");
+      if (pdfBtn) pdfBtn.addEventListener("click", exportCurrentViewPdf);
 
       document
         .getElementById("table-search")
@@ -2427,7 +2581,56 @@
   </div>
 
 
+  
   <script>
+    (function () {
+      function applyTheme(prefersDark) {
+        document.body.setAttribute("data-theme", prefersDark ? "dark" : "light");
+      }
+      try {
+        const mql = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+        if (mql && typeof mql.matches === "boolean") {
+          applyTheme(mql.matches);
+          if (mql.addEventListener) {
+            mql.addEventListener("change", (e) => applyTheme(e.matches));
+          } else if (mql.addListener) {
+            mql.addListener((e) => applyTheme(e.matches));
+          }
+        } else {
+          document.body.setAttribute("data-theme", "dark");
+        }
+      } catch (e) {
+        document.body.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+
+<script>
+    // Global Chart.js hover glow plugin
+    if (window.Chart) {
+      Chart.register({
+        id: "hoverGlow",
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          const activeEls = chart.getActiveElements && chart.getActiveElements();
+          if (!activeEls || !activeEls.length) return;
+          activeEls.forEach((active) => {
+            const meta = chart.getDatasetMeta(active.datasetIndex);
+            const el = meta && meta.data && meta.data[active.index];
+            if (!el) return;
+            ctx.save();
+            ctx.shadowColor = "rgba(248, 250, 252, 0.9)";
+            ctx.shadowBlur = 18;
+            if (typeof el.draw === "function") {
+              el.draw(ctx);
+            }
+            ctx.restore();
+          });
+        }
+      });
+    }
+
+
     document.addEventListener("DOMContentLoaded", () => {
       // Highlight active nav item based on current file
       const path = location.pathname.toLowerCase();

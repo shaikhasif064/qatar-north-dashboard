@@ -20,12 +20,13 @@
   ></script>
 
   <!-- PapaParse -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
-  <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 
-  <style>
+<style>
     :root {
       --aktor-blue: #0b1120;
       --aktor-red: #e0283b;
@@ -55,6 +56,91 @@
       --transition-fast: 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
       --transition-med: 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
     }
+
+
+    /* ===== THEME: AUTO DARK/LIGHT BASED ON SYSTEM PREFERENCE ===== */
+    body[data-theme="dark"] {
+      /* default (existing) dark theme */
+    }
+
+    body[data-theme="light"] {
+      --bg-surface: rgba(255, 255, 255, 0.92);
+      --glass-bg: rgba(255, 255, 255, 0.9);
+      --glass-border: rgba(148, 163, 184, 0.55);
+      --text-soft: #6b7280;
+      --text-subtle: #9ca3af;
+      --text-strong: #111827;
+      --text-stronger: #020617;
+    }
+
+    body[data-theme="light"] {
+      background: #f3f4f6;
+      color: var(--text-stronger);
+    }
+
+    body[data-theme="light"] .page {
+      background:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.08), transparent 55%),
+        radial-gradient(circle at bottom right, rgba(236, 72, 153, 0.09), transparent 55%),
+        linear-gradient(135deg, #e5e7eb, #f9fafb);
+    }
+
+    body[data-theme="light"] header,
+    body[data-theme="light"] .glass-card,
+    body[data-theme="light"] .kpi-card {
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.96), transparent 55%),
+        linear-gradient(145deg, #ffffff, #e5e7eb);
+      border-color: rgba(148, 163, 184, 0.55);
+      color: var(--text-stronger);
+    }
+
+    body[data-theme="light"] .kpi-badge,
+    body[data-theme="light"] .filter-chip {
+      background-color: rgba(15, 23, 42, 0.08);
+      border-color: rgba(148, 163, 184, 0.8);
+      color: var(--text-strong);
+    }
+
+    body[data-theme="light"] .filters-card,
+    body[data-theme="light"] .table-card,
+    body[data-theme="light"] .map-card,
+    body[data-theme="light"] .chart-card {
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+    }
+
+    body[data-theme="light"] input,
+    body[data-theme="light"] select {
+      background-color: #ffffff;
+      border-color: rgba(148, 163, 184, 0.9);
+      color: var(--text-strong);
+    }
+
+    body[data-theme="light"] .table-wrapper {
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.96), rgba(243, 244, 246, 0.98));
+      border-color: rgba(148, 163, 184, 0.8);
+    }
+
+    body[data-theme="light"] th {
+      background: linear-gradient(180deg, #e5e7eb, #d1d5db);
+      color: #4b5563;
+    }
+
+    body[data-theme="light"] tbody tr:nth-child(even) {
+      background: #f9fafb;
+    }
+
+    body[data-theme="light"] tbody tr:nth-child(odd) {
+      background: #f3f4f6;
+    }
+
+    body[data-theme="light"] tbody tr:hover {
+      background:
+        radial-gradient(circle at 0 0, rgba(59, 130, 246, 0.12), transparent 55%),
+        #ffffff;
+    }
+
 
     * {
       box-sizing: border-box;
@@ -355,16 +441,27 @@
       margin-top: 2px;
     }
 
-    .kpi-circle-compact .circle-wrapper {
-      width: 56px;
-      height: 56px;
+    .kpi-circle-compact
+.circle-wrapper {
+      width: 92px;
+      height: 92px;
+      position: relative;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 10%, #f9fafb, #374151);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 12px 34px rgba(15, 23, 42, 0.9);
     }
 
+
     .kpi-circle-compact .circle-inner {
-      width: 40px;
-      height: 40px;
-      font-size: 10px;
+      width: 60px;
+      height: 60px;
+      font-size: 13px;
     }
+
 
     .kpi-circle-text {
       display: flex;
@@ -561,6 +658,13 @@
         transform var(--transition-fast),
         box-shadow var(--transition-fast),
         filter var(--transition-fast);
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .export-btn:hover {
@@ -975,15 +1079,17 @@
       left: 12px;
     }
 
-    /* === Top navigation shared across dashboards (transparent, embedded) === */
+    /* === Top navigation shared across dashboards (non-sticky, single-row) === */
     .top-nav {
       position: relative;
       top: auto;
-      z-index: 20;
+      z-index: 10;
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
       background: transparent;
       border-bottom: none;
+      padding-top: 4px;
+      padding-bottom: 4px;
     }
 
     .top-nav-inner {
@@ -1518,9 +1624,17 @@
 
             <div class="filters-row-extra">
               <div class="filters-note">No filters applied.</div>
-              <button id="downloadBtn" class="export-btn">
-                Download Current View (CSV)
-              </button>
+              <div class="export-buttons">
+                <button id="downloadCsvBtn" class="export-btn" type="button">
+                  CSV
+                </button>
+                <button id="downloadExcelBtn" class="export-btn" type="button">
+                  Excel (XLSX)
+                </button>
+                <button id="downloadPdfBtn" class="export-btn" type="button">
+                  PDF
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -1802,9 +1916,14 @@
       document
         .getElementById("assetSearch")
         .addEventListener("input", applyFilters);
-      document
-        .getElementById("downloadBtn")
-        .addEventListener("click", downloadCurrentView);
+      const csvBtn = document.getElementById("downloadCsvBtn");
+      if (csvBtn) csvBtn.addEventListener("click", downloadCurrentViewCsv);
+
+      const xlsxBtn = document.getElementById("downloadExcelBtn");
+      if (xlsxBtn) xlsxBtn.addEventListener("click", downloadCurrentViewExcel);
+
+      const pdfBtn = document.getElementById("downloadPdfBtn");
+      if (pdfBtn) pdfBtn.addEventListener("click", downloadCurrentViewPdf);
 
       const toggleBtn = document.getElementById("mapModeToggle");
       if (toggleBtn) {
@@ -2000,16 +2119,9 @@
     // === MAP =============================================================
 
     function initMap() {
-      const qatarBounds = L.latLngBounds(
-        [24.0, 50.0],
-        [26.5, 52.5]
-      );
-
       map = L.map("map", {
         center: [25.35, 51.45],
-        zoom: 9,
-        maxBounds: qatarBounds,
-        maxBoundsViscosity: 1.0
+        zoom: 9
       });
 
       // ESRI World Imagery (same as Traffic dashboard)
@@ -2346,13 +2458,11 @@
 
     // === DOWNLOAD CURRENT VIEW ==========================================
 
-    function downloadCurrentView() {
-      if (!filteredAssets.length) {
-        alert("No assets in the current view to export.");
-        return;
-      }
+    
+    function buildItsCurrentViewTableData() {
+      if (!filteredAssets.length) return null;
 
-      const csvHeader = [
+      const header = [
         "Sr.No",
         "ID",
         "Name",
@@ -2365,7 +2475,7 @@
         "Remarks"
       ];
 
-      const rows = filteredAssets.map((a, index) => [
+      const body = filteredAssets.map((a, index) => [
         index + 1,
         a.id || "",
         a.name || "",
@@ -2378,7 +2488,18 @@
         (a.remarks || "").replace(/\r?\n/g, " ")
       ]);
 
-      const allRows = [csvHeader, ...rows];
+      return { header, body };
+    }
+
+    function downloadCurrentViewCsv() {
+      const data = buildItsCurrentViewTableData();
+      if (!data) {
+        alert("No assets in the current view to export.");
+        return;
+      }
+
+      const { header, body } = data;
+      const allRows = [header, ...body];
       const csvContent = allRows
         .map((r) =>
           r
@@ -2404,6 +2525,47 @@
       URL.revokeObjectURL(url);
     }
 
+    function downloadCurrentViewExcel() {
+      const data = buildItsCurrentViewTableData();
+      if (!data) {
+        alert("No assets in the current view to export.");
+        return;
+      }
+
+      const { header, body } = data;
+      const wsData = [header, ...body];
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+      XLSX.utils.book_append_sheet(wb, ws, "Current View");
+      XLSX.writeFile(wb, "its-dashboard-current-view.xlsx");
+    }
+
+    function downloadCurrentViewPdf() {
+      const data = buildItsCurrentViewTableData();
+      if (!data) {
+        alert("No assets in the current view to export.");
+        return;
+      }
+
+      const { header, body } = data;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "landscape" });
+
+      doc.setFontSize(11);
+      doc.text("ITS Dashboard - Current View", 14, 12);
+
+      doc.autoTable({
+        head: [header],
+        body: body,
+        startY: 16,
+        styles: { fontSize: 6, cellPadding: 1.2 },
+        headStyles: { fillColor: [15, 23, 42] }
+      });
+
+      doc.save("its-dashboard-current-view.pdf");
+    }
+
+
     // === INIT ============================================================
 
     window.addEventListener("DOMContentLoaded", () => {
@@ -2421,7 +2583,56 @@
   </div>
 
 
+  
   <script>
+    (function () {
+      function applyTheme(prefersDark) {
+        document.body.setAttribute("data-theme", prefersDark ? "dark" : "light");
+      }
+      try {
+        const mql = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+        if (mql && typeof mql.matches === "boolean") {
+          applyTheme(mql.matches);
+          if (mql.addEventListener) {
+            mql.addEventListener("change", (e) => applyTheme(e.matches));
+          } else if (mql.addListener) {
+            mql.addListener((e) => applyTheme(e.matches));
+          }
+        } else {
+          document.body.setAttribute("data-theme", "dark");
+        }
+      } catch (e) {
+        document.body.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
+
+<script>
+    // Global Chart.js hover glow plugin
+    if (window.Chart) {
+      Chart.register({
+        id: "hoverGlow",
+        afterDatasetsDraw(chart) {
+          const ctx = chart.ctx;
+          const activeEls = chart.getActiveElements && chart.getActiveElements();
+          if (!activeEls || !activeEls.length) return;
+          activeEls.forEach((active) => {
+            const meta = chart.getDatasetMeta(active.datasetIndex);
+            const el = meta && meta.data && meta.data[active.index];
+            if (!el) return;
+            ctx.save();
+            ctx.shadowColor = "rgba(248, 250, 252, 0.9)";
+            ctx.shadowBlur = 18;
+            if (typeof el.draw === "function") {
+              el.draw(ctx);
+            }
+            ctx.restore();
+          });
+        }
+      });
+    }
+
+
     document.addEventListener("DOMContentLoaded", () => {
       // Highlight active nav item based on current file
       const path = location.pathname.toLowerCase();
