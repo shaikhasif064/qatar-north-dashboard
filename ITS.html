@@ -178,7 +178,7 @@
     }
 
     .shell {
-      max-width: 1520px;
+      max-width: 1880px;
       margin: 0 auto;
       padding: 12px 16px 24px;
     }
@@ -249,6 +249,11 @@
       font-size: 11px;
       color: #c7d2fe;
       margin-top: 4px;
+    }
+
+    .header-meta-separator {
+      margin: 0 6px;
+      opacity: 0.75;
     }
 
     /* ===== LAYOUT: HIERARCHY ===== */
@@ -1239,24 +1244,88 @@
       color: var(--text-soft);
     }
 
+  
+
+    /* Page-level navigation row: theme toggle + page tabs */
+    .page-nav {
+      max-width: 1880px;
+      margin: 8px auto 16px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    /* Theme toggle pill button */
+    .theme-toggle {
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid rgba(148, 163, 184, 0.75);
+      background-image:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 60%),
+        linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(15, 23, 42, 0.98));
+      color: var(--text-soft);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      transition:
+        background 180ms ease-out,
+        border-color 180ms ease-out,
+        box-shadow 180ms ease-out,
+        transform 140ms ease-out;
+    }
+
+    .theme-toggle:hover {
+      border-color: rgba(248, 250, 252, 0.8);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.5);
+      transform: translateY(-1px);
+    }
+
+    /* Light theme look for the toggle */
+    body[data-theme="light"] .theme-toggle {
+      background-image:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 60%),
+        linear-gradient(135deg, #ffffff, #f9fafb);
+      border-color: rgba(148, 163, 184, 0.9);
+      color: #374151;
+    }
+
+    body[data-theme="light"] .theme-toggle:hover {
+      border-color: rgba(37, 99, 235, 0.85);
+      box-shadow: 0 8px 18px rgba(148, 163, 184, 0.45);
+    }
+
+    /* Light theme styling for dropdowns */
+    body[data-theme="light"] .filters select {
+      background-color: #ffffff !important;
+      background-image:
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 60%),
+        linear-gradient(135deg, #ffffff, #f9fafb) !important;
+      color: var(--text-stronger) !important;
+      border-color: rgba(148, 163, 184, 0.85);
+    }
+
+    body[data-theme="light"] .filters select:focus {
+      border-color: rgba(37, 99, 235, 0.9);
+      box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4);
+      transform: translateY(-1px);
+    }
+
+    body[data-theme="light"] .filters select:hover {
+      border-color: rgba(37, 99, 235, 0.7);
+    }
+
   </style>
 </head>
 
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
-
-  <nav class="top-nav" aria-label="Primary">
-    <div class="top-nav-inner">
-      <div class="top-nav-brand">
-        <span class="brand-dot" aria-hidden="true"></span>
-        <span class="brand-text">Qatar North Survey</span>
-      </div>
-      <ul class="top-nav-links">
-        <li><a href="TRAFFIC.html" data-page="traffic">Traffic Junctions</a></li>
-        <li><a href="ITS.html" data-page="its">ITS Dashboard</a></li>
-      </ul>
-    </div>
-  </nav>
 
   <div class="page">
     <div class="shell">
@@ -1267,24 +1336,36 @@
         </div>
 
         <div class="header-center">
-          <div class="header-title">Qatar North ITS Survey Dashboard</div>
+          <div class="header-title">QATAR NORTH ITS SURVEY DASHBOARD</div>
           <div class="header-subtitle">
-            Traffic Junctions · ITS Devices &amp; Systems
+            Live from Google Sheet — ITS Assets, Survey Completion &amp; Operations Status
           </div>
           <div class="header-meta">
-            Live from Google Sheet — assets, survey completion &amp; location overview ·
-            <span id="last-updated">Loading…</span>
-          </div>
+    <span id="currentDateTime"></span>
+</div>
         </div>
 
         <div class="header-right">
           <img
-            src="algosystems-logo.png"
-            alt="Algosystems"
+            src="MRTC-AKTOR JV.png"
+            alt="MRTC-AKTOR JV"
             class="header-logo header-logo-small"
           />
         </div>
       </header>
+      <div class="page-nav">
+        <!-- Theme toggle -->
+        <button class="theme-toggle" type="button" aria-label="Toggle dark or light theme">
+          Dark
+        </button>
+
+        <!-- Page navigation -->
+        <ul class="top-nav-links">
+          <li><a href="TRAFFIC.html" data-page="traffic">Traffic Junctions</a></li>
+          <li><a href="ITS.html" data-page="its">ITS Dashboard</a></li>
+        </ul>
+      </div>
+
 
       <main id="main-content" class="dashboard">
         <!-- KPI GRID -->
@@ -1791,6 +1872,21 @@
       return value.toFixed(1) + "%";
     }
 
+    function updateCurrentDateTime() {
+      const span = document.getElementById("currentDateTime");
+      if (!span) return;
+      const now = new Date();
+      span.textContent = now.toLocaleString("en-GB", {
+        weekday: "short",
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+    }
+
     function setLastUpdated() {
       const span = document.getElementById("last-updated");
       const now = new Date();
@@ -2119,10 +2215,20 @@
     // === MAP =============================================================
 
     function initMap() {
+      // Approximate bounding box around Qatar
+      const qatarBounds = L.latLngBounds(
+        [24.3, 50.5],  // south-west
+        [26.4, 52.5]   // north-east
+      );
+
       map = L.map("map", {
-        center: [25.35, 51.45],
-        zoom: 9
+        maxBounds: qatarBounds,
+        maxBoundsViscosity: 1.0,
+        minZoom: 7,
+        worldCopyJump: false
       });
+
+      map.fitBounds(qatarBounds);
 
       // ESRI World Imagery (same as Traffic dashboard)
       L.tileLayer(
@@ -2156,17 +2262,17 @@
       const bounds = [];
 
       assets.forEach((asset) => {
-        const color =
-          asset.surveyStatus === "Completed"
-            ? "#16a34a"
-            : "#dc2626";
+        const isCompleted = asset.surveyStatus === "Completed";
+
+        const fillColor = isCompleted ? "#16a34a" : "#dc2626";
+        const borderColor = isCompleted ? "#bbf7d0" : "#fecaca";
 
         const marker = L.circleMarker([asset.latitude, asset.longitude], {
-          radius: 6,
-          color,
-          fillColor: color,
-          fillOpacity: 0.85,
-          weight: 1
+          radius: 6.5,
+          color: borderColor, // border
+          fillColor: fillColor,
+          fillOpacity: 0.95,
+          weight: 2
         });
 
         marker.bindPopup(buildPopupHtml(asset));
@@ -2571,6 +2677,8 @@
     window.addEventListener("DOMContentLoaded", () => {
       initMap();
       loadData();
+      updateCurrentDateTime();
+      setInterval(updateCurrentDateTime, 1000);
     });
   </script>
 
@@ -2586,23 +2694,94 @@
   
   <script>
     (function () {
-      function applyTheme(prefersDark) {
-        document.body.setAttribute("data-theme", prefersDark ? "dark" : "light");
+      const THEME_KEY = "qn-dashboard-theme";
+
+      function setTheme(theme) {
+        const isDark = theme === "dark";
+        document.body.setAttribute("data-theme", isDark ? "dark" : "light");
       }
-      try {
-        const mql = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
-        if (mql && typeof mql.matches === "boolean") {
-          applyTheme(mql.matches);
-          if (mql.addEventListener) {
-            mql.addEventListener("change", (e) => applyTheme(e.matches));
-          } else if (mql.addListener) {
-            mql.addListener((e) => applyTheme(e.matches));
+
+      function updateToggleLabel() {
+        const btn = document.querySelector(".theme-toggle");
+        if (!btn) return;
+        const isDark = document.body.getAttribute("data-theme") === "dark";
+        btn.textContent = isDark ? "Dark" : "Light";
+      }
+
+      function applyPreferredTheme() {
+        try {
+          const stored = localStorage.getItem(THEME_KEY);
+          if (stored === "dark" || stored === "light") {
+            setTheme(stored);
+            return;
           }
-        } else {
-          document.body.setAttribute("data-theme", "dark");
+        } catch (e) {
+          // localStorage might be disabled; ignore
+        }
+
+        try {
+          const mql =
+            window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+          if (mql && typeof mql.matches === "boolean") {
+            setTheme(mql.matches ? "dark" : "light");
+          } else {
+            setTheme("dark");
+          }
+        } catch (e) {
+          setTheme("dark");
+        }
+      }
+
+      // Expose helper if needed elsewhere
+      window.qnSetTheme = function (theme) {
+        try {
+          localStorage.setItem(THEME_KEY, theme);
+        } catch (e) {
+          // ignore
+        }
+        setTheme(theme);
+        updateToggleLabel();
+      };
+
+      // Click handler for the toggle button
+      document.addEventListener("click", function (e) {
+        const btn = e.target.closest(".theme-toggle");
+        if (!btn) return;
+
+        const current =
+          document.body.getAttribute("data-theme") === "light" ? "light" : "dark";
+        const next = current === "dark" ? "light" : "dark";
+        window.qnSetTheme(next);
+      });
+
+      // Initial theme on load
+      applyPreferredTheme();
+      updateToggleLabel();
+
+      // Follow system changes only if user has not chosen manually
+      try {
+        const mql =
+          window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+        if (mql && typeof mql.matches === "boolean") {
+          const handler = function (e) {
+            try {
+              const stored = localStorage.getItem(THEME_KEY);
+              if (stored === "dark" || stored === "light") return; // manual override
+            } catch (err) {
+              // ignore
+            }
+            setTheme(e.matches ? "dark" : "light");
+            updateToggleLabel();
+          };
+
+          if (mql.addEventListener) {
+            mql.addEventListener("change", handler);
+          } else if (mql.addListener) {
+            mql.addListener(handler);
+          }
         }
       } catch (e) {
-        document.body.setAttribute("data-theme", "dark");
+        // ignore
       }
     })();
   </script>
