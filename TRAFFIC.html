@@ -1864,27 +1864,53 @@
     let tableSearchTerm = "";
     let singleSelectionMode = true;
 
-    function buildPopupHtml(row) {
-      const surveyDone = isTruthy(row[COLS.surveyStatus]);
-      const poleDone = isTruthy(row[COLS.poleSurvey]);
-      const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
+	function buildPopupHtml(row) {
+	  const surveyDone = isTruthy(row[COLS.surveyStatus]);
+	  const poleDone = isTruthy(row[COLS.poleSurvey]);
+	  const ctrlDone = isTruthy(row[COLS.ctrlSurvey]);
 
-      return `
-        <strong>Junction ${row[COLS.junctNo] || ""}</strong><br/>
-        <strong>Street:</strong> ${row[COLS.street] || ""}<br/>
-        <strong>Region:</strong> ${row[COLS.region] || ""} &nbsp;|&nbsp;
-        <strong>Area:</strong> ${row[COLS.area] || ""}<br/>
-        <strong>Zone:</strong> ${row[COLS.zone] || ""} &nbsp;|&nbsp;
-        <strong>District:</strong> ${row[COLS.district] || ""}<br/>
-        <strong>Remarks:</strong> ${row[COLS.remarks] || ""}<br/>
-        <strong>Survey Status:</strong> ${surveyDone ? "Completed" : "Pending"}<br/>
-        <strong>Pole Survey:</strong> ${poleDone ? "Done" : "Not Done"} &nbsp;|&nbsp;
-        <strong>Controller Survey:</strong> ${ctrlDone ? "Done" : "Not Done"}<br/>
-        <strong>SCATS:</strong> ${row[COLS.scats] || ""}<br/>
-        <strong>Operation Status:</strong> ${row[COLS.operationStatus] || ""}<br/>
-        <strong>Lat / Lon:</strong> ${row[COLS.lat] || ""}, ${row[COLS.lon] || ""}
-      `;
-    }
+	  const lat = row[COLS.lat];
+	  const lon = row[COLS.lon];
+	  const hasCoords = lat && lon;
+
+	  const navLink = hasCoords
+		? `<br/><br/>
+		   <a href="https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+			 lat
+		   )},${encodeURIComponent(
+			 lon
+		   )}"
+			  target="_blank"
+			  style="
+				display:inline-block;
+				padding:6px 12px;
+				background:#38bdf8;
+				color:#020617;
+				border-radius:999px;
+				font-weight:600;
+				text-decoration:none;
+				box-shadow:0 10px 20px rgba(56,189,248,0.35);
+			  ">
+			  🚗 Navigate to Site
+		   </a>`
+		: "";
+
+	  return `
+		<strong>Junction ${row[COLS.junctNo] || ""}</strong><br/>
+		<strong>Street:</strong> ${row[COLS.street] || ""}<br/>
+		<strong>Region:</strong> ${row[COLS.region] || ""} &nbsp;|&nbsp;
+		<strong>Area:</strong> ${row[COLS.area] || ""}<br/>
+		<strong>Zone:</strong> ${row[COLS.zone] || ""} &nbsp;|&nbsp;
+		<strong>District:</strong> ${row[COLS.district] || ""}<br/>
+		<strong>Remarks:</strong> ${row[COLS.remarks] || ""}<br/>
+		<strong>Survey Status:</strong> ${surveyDone ? "Completed" : "Pending"}<br/>
+		<strong>Pole Survey:</strong> ${poleDone ? "Done" : "Not Done"} &nbsp;|&nbsp;
+		<strong>Controller Survey:</strong> ${ctrlDone ? "Done" : "Not Done"}<br/>
+		<strong>SCATS:</strong> ${row[COLS.scats] || ""}<br/>
+		<strong>Operation Status:</strong> ${row[COLS.operationStatus] || ""}<br/>
+		<strong>Lat / Lon:</strong> ${lat || ""}, ${lon || ""}${navLink}
+	  `;
+	}
 
     function initMap() {
       // Approximate bounding box around Qatar
