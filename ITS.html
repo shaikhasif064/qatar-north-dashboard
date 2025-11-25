@@ -1875,7 +1875,7 @@
     function updateCurrentDateTime() {
       const span = document.getElementById("currentDateTime");
       if (!span) return;
-	  const now = new Date();
+      const now = new Date();
       span.textContent = now.toLocaleString("en-GB", {
         weekday: "short",
         day: "2-digit",
@@ -1889,9 +1889,7 @@
 
     function setLastUpdated() {
       const span = document.getElementById("last-updated");
-      if (!span) return; // If the element doesn't exist, do nothing
-	  
-	  const now = new Date();
+      const now = new Date();
       span.textContent = now.toLocaleString("en-GB", {
         weekday: "short",
         day: "2-digit",
