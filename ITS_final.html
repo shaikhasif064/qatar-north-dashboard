@@ -2717,10 +2717,10 @@
       }
 
       doc.setFontSize(13);
-      doc.text(title, pageWidth / 2, 14, { align: "center" });
+      doc.text(title, pageWidth / 2, 22, { align: "center" });
       doc.setFontSize(10);
-      doc.text(subtitle, pageWidth / 2, 19, { align: "center" });
-      doc.text(dateStr, pageWidth / 2, 24, { align: "center" });
+      doc.text(subtitle, pageWidth / 2, 27, { align: "center" });
+      doc.text(dateStr, pageWidth / 2, 32, { align: "center" });
     }
 
     
@@ -2774,10 +2774,10 @@
 
       const wsData = [...headerRows, header, ...body];
 
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-      XLSX.utils.book_append_sheet(wb, ws, "Current View");
-      XLSX.writeFile(wb, "its-dashboard-current-view.xlsx");
+      const wb = window.XLSX.utils.book_new();
+      const ws = window.XLSX.utils.aoa_to_sheet(wsData);
+      window.XLSX.utils.book_append_sheet(wb, ws, "Current View");
+      window.XLSX.writeFile(wb, "its-dashboard-current-view.xlsx");
     }
 
     
@@ -2795,7 +2795,7 @@
       doc.autoTable({
         head: [header],
         body: body,
-        margin: { top: 34, left: 10, right: 10 },
+        margin: { top: 40, left: 10, right: 10 },
         styles: { fontSize: 6, cellPadding: 1.2 },
         headStyles: { fillColor: [15, 23, 42] },
         didDrawPage: function () {
