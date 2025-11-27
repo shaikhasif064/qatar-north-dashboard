@@ -2531,6 +2531,66 @@
       return { headers, body };
     }
 
+    
+    function ensureXlsxLoaded(callback) {
+      if (window.XLSX) {
+        callback(window.XLSX);
+        return;
+      }
+
+      if (window._loadingXlsx) {
+        window._loadingXlsx
+          .then(function () {
+            if (window.XLSX) {
+              callback(window.XLSX);
+            } else {
+              alert("Excel library (XLSX) could not be loaded. Please check your internet connection.");
+            }
+          })
+          .catch(function () {
+            alert("Excel library (XLSX) could not be loaded. Please check your internet connection.");
+          });
+        return;
+      }
+
+      var sources = [
+        "https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"
+      ];
+
+      window._loadingXlsx = new Promise(function (resolve, reject) {
+        function tryNext(i) {
+          if (i >= sources.length) {
+            reject(new Error("No XLSX CDN source could be loaded."));
+            return;
+          }
+          var script = document.createElement("script");
+          script.src = sources[i];
+          script.onload = function () {
+            resolve();
+          };
+          script.onerror = function () {
+            script.remove();
+            tryNext(i + 1);
+          };
+          document.head.appendChild(script);
+        }
+        tryNext(0);
+      });
+
+      window._loadingXlsx
+        .then(function () {
+          if (window.XLSX) {
+            callback(window.XLSX);
+          } else {
+            alert("Excel library (XLSX) could not be loaded. Please check your internet connection.");
+          }
+        })
+        .catch(function () {
+          alert("Excel library (XLSX) could not be loaded. Please check your internet connection.");
+        });
+    }
+
     // ===== EXPORT HEADER (TRAFFIC) =====================================
 
     function buildTrafficExportHeaderRows(colCount) {
@@ -2631,9 +2691,8 @@
       }
 
       const { headers, body } = data;
-      const { headerRows } = buildTrafficExportHeaderRows(headers.length);
 
-      const allRows = [...headerRows, headers, ...body];
+      const allRows = [headers, ...body];
 
       const csvContent = allRows
         .map((row) =>
@@ -2670,96 +2729,93 @@
         return;
       }
 
-      if (typeof XLSX === "undefined") {
-        alert("Excel library (XLSX) is not loaded. Please check the script tag in the <head> section.");
-        return;
-      }
+      ensureXlsxLoaded(function (XLSX) {
+        const { headers, body } = data;
+        const colCount = headers.length;
 
-      const { headers, body } = data;
-      const colCount = headers.length;
+        const now = new Date();
+        const dateStr = now.toLocaleString("en-US", {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        });
+        const title = "Qatar North Traffic Junctions Survey";
+        const subtitle =
+          "Live from Google Sheet — Junctions, Survey Completion & Operations Status";
 
-      const now = new Date();
-      const dateStr = now.toLocaleString("en-US", {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
+        const headerRows = [];
+
+        // Row 1: company names as text (logos remain only in PDF)
+        const row1 = new Array(colCount).fill("");
+        row1[0] = "AKTOR";
+        row1[colCount - 1] = "MRTC–AKTOR JV";
+        headerRows.push(row1);
+
+        // Row 2: title
+        const row2 = new Array(colCount).fill("");
+        row2[0] = title;
+        headerRows.push(row2);
+
+        // Row 3: subtitle
+        const row3 = new Array(colCount).fill("");
+        row3[0] = subtitle;
+        headerRows.push(row3);
+
+        // Row 4: date/time
+        const row4 = new Array(colCount).fill("");
+        row4[0] = dateStr;
+        headerRows.push(row4);
+
+        // Row 5: spacer
+        const row5 = new Array(colCount).fill("");
+        headerRows.push(row5);
+
+        const wsData = [...headerRows, headers, ...body];
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+        // Merge title, subtitle and date rows across all columns
+        ws["!merges"] = [
+          { s: { r: 1, c: 0 }, e: { r: 1, c: colCount - 1 } }, // title
+          { s: { r: 2, c: 0 }, e: { r: 2, c: colCount - 1 } }, // subtitle
+          { s: { r: 3, c: 0 }, e: { r: 3, c: colCount - 1 } }, // date
+        ];
+
+        // Row heights
+        ws["!rows"] = [
+          { hpt: 20 },
+          { hpt: 20 },
+          { hpt: 18 },
+          { hpt: 16 },
+          { hpt: 8 },
+        ];
+
+        // Column widths (approximation based on your sample)
+        ws["!cols"] = [
+          { wch: 7 },  // Junction No
+          { wch: 15 }, // Region
+          { wch: 7 },  // Zone
+          { wch: 5 },  // Area
+          { wch: 40 }, // District
+          { wch: 20 }, // Street Name
+          { wch: 18 }, // Remarks
+          { wch: 12 }, // Pole survey
+          { wch: 13 }, // Controller survey
+          { wch: 17 }, // Survey Status
+          { wch: 13 }, // SCATS
+          { wch: 11 }, // Lat
+          { wch: 11 }, // Lon
+        ];
+
+        XLSX.utils.book_append_sheet(wb, ws, "Current View");
+        XLSX.writeFile(wb, "qatar_north_junctions_view.xlsx");
       });
-      const title = "Qatar North Traffic Junctions Survey";
-      const subtitle =
-        "Live from Google Sheet — Junctions, Survey Completion & Operations Status";
-
-      const headerRows = [];
-
-      // Row 1: company names as text (logos remain only in PDF)
-      const row1 = new Array(colCount).fill("");
-      row1[0] = "AKTOR";
-      row1[colCount - 1] = "MRTC–AKTOR JV";
-      headerRows.push(row1);
-
-      // Row 2: title
-      const row2 = new Array(colCount).fill("");
-      row2[0] = title;
-      headerRows.push(row2);
-
-      // Row 3: subtitle
-      const row3 = new Array(colCount).fill("");
-      row3[0] = subtitle;
-      headerRows.push(row3);
-
-      // Row 4: date/time
-      const row4 = new Array(colCount).fill("");
-      row4[0] = dateStr;
-      headerRows.push(row4);
-
-      // Row 5: spacer
-      const row5 = new Array(colCount).fill("");
-      headerRows.push(row5);
-
-      const wsData = [...headerRows, headers, ...body];
-
-      const wb = XLSX.utils.book_new();
-      const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-      // Merge title, subtitle and date rows across all columns
-      ws["!merges"] = [
-        { s: { r: 1, c: 0 }, e: { r: 1, c: colCount - 1 } }, // title
-        { s: { r: 2, c: 0 }, e: { r: 2, c: colCount - 1 } }, // subtitle
-        { s: { r: 3, c: 0 }, e: { r: 3, c: colCount - 1 } }, // date
-      ];
-
-      // Row heights
-      ws["!rows"] = [
-        { hpt: 20 },
-        { hpt: 20 },
-        { hpt: 18 },
-        { hpt: 16 },
-        { hpt: 8 },
-      ];
-
-      // Column widths (approximation based on your sample)
-      ws["!cols"] = [
-        { wch: 7 },  // Junction No
-        { wch: 15 }, // Region
-        { wch: 7 },  // Zone
-        { wch: 5 },  // Area
-        { wch: 40 }, // District
-        { wch: 20 }, // Street Name
-        { wch: 18 }, // Remarks
-        { wch: 12 }, // Pole survey
-        { wch: 13 }, // Controller survey
-        { wch: 17 }, // Survey Status
-        { wch: 13 }, // SCATS
-        { wch: 11 }, // Lat
-        { wch: 11 }, // Lon
-      ];
-
-      XLSX.utils.book_append_sheet(wb, ws, "Current View");
-      XLSX.writeFile(wb, "qatar_north_junctions_view.xlsx");
     }
 
     
