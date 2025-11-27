@@ -2531,6 +2531,98 @@
       return { headers, body };
     }
 
+    // ===== EXPORT HEADER (TRAFFIC) =====================================
+
+    function buildTrafficExportHeaderRows(colCount) {
+      const now = new Date();
+      const dateStr = now.toLocaleString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+
+      const title = "Qatar North Traffic Junctions Survey";
+      const subtitle =
+        "Live from Google Sheet — Junctions, Survey Completion & Operations Status";
+
+      const makeRow = () => new Array(colCount).fill("");
+      const center = Math.floor(colCount / 2);
+
+      const row1 = makeRow();
+      row1[0] = "AKTOR QATAR";
+      row1[center] = title;
+      row1[colCount - 1] = "MRTC-AKTOR JV";
+
+      const row2 = makeRow();
+      row2[center] = subtitle;
+
+      const row3 = makeRow();
+      row3[center] = dateStr;
+
+      const row4 = makeRow(); // blank spacer
+
+      return { headerRows: [row1, row2, row3, row4], title, subtitle, dateStr };
+    }
+
+    function drawTrafficPdfHeader(doc) {
+      const now = new Date();
+      const title = "Qatar North Traffic Junctions Survey";
+      const subtitle =
+        "Live from Google Sheet — Junctions, Survey Completion & Operations Status";
+      const dateStr = now.toLocaleString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const marginX = 10;
+      const logoHeight = 12;
+
+      const leftImg = document.querySelector("header .header-left img");
+      const rightImg = document.querySelector("header .header-right img");
+
+      if (leftImg) {
+        const ratio =
+          (leftImg.naturalWidth || leftImg.width || 150) /
+          (leftImg.naturalHeight || leftImg.height || 50);
+        const w = logoHeight * ratio;
+        doc.addImage(leftImg, "PNG", marginX, 8, w, logoHeight);
+      }
+
+      if (rightImg) {
+        const ratio =
+          (rightImg.naturalWidth || rightImg.width || 150) /
+          (rightImg.naturalHeight || rightImg.height || 50);
+        const w = logoHeight * ratio;
+        doc.addImage(
+          rightImg,
+          "PNG",
+          pageWidth - marginX - w,
+          8,
+          w,
+          logoHeight
+        );
+      }
+
+      doc.setFontSize(13);
+      doc.text(title, pageWidth / 2, 22, { align: "center" });
+      doc.setFontSize(10);
+      doc.text(subtitle, pageWidth / 2, 27, { align: "center" });
+      doc.text(dateStr, pageWidth / 2, 32, { align: "center" });
+    }
+
+    
     function exportCurrentViewCsv() {
       const data = buildTrafficCurrentViewTableData();
       if (!data) {
@@ -2539,20 +2631,24 @@
       }
 
       const { headers, body } = data;
-      const csvLines = [];
-      csvLines.push(headers.join(","));
+      // Only include the table header and body in the CSV output
+      const allRows = [headers, ...body];
 
-      body.forEach((row) => {
-        const line = row
-          .map((val) => {
-            const v = val == null ? "" : String(val).replace(/"/g, '""');
-            return `"${v}"`;
-          })
-          .join(",");
-        csvLines.push(line);
-      });
+      const csvContent = allRows
+        .map((row) =>
+          row
+            .map((val) => {
+              const v = val == null ? "" : String(val);
+              if (/[",\n]/.test(v)) {
+                return '"' + v.replace(/"/g, '""') + '"';
+              }
+              return v;
+            })
+            .join(",")
+        )
+        .join("\n");
 
-      const blob = new Blob([csvLines.join("\n")], {
+      const blob = new Blob([csvContent], {
         type: "text/csv;charset=utf-8;",
       });
       const url = URL.createObjectURL(blob);
@@ -2565,7 +2661,9 @@
       URL.revokeObjectURL(url);
     }
 
-    function exportCurrentViewExcel() {
+    
+    async function exportCurrentViewExcel() {
+      // Build an Excel file with embedded logos and merged header rows.
       const data = buildTrafficCurrentViewTableData();
       if (!data) {
         alert("No data to export.");
@@ -2573,13 +2671,131 @@
       }
 
       const { headers, body } = data;
-      const wsData = [headers, ...body];
+
+      // Ensure the XLSX library is loaded. If it's unavailable, dynamically load it.
+      if (typeof XLSX === 'undefined') {
+        await new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js';
+          script.onload = resolve;
+          document.head.appendChild(script);
+        });
+      }
+      const colCount = headers.length;
+
+      // Helper to convert an image URL to a Data URI (base64)
+      async function toDataURI(url) {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+      }
+
+      // Get logo image sources from the page header
+      const leftImgEl = document.querySelector("header .header-left img");
+      const rightImgEl = document.querySelector("header .header-right img");
+      const leftSrc = leftImgEl ? leftImgEl.src : null;
+      const rightSrc = rightImgEl ? rightImgEl.src : null;
+
+      // Convert logos to data URIs
+      const [leftDataUri, rightDataUri] = await Promise.all([
+        leftSrc ? toDataURI(leftSrc) : Promise.resolve(null),
+        rightSrc ? toDataURI(rightSrc) : Promise.resolve(null),
+      ]);
+
+      // Define header rows: row1 with formulas for images, row2 title, row3 subtitle, row4 date, row5 blank
+      const now = new Date();
+      const dateStr = now.toLocaleString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
+      });
+      const title = "Qatar North Traffic Junctions Survey";
+      const subtitle =
+        "Live from Google Sheet — Junctions, Survey Completion & Operations Status";
+
+      const headerRows = [];
+      // Row 1: images formulas (if available)
+      const row1 = new Array(colCount).fill("");
+      if (leftDataUri) {
+        row1[0] = { f: `IMAGE("${leftDataUri}")` };
+      }
+      if (rightDataUri) {
+        row1[colCount - 1] = { f: `IMAGE("${rightDataUri}")` };
+      }
+      headerRows.push(row1);
+
+      // Row 2: title (we'll merge across all columns later)
+      const row2 = new Array(colCount).fill("");
+      row2[0] = title;
+      headerRows.push(row2);
+
+      // Row 3: subtitle
+      const row3 = new Array(colCount).fill("");
+      row3[0] = subtitle;
+      headerRows.push(row3);
+
+      // Row 4: date string
+      const row4 = new Array(colCount).fill("");
+      row4[0] = dateStr;
+      headerRows.push(row4);
+
+      // Row 5: blank spacer
+      const row5 = new Array(colCount).fill("");
+      headerRows.push(row5);
+
+      // Assemble worksheet data: header rows + table header + body
+      const wsData = [...headerRows, headers, ...body];
+
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet(wsData);
-      XLSX.utils.book_append_sheet(wb, ws, "Current View");
-      XLSX.writeFile(wb, "qatar_north_junctions_view.xlsx");
+
+      // Define merges for title, subtitle and date rows (rows are zero-indexed)
+      ws['!merges'] = [
+        { s: { r: 1, c: 0 }, e: { r: 1, c: colCount - 1 } }, // title row
+        { s: { r: 2, c: 0 }, e: { r: 2, c: colCount - 1 } }, // subtitle row
+        { s: { r: 3, c: 0 }, e: { r: 3, c: colCount - 1 } }, // date row
+      ];
+
+      // Set row heights (in points) for the header rows to allow space for images and text
+      ws['!rows'] = [
+        { hpt: 80 }, // row 1 for logos
+        { hpt: 20 }, // row 2 title
+        { hpt: 18 }, // row 3 subtitle
+        { hpt: 16 }, // row 4 date
+        { hpt: 8 },  // row 5 spacer
+      ];
+
+      // Set column widths approximated from sample (characters)
+      ws['!cols'] = [
+        { wch: 7 },
+        { wch: 15 },
+        { wch: 7 },
+        { wch: 5 },
+        { wch: 50 },
+        { wch: 15 },
+        { wch: 10 },
+        { wch: 12 },
+        { wch: 13 },
+        { wch: 17 },
+        { wch: 13 },
+        { wch: 11 },
+      ];
+
+      // Append worksheet and write file
+      XLSX.utils.book_append_sheet(wb, ws, 'Current View');
+      XLSX.writeFile(wb, 'qatar_north_junctions_view.xlsx');
     }
 
+    
     function exportCurrentViewPdf() {
       const data = buildTrafficCurrentViewTableData();
       if (!data) {
@@ -2591,15 +2807,15 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF({ orientation: "landscape" });
 
-      doc.setFontSize(11);
-      doc.text("Qatar North Traffic Junctions - Current View", 14, 12);
-
       doc.autoTable({
         head: [headers],
         body: body,
-        startY: 16,
+        margin: { top: 40, left: 10, right: 10 },
         styles: { fontSize: 6, cellPadding: 1.2 },
         headStyles: { fillColor: [15, 23, 42] },
+        didDrawPage: function () {
+          drawTrafficPdfHeader(doc);
+        },
       });
 
       doc.save("qatar_north_junctions_view.pdf");
