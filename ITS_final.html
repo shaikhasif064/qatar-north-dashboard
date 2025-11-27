@@ -2599,66 +2599,6 @@
 
     // === DOWNLOAD CURRENT VIEW ==========================================
 
-
-    function ensureXlsxLoaded(callback) {
-      if (window.XLSX) {
-        callback(window.XLSX);
-        return;
-      }
-
-      if (window._loadingXlsx) {
-        window._loadingXlsx
-          .then(function () {
-            if (window.XLSX) {
-              callback(window.XLSX);
-            } else {
-              alert("Excel library (XLSX) could not be loaded. Please check your internet connection.");
-            }
-          })
-          .catch(function () {
-            alert("Excel library (XLSX) could not be loaded. Please check your internet connection.");
-          });
-        return;
-      }
-
-      var sources = [
-        "https://cdn.jsdelivr.net/npm/xlsx@0.19.3/dist/xlsx.full.min.js",
-        "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js"
-      ];
-
-      window._loadingXlsx = new Promise(function (resolve, reject) {
-        function tryNext(i) {
-          if (i >= sources.length) {
-            reject(new Error("No XLSX CDN source could be loaded."));
-            return;
-          }
-          var script = document.createElement("script");
-          script.src = sources[i];
-          script.onload = function () {
-            resolve();
-          };
-          script.onerror = function () {
-            script.remove();
-            tryNext(i + 1);
-          };
-          document.head.appendChild(script);
-        }
-        tryNext(0);
-      });
-
-      window._loadingXlsx
-        .then(function () {
-          if (window.XLSX) {
-            callback(window.XLSX);
-          } else {
-            alert("Excel library (XLSX) could not be loaded. Please check your internet connection.");
-          }
-        })
-        .catch(function () {
-          alert("Excel library (XLSX) could not be loaded. Please check your internet connection.");
-        });
-    }
-
     
     function buildItsCurrentViewTableData() {
       if (!filteredAssets.length) return null;
@@ -2792,7 +2732,7 @@
       }
 
       const { header, body } = data;
-
+      // Only include the table header and body in the CSV output
       const allRows = [header, ...body];
 
       const csvContent = allRows
@@ -2821,97 +2761,135 @@
     }
 
     
-    function downloadCurrentViewExcel() {
+    async function downloadCurrentViewExcel() {
+      // Build an Excel file with embedded logos and merged header rows.
       const data = buildItsCurrentViewTableData();
       if (!data) {
         alert("No assets in the current view to export.");
         return;
       }
 
-      ensureXlsxLoaded(function (XLSX) {
-        const { header, body } = data;
-        const colCount = header.length;
+      const { header, body } = data;
 
-        const now = new Date();
-        const dateStr = now.toLocaleString("en-US", {
-          weekday: "short",
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: true,
+      // Ensure the XLSX library is loaded. If it's unavailable, dynamically load it.
+      if (typeof XLSX === 'undefined') {
+        await new Promise((resolve) => {
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.19.3/xlsx.full.min.js';
+          script.onload = resolve;
+          document.head.appendChild(script);
         });
-        const title = "QATAR NORTH ITS SURVEY DASHBOARD";
-        const subtitle =
-          "Live from Google Sheet — ITS Assets, Survey Completion & Operations Status";
+      }
+      const colCount = header.length;
 
-        const headerRows = [];
+      // Helper to convert an image URL to a Data URI (base64)
+      async function toDataURI(url) {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        });
+      }
 
-        // Row 1: company names as text (logos remain only in PDF)
-        const row1 = new Array(colCount).fill("");
-        row1[0] = "AKTOR";
-        row1[colCount - 1] = "MRTC–AKTOR JV";
-        headerRows.push(row1);
+      // Get logo image sources from the page header
+      const leftImgEl = document.querySelector("header .header-left img");
+      const rightImgEl = document.querySelector("header .header-right img");
+      const leftSrc = leftImgEl ? leftImgEl.src : null;
+      const rightSrc = rightImgEl ? rightImgEl.src : null;
 
-        // Row 2: title
-        const row2 = new Array(colCount).fill("");
-        row2[0] = title;
-        headerRows.push(row2);
+      // Convert logos to data URIs
+      const [leftDataUri, rightDataUri] = await Promise.all([
+        leftSrc ? toDataURI(leftSrc) : Promise.resolve(null),
+        rightSrc ? toDataURI(rightSrc) : Promise.resolve(null),
+      ]);
 
-        // Row 3: subtitle
-        const row3 = new Array(colCount).fill("");
-        row3[0] = subtitle;
-        headerRows.push(row3);
-
-        // Row 4: date/time
-        const row4 = new Array(colCount).fill("");
-        row4[0] = dateStr;
-        headerRows.push(row4);
-
-        // Row 5: spacer
-        const row5 = new Array(colCount).fill("");
-        headerRows.push(row5);
-
-        const wsData = [...headerRows, header, ...body];
-
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-        // Merge title, subtitle and date rows across all columns
-        ws["!merges"] = [
-          { s: { r: 1, c: 0 }, e: { r: 1, c: colCount - 1 } }, // title
-          { s: { r: 2, c: 0 }, e: { r: 2, c: colCount - 1 } }, // subtitle
-          { s: { r: 3, c: 0 }, e: { r: 3, c: colCount - 1 } }, // date
-        ];
-
-        // Row heights
-        ws["!rows"] = [
-          { hpt: 20 },
-          { hpt: 20 },
-          { hpt: 18 },
-          { hpt: 16 },
-          { hpt: 8 },
-        ];
-
-        // Column widths (approximation based on your sample)
-        ws["!cols"] = [
-          { wch: 6 },  // Sr.No
-          { wch: 10 }, // ID
-          { wch: 25 }, // Name
-          { wch: 18 }, // Device Type
-          { wch: 12 }, // Zone Area
-          { wch: 10 }, // Zone
-          { wch: 15 }, // Latitude
-          { wch: 15 }, // Longitude
-          { wch: 20 }, // Survey Status
-          { wch: 30 }, // Remarks
-        ];
-
-        XLSX.utils.book_append_sheet(wb, ws, "Current View");
-        XLSX.writeFile(wb, "its-dashboard-current-view.xlsx");
+      // Define header rows: row1 with formulas for images, row2 title, row3 subtitle, row4 date, row5 blank
+      const now = new Date();
+      const dateStr = now.toLocaleString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true,
       });
+      const title = "QATAR NORTH ITS SURVEY DASHBOARD";
+      const subtitle =
+        "Live from Google Sheet — ITS Assets, Survey Completion & Operations Status";
+
+      const headerRows = [];
+      // Row 1: images formulas (if available)
+      const row1 = new Array(colCount).fill("");
+      if (leftDataUri) {
+        row1[0] = { f: `IMAGE("${leftDataUri}")` };
+      }
+      if (rightDataUri) {
+        row1[colCount - 1] = { f: `IMAGE("${rightDataUri}")` };
+      }
+      headerRows.push(row1);
+
+      // Row 2: title (we'll merge across all columns later)
+      const row2 = new Array(colCount).fill("");
+      row2[0] = title;
+      headerRows.push(row2);
+
+      // Row 3: subtitle
+      const row3 = new Array(colCount).fill("");
+      row3[0] = subtitle;
+      headerRows.push(row3);
+
+      // Row 4: date string
+      const row4 = new Array(colCount).fill("");
+      row4[0] = dateStr;
+      headerRows.push(row4);
+
+      // Row 5: blank spacer
+      const row5 = new Array(colCount).fill("");
+      headerRows.push(row5);
+
+      // Assemble worksheet data: header rows + table header + body
+      const wsData = [...headerRows, header, ...body];
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+      // Define merges for title, subtitle and date rows (rows are zero-indexed)
+      ws['!merges'] = [
+        { s: { r: 1, c: 0 }, e: { r: 1, c: colCount - 1 } }, // title row
+        { s: { r: 2, c: 0 }, e: { r: 2, c: colCount - 1 } }, // subtitle row
+        { s: { r: 3, c: 0 }, e: { r: 3, c: colCount - 1 } }, // date row
+      ];
+
+      // Set row heights (in points) for the header rows to allow space for images and text
+      ws['!rows'] = [
+        { hpt: 80 }, // row 1 for logos
+        { hpt: 20 }, // row 2 title
+        { hpt: 18 }, // row 3 subtitle
+        { hpt: 16 }, // row 4 date
+        { hpt: 8 },  // row 5 spacer
+      ];
+
+      // Set column widths approximated for ITS dashboard
+      ws['!cols'] = [
+        { wch: 6 },  // Sr.No
+        { wch: 10 }, // ID
+        { wch: 25 }, // Name
+        { wch: 18 }, // Device Type
+        { wch: 12 }, // Zone Area
+        { wch: 10 }, // Zone
+        { wch: 15 }, // Latitude
+        { wch: 15 }, // Longitude
+        { wch: 20 }, // Survey Status
+        { wch: 30 }, // Remarks
+      ];
+
+      // Append worksheet and write file
+      XLSX.utils.book_append_sheet(wb, ws, 'Current View');
+      XLSX.writeFile(wb, 'its-dashboard-current-view.xlsx');
     }
 
     
